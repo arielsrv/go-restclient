@@ -54,8 +54,8 @@ unit:coverage:
 create:tag:
   stage: release
   image: ${REGISTRY_URL}/iskaypet/digital/tools/ci/semver-toolkit:${SEMVER_TOOLKIT_VERSION}
-  dependencies:
-    - tag-release-candidate
+  needs:
+    - unit:coverage
   script:
     - /root/bin/gitlab-tag.sh ${VERSION}
   when: manual
