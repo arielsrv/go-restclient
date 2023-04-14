@@ -1,0 +1,62 @@
+variables:
+  GOLANG_VERSION: "1.20"
+  AWS_REGION: "eu-west-1"
+  REGISTRY_URL: "${AWS_ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+  GOPRIVATE: "gitlab.tiendanimal.com"
+  SONAR_TOKEN: ${SQ_TOKEN}
+  GITLAB_TOKEN: ${CICD_TOKEN}
+  SEMVER_TOOLKIT_VERSION: "latest"
+  SONAR_HOST_URL: ""
+  SONAR_PROJECT_KEY: "${CI_PROJECT_NAMESPACE}:${CI_PROJECT_NAME}"
+  GIT_DEPTH: 0
+
+default:
+  tags:
+    - kubernetes-executor
+
+stages:
+  - test
+  - tag-release-candidate
+  - tag-release
+
+code_navigation:
+  image: sourcegraph/lsif-go:latest
+  allow_failure: true
+  script:
+    - lsif-go --repository-remote=go.dp.iskaypet.com/tools/dev/go-restclient
+  artifacts:
+    reports:
+      lsif: dump.lsif
+
+unit:test:
+  stage: test
+  image: docker.io/golang:${GOLANG_VERSION}
+  script:
+    - go install gotest.tools/gotestsum@latest
+    - gotestsum --junitfile report.xml --format testname -- -tags 'ci' ./...
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+  allow_failure: false
+  only:
+    - branches
+    - merge_requests
+
+unit:coverage:
+  stage: test
+  image: docker.io/golang:${GOLANG_VERSION}
+  needs:
+    - unit:test
+  script:
+    - CGO_ENABLED=0 go test ./... -tags 'ci' -coverprofile=coverage-report.out
+    - go tool cover -html=coverage-report.out -o coverage-report.html
+    - go tool cover -func=coverage-report.out
+  artifacts:
+    paths:
+      - coverage-report.html
+  coverage: "/\\(statements\\)\\s+\\d+.?\\d+%/"
+  allow_failure: false
+  only:
+    - branches
+    - merge_requests

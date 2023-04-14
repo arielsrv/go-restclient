@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
+version: '3'
+
+env:
+  SOURCE_FOLDER: ./...
+  BUILD_FOLDER: build
+  COVERAGE_OUT_FILE: coverage.out
+  COVERAGE_HTML_FILE: coverage.html
+
+tasks:
+  lint:
+    desc: Use golangci-lint (.golangci.yml).
+    cmds:
+      - golangci-lint run
+  lint:report:
+    desc: Linter report
+    cmds:
+      - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+  test:race:
+    desc: Run race conditions test.
+    cmds:
+      - go test -race $SOURCE_FOLDER
+  test:
+    desc: Run test.
+    cmds:
+      - go test $SOURCE_FOLDER
+  test:report:
+    desc: CI test report.
+    cmds:
+      - go install gotest.tools/gotestsum@latest
+      - gotestsum --junitfile report.xml --format testname
+  coverage:
+    desc: Makes report coverage.
+    cmds:
+      - go test $SOURCE_FOLDER -covermode=count -coverprofile=$COVERAGE_OUT_FILE
+      - go tool cover -html $COVERAGE_OUT_FILE -o $COVERAGE_HTML_FILE
+      - go tool cover -func=$COVERAGE_OUT_FILE -o=$COVERAGE_OUT_FILE
+  coverage:report:
+    desc: CI coverage report
+    cmds:
+      - CGO_ENABLED=0 go test $SOURCE_FOLDER -coverprofile=coverage-report.out
+  clean:
+    desc: Clean binaries and reports.
+    cmds:
+      - rm -rf $BUILD_FOLDER
+      - rm -rf $COVERAGE_OUT_FILE $COVERAGE_HTML_FILE
+  download:
+    desc: Run go mod tidy.
+    cmds:
+      - go mod tidy
+  upgrade:
+    desc: Check for latest direct dependencies.
+    cmds:
+      - go-mod-upgrade
+  build:
+    desc: Build the go EXECUTABLE.
+    generates:
+      - server
+    interactive: true
+    cmds:
+      - go build -v $SOURCE_FOLDER
+  all:
+    desc: Run relevant tasks.
+    cmds:
+      - task: download
+      - task: test
+      - task: test:race
+      - task: build
+  default:
+    desc: Run [build] task.
+    cmds:
+      - task: all
