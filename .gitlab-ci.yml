@@ -1,4 +1,5 @@
 variables:
+  TAG: v0.0.1
   GOLANG_VERSION: "1.20"
   AWS_REGION: "eu-west-1"
   REGISTRY_URL: "${AWS_ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
@@ -57,7 +58,7 @@ create:tag:
   needs:
     - unit:coverage
   script:
-    - /root/bin/gitlab-tag.sh ${VERSION}
+    - /root/bin/gitlab-tag.sh ${TAG}
   when: manual
   allow_failure: false
   only:
