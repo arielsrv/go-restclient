@@ -16,17 +16,6 @@ default:
 
 stages:
   - test
-  - tag-release-candidate
-  - tag-release
-
-code_navigation:
-  image: sourcegraph/lsif-go:latest
-  allow_failure: true
-  script:
-    - lsif-go --repository-remote=go.dp.iskaypet.com/tools/dev/go-restclient
-  artifacts:
-    reports:
-      lsif: dump.lsif
 
 unit:test:
   stage: test
