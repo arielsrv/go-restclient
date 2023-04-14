@@ -1,14 +1,8 @@
 variables:
   TAG: v0.0.1
   GOLANG_VERSION: "1.20"
-  AWS_REGION: "eu-west-1"
-  REGISTRY_URL: "${AWS_ECR_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
   GOPRIVATE: "gitlab.tiendanimal.com"
-  SONAR_TOKEN: ${SQ_TOKEN}
   GITLAB_TOKEN: ${CICD_TOKEN}
-  SEMVER_TOOLKIT_VERSION: "latest"
-  SONAR_HOST_URL: ""
-  SONAR_PROJECT_KEY: "${CI_PROJECT_NAMESPACE}:${CI_PROJECT_NAME}"
   GIT_DEPTH: 0
 
 default:
@@ -58,7 +52,7 @@ create:tag:
   needs:
     - unit:coverage
   script:
-    - /root/bin/gitlab-tag.sh ${TAG}
+    - /root/bin/gitlab-tag.sh $(cat .version)
   when: manual
   allow_failure: false
   only:
