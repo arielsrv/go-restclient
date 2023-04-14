@@ -23,7 +23,7 @@ $ brew install jq
 # Installation
 
 ```sh
-go get -u github.com/arielsrv/ikp_go-restclient
+go get -u go.dp.iskaypet.com/tools/dev/go-restclient
 ```
 
 # ⚡️ Quickstart
