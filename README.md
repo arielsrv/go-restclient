@@ -1,3 +1,8 @@
+[![pipeline status](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/badges/main/pipeline.svg)](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/commits/main)
+[![coverage report](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/badges/main/coverage.svg)](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/commits/main)
+[![release](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/badges/release.svg)](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/releases)
+
+
 ## Developer tools
 
 - [Golang Lint](https://golangci-lint.run/)
