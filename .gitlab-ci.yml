@@ -16,6 +16,7 @@ default:
 
 stages:
   - test
+  - release
 
 unit:test:
   stage: test
@@ -49,3 +50,15 @@ unit:coverage:
   only:
     - branches
     - merge_requests
+
+create:tag:
+  stage: release
+  image: ${REGISTRY_URL}/iskaypet/digital/tools/ci/semver-toolkit:${SEMVER_TOOLKIT_VERSION}
+  dependencies:
+    - tag-release-candidate
+  script:
+    - /root/bin/gitlab-tag.sh ${VERSION}
+  when: manual
+  allow_failure: false
+  only:
+    - main
