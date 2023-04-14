@@ -10,8 +10,19 @@ default:
     - kubernetes-executor
 
 stages:
+  - build
   - test
-  - release
+
+compile:
+  stage: build
+  image: docker.io/golang:${GOLANG_VERSION}
+  script:
+    - go mod tidy
+    - go build -v ./...
+  allow_failure: false
+  only:
+    - branches
+    - merge_requests
 
 unit:test:
   stage: test
@@ -31,8 +42,6 @@ unit:test:
 unit:coverage:
   stage: test
   image: docker.io/golang:${GOLANG_VERSION}
-  needs:
-    - unit:test
   script:
     - CGO_ENABLED=0 go test ./... -tags 'ci' -coverprofile=coverage-report.out
     - go tool cover -html=coverage-report.out -o coverage-report.html
@@ -45,15 +54,3 @@ unit:coverage:
   only:
     - branches
     - merge_requests
-
-create:tag:
-  stage: release
-  image: ${REGISTRY_URL}/iskaypet/digital/tools/ci/semver-toolkit:${SEMVER_TOOLKIT_VERSION}
-  needs:
-    - unit:coverage
-  script:
-    - /root/bin/gitlab-tag.sh $(cat .version)
-  when: manual
-  allow_failure: false
-  only:
-    - main
