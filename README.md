@@ -37,14 +37,16 @@ go get -u go.dp.iskaypet.com/tools/dev/go-restclient
 package main
 
 import (
-	"go.dp.iskaypet.com/tools/dev/go-restclient"
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
+
+	"go.dp.iskaypet.com/tools/dev/go-restclient/rest"
 )
 
 type UserDTO struct {
+	ID   int64
 	Name string
 }
 
@@ -68,10 +70,13 @@ func main() {
 	}
 
 	var usersDto []UserDTO
-	response.FillUp(&usersDto)
+	err := response.FillUp(&usersDto)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// or typed filled up
-	_, err := rest.TypedFillUp[[]UserDTO](response)
+	_, err = rest.TypedFillUp[[]UserDTO](response)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,7 +85,7 @@ func main() {
 
 	requestBuilder.ForkJoin(func(c *rest.Concurrent) {
 		for i := 0; i < len(usersDto); i++ {
-			futures = append(futures, c.Get("/users/"+strconv.Itoa(usersDto[i].ID)))
+			futures = append(futures, c.Get(fmt.Sprintf("/users/%d", usersDto[i].ID)))
 		}
 	})
 
@@ -89,12 +94,14 @@ func main() {
 	for i := range futures {
 		if futures[i].Response().StatusCode == http.StatusOK {
 			var userDto UserDTO
-			futures[i].Response().FillUp(&userDto)
+			convertionErr := futures[i].Response().FillUp(&userDto)
+			if convertionErr != nil {
+				log.Fatal(convertionErr)
+			}
 			log.Println("\t" + userDto.Name)
 		}
 	}
 	elapsedTime := time.Since(startTime)
 	log.Printf("Elapsed time: %d", elapsedTime)
 }
-
 ```
