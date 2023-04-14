@@ -2,6 +2,12 @@
 [![coverage report](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/badges/main/coverage.svg)](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/commits/main)
 [![release](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/badges/release.svg)](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/releases)
 
+> This package provides a http client adapter with some features
+
+- GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs
+- Fork-Join request pattern, for sending many requests concurrently, getting better client performance.
+- Async request pattern.
+- Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
 
 ## Developer tools
 
@@ -22,6 +28,7 @@ $ brew install jq
 ## Table of contents
 
 * [RESTClient](#rest-client)
+
 
 ## Rest Client
 
