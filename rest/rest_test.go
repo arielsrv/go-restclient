@@ -1,7 +1,7 @@
 package rest_test
 
 import (
-	"go.dp.iskaypet.com/tools/dev/go-restclient/rest"
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 	"net/http"
 	"strings"
 	"testing"

@@ -1,6 +1,6 @@
-[![pipeline status](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/badges/main/pipeline.svg)](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/commits/main)
-[![coverage report](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/badges/main/coverage.svg)](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/commits/main)
-[![release](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/badges/release.svg)](https://gitlab.tiendanimal.com:8088/iskaypet/digital/tools/dev/go-restclient/-/releases)
+[![pipeline status](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/badges/main/pipeline.svg)](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/-/commits/main)
+[![coverage report](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/badges/main/coverage.svg)](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/-/commits/main)
+[![release](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/-/badges/release.svg)](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/-/releases)
 
 > This package provides a http client adapter with some features
 
@@ -35,7 +35,7 @@ $ brew install jq
 # Installation
 
 ```sh
-go get -u go.dp.iskaypet.com/tools/dev/go-restclient
+go get -u gitlab.com/iskaypetcom/digital/tools/dev/go-restclient
 ```
 
 # ⚡️ Quickstart
@@ -49,7 +49,7 @@ import (
 	"net/http"
 	"time"
 
-	"go.dp.iskaypet.com/tools/dev/go-restclient/rest"
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 )
 
 type UserDTO struct {
