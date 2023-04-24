@@ -13,6 +13,15 @@ stages:
   - build
   - test
 
+code_navigation:
+  image: sourcegraph/lsif-go:latest
+  allow_failure: true
+  script:
+    - lsif-go
+  artifacts:
+    reports:
+      lsif: dump.lsif
+
 compile:
   stage: build
   image: docker.io/golang:${GOLANG_VERSION}
