@@ -42,6 +42,10 @@ require gitlab.com/iskaypetcom/digital/tools/dev/go-restclient vX.Y.Z
 replace gitlab.com/iskaypetcom/digital/tools/dev/go-restclient => gitlab.com/iskaypetcom/digital/tools/dev/go-restclient.git vX.Y.Z
 ```
 
+```shell
+export GONOSUMDB=gitlab.com
+```
+
 # ⚡️ Quickstart
 
 ```go
