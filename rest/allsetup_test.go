@@ -3,7 +3,7 @@ package rest_test
 import (
 	"encoding/json"
 	"encoding/xml"
-	"go.dp.iskaypet.com/tools/dev/go-restclient/rest"
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 	"io"
 	"math/rand"
 	"net/http"

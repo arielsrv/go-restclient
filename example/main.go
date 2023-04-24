@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"go.dp.iskaypet.com/tools/dev/go-restclient/rest"
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 )
 
 type UserDTO struct {
