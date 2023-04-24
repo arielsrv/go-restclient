@@ -8,6 +8,7 @@
 - Fork-Join request pattern, for sending many requests concurrently, getting better client performance.
 - Async request pattern.
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
+- Request Body can be `string`, `[]byte`, `struct` & `map`
 
 ## Developer tools
 
@@ -34,8 +35,11 @@ $ brew install jq
 
 # Installation
 
-```sh
-go get -u gitlab.com/iskaypetcom/digital/tools/dev/go-restclient
+go.mod
+
+```go
+require gitlab.com/iskaypetcom/digital/tools/dev/go-restclient vX.Y.Z
+replace gitlab.com/iskaypetcom/digital/tools/dev/go-restclient => gitlab.com/iskaypetcom/digital/tools/dev/go-restclient.git vX.Y.Z
 ```
 
 # ⚡️ Quickstart
