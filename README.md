@@ -38,8 +38,8 @@ $ brew install jq
 go.mod
 
 ```go
-require gitlab.com/iskaypetcom/digital/tools/dev/go-restclient vX.Y.Z
-replace gitlab.com/iskaypetcom/digital/tools/dev/go-restclient => gitlab.com/iskaypetcom/digital/tools/dev/go-restclient.git vX.Y.Z
+require gitlab.com/iskaypetcom/digital/tools/dev/go-restclient v0.0.2
+replace gitlab.com/iskaypetcom/digital/tools/dev/go-restclient => gitlab.com/iskaypetcom/digital/tools/dev/go-restclient.git v0.0.2
 ```
 
 ```shell
