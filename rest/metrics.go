@@ -79,7 +79,6 @@ func (c Collector) RecordExecutionTime(clientName, eventType string, eventSubTyp
 
 type ServiceCollector interface {
 	IncrementCounter(metric CounterDto)
-	Record(metric ValueDto)
 	RecordExecutionTime(metric TimerDto)
 }
 
@@ -174,10 +173,6 @@ func (p *PrometheusServiceMetricCollector) IncrementCounter(counterDto CounterDt
 	} else {
 		p.Counter.WithLabelValues(counterDto.BuildLabels()...).Inc()
 	}
-}
-
-func (p *PrometheusServiceMetricCollector) Record(valueDto ValueDto) {
-	p.Gauge.WithLabelValues(valueDto.BuildLabels()...).Set(valueDto.value)
 }
 
 func (p *PrometheusServiceMetricCollector) RecordExecutionTime(timerDto TimerDto) {

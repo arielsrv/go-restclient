@@ -38,8 +38,8 @@ $ brew install jq
 go.mod
 
 ```go
-require gitlab.com/iskaypetcom/digital/tools/dev/go-restclient v0.0.2
-replace gitlab.com/iskaypetcom/digital/tools/dev/go-restclient => gitlab.com/iskaypetcom/digital/tools/dev/go-restclient.git v0.0.2
+require gitlab.com/iskaypetcom/digital/tools/dev/go-restclient v0.0.3
+replace gitlab.com/iskaypetcom/digital/tools/dev/go-restclient => gitlab.com/iskaypetcom/digital/tools/dev/go-restclient.git v0.0.3
 ```
 
 ```shell
@@ -125,7 +125,10 @@ func main() {
 ![prometheus]
 We do not have a unified dashboard, which can filter by environment, due to this, you have to enter the specific environment
 
-Make sure you have collector turned on in your application
+Requisites
+    * Make sure you have **prometheus collector endpoint** turned on in your application
+    * **ENV** variable (dev|uat|pro|any)
+    * **APP_NAME** variable (repository name)
 
 * [dev]((https://monitoring.dev.dp.iskaypet.com/d/6shkc-L4kk/http-clients?orgId=1))
 
