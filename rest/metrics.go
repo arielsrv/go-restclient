@@ -58,7 +58,7 @@ func (c Collector) IncrementCounter(clientName string, eventType string, eventSu
 				eventType:    eventType,
 				eventSubType: eventSubType,
 			},
-			value: value,
+			values: value,
 		})
 }
 
@@ -117,7 +117,7 @@ func (m *metricDto) getValue(value string) string {
 }
 
 type CounterDto struct {
-	value []float64
+	values []float64
 
 	metricDto
 }
@@ -133,16 +133,6 @@ type TimerDto struct {
 }
 
 func (t *TimerDto) BuildLabels() []string {
-	return t.metricDto.BuildLabels()
-}
-
-type ValueDto struct {
-	value float64
-
-	metricDto
-}
-
-func (t *ValueDto) BuildLabels() []string {
 	return t.metricDto.BuildLabels()
 }
 
@@ -168,8 +158,8 @@ type PrometheusServiceMetricCollector struct {
 }
 
 func (p *PrometheusServiceMetricCollector) IncrementCounter(counterDto CounterDto) {
-	if len(counterDto.value) > 0 {
-		p.Counter.WithLabelValues(counterDto.BuildLabels()...).Add(counterDto.value[0])
+	if len(counterDto.values) > 0 {
+		p.Counter.WithLabelValues(counterDto.BuildLabels()...).Add(counterDto.values[0])
 	} else {
 		p.Counter.WithLabelValues(counterDto.BuildLabels()...).Inc()
 	}
