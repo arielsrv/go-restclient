@@ -69,9 +69,19 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 	// Set extra parameters
 	rb.setParams(request, cacheResp, cacheURL)
 
+	startTime := time.Now()
 	// Make the request
 	httpResp, err := client.Do(request)
+	elapsedTime := time.Since(startTime)
+
+	HTTPCollector.RecordExecutionTime(rb.Name, "http_connection", "response_time", elapsedTime)
+
 	if err != nil {
+		var netError net.Error
+		if errors.As(err, &netError) && netError.Timeout() {
+			HTTPCollector.IncrementCounter(rb.Name, "http_connection_error", "timeout")
+		}
+		HTTPCollector.IncrementCounter(rb.Name, "http_connection_error", "network")
 		result.Err = err
 		return
 	}
@@ -83,6 +93,8 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 		result.Err = err
 		return
 	}
+
+	HTTPCollector.IncrementCounter(rb.Name, "http_status", strconv.Itoa(httpResp.StatusCode))
 
 	// If we get a 304, return response from cache
 	if httpResp.StatusCode == http.StatusNotModified {
@@ -105,6 +117,7 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 	if !rb.DisableCache && matchVerbs(verb, readVerbs) && (ttl || lastModified || etag) {
 		resourceCache.setNX(cacheURL, result)
 	}
+
 	return
 }
 

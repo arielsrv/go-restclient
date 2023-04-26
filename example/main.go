@@ -18,7 +18,12 @@ func main() {
 	requestBuilder := rest.RequestBuilder{
 		Timeout:        time.Millisecond * 3000,
 		ConnectTimeout: time.Millisecond * 5000,
+		Name:           "example_client",
 		BaseURL:        "https://gorest.co.in/public/v2",
+		CustomPool: &rest.CustomPool{
+			MaxIdleConnsPerHost: 20,
+			Transport:           &http.Transport{},
+		},
 	}
 
 	// This won't be blocked.

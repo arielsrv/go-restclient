@@ -104,6 +104,9 @@ type RequestBuilder struct {
 	Client *http.Client
 
 	clientMtxOnce sync.Once
+
+	// Public for metrics
+	Name string
 }
 
 // CustomPool defines a separate internal *transport* and connection pooling.

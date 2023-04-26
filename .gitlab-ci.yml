@@ -1,6 +1,6 @@
 variables:
   go_version: 1.20.3
-  gitlab_token: ${CICD_TOKEN}
+  GITLAB_TOKEN: ${CICD_TOKEN}
   GONOSUMDB: gitlab.com
 
 default:
@@ -12,7 +12,7 @@ stages:
   - test
 
 before_script:
-  - git config --global url."https://oauth2:${gitlab_token}@gitlab.com".insteadOf "https://gitlab.com"
+  - git config --global url."https://oauth2:${GITLAB_TOKEN}@gitlab.com".insteadOf "https://gitlab.com"
 
 code_navigation:
   image: sourcegraph/lsif-go:latest
