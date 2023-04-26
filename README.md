@@ -29,7 +29,7 @@ $ brew install jq
 ## Table of contents
 
 * [RESTClient](#rest-client)
-
+* [Metrics](#metrics)
 
 ## Rest Client
 
@@ -120,3 +120,7 @@ func main() {
 	log.Printf("Elapsed time: %d", elapsedTime)
 }
 ```
+## Metrics
+![prometheus]
+
+[prometheus]: images/metrics.png
