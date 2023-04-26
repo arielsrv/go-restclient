@@ -1,10 +1,11 @@
 package rest
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest/log"
 	"os"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest/log"
 )
 
 var (
@@ -51,7 +52,7 @@ func (c Collector) IncrementCounter(clientName string, eventType string, eventSu
 	c.collector.IncrementCounter(
 		CounterDto{
 			metricDto: metricDto{
-				serviceType:  string(c.serviceType),
+				serviceType:  c.serviceType,
 				environment:  c.config.Environment,
 				application:  c.config.Application,
 				clientName:   clientName,
@@ -85,7 +86,7 @@ type ServiceCollector interface {
 type ServiceType string
 
 type Mapper interface {
-	BuildLabels() map[string]string
+	BuildLabels() []string
 }
 
 type metricDto struct {
