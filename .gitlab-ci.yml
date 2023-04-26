@@ -1,9 +1,7 @@
 variables:
-  TAG: v0.0.1
-  GOLANG_VERSION: "1.20"
-  GOPRIVATE: "gitlab.tiendanimal.com"
+  go_version: 1.20.3
   GITLAB_TOKEN: ${CICD_TOKEN}
-  GIT_DEPTH: 0
+  GONOSUMDB: gitlab.com
 
 default:
   tags:
@@ -12,6 +10,9 @@ default:
 stages:
   - build
   - test
+
+before_script:
+  - git config --global url."https://oauth2:${GITLAB_TOKEN}@gitlab.com".insteadOf "https://gitlab.com"
 
 code_navigation:
   image: sourcegraph/lsif-go:latest
@@ -24,42 +25,44 @@ code_navigation:
 
 compile:
   stage: build
-  image: docker.io/golang:${GOLANG_VERSION}
+  image: docker.io/golang:${go_version}
   script:
     - go mod tidy
     - go build -v ./...
   allow_failure: false
   only:
     - branches
-    - merge_requests
 
-unit:test:
+unit:
   stage: test
-  image: docker.io/golang:${GOLANG_VERSION}
+  image: docker.io/golang:${go_version}
+  variables:
+    output: report.xml
   script:
     - go install gotest.tools/gotestsum@latest
-    - gotestsum --junitfile report.xml --format testname
+    - gotestsum --junitfile ${output} --format testname
   artifacts:
     when: always
     reports:
-      junit: report.xml
+      junit: ${output}
   allow_failure: false
   only:
     - branches
-    - merge_requests
 
-unit:coverage:
+coverage:
   stage: test
-  image: docker.io/golang:${GOLANG_VERSION}
+  image: docker.io/golang:${go_version}
+  variables:
+    output: coverage-report.out
+    html: coverage-report.html
   script:
-    - CGO_ENABLED=0 go test ./... -tags 'ci' -coverprofile=coverage-report.out
-    - go tool cover -html=coverage-report.out -o coverage-report.html
-    - go tool cover -func=coverage-report.out
+    - CGO_ENABLED=0 go test ./... -coverprofile=${output}
+    - go tool cover -html=${output} -o ${html}
+    - go tool cover -func=${output}
   artifacts:
     paths:
-      - coverage-report.html
+      - ${html}
   coverage: "/\\(statements\\)\\s+\\d+.?\\d+%/"
   allow_failure: false
   only:
     - branches
-    - merge_requests

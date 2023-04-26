@@ -29,7 +29,7 @@ $ brew install jq
 ## Table of contents
 
 * [RESTClient](#rest-client)
-
+* [Metrics](#metrics)
 
 ## Rest Client
 
@@ -38,8 +38,8 @@ $ brew install jq
 go.mod
 
 ```go
-require gitlab.com/iskaypetcom/digital/tools/dev/go-restclient vX.Y.Z
-replace gitlab.com/iskaypetcom/digital/tools/dev/go-restclient => gitlab.com/iskaypetcom/digital/tools/dev/go-restclient.git vX.Y.Z
+require gitlab.com/iskaypetcom/digital/tools/dev/go-restclient v0.0.3
+replace gitlab.com/iskaypetcom/digital/tools/dev/go-restclient => gitlab.com/iskaypetcom/digital/tools/dev/go-restclient.git v0.0.3
 ```
 
 ```shell
@@ -70,6 +70,7 @@ func main() {
 		Timeout:        time.Millisecond * 3000,
 		ConnectTimeout: time.Millisecond * 5000,
 		BaseURL:        "https://gorest.co.in/public/v2",
+        Name: "example_client",                           // for metrics
 	}
 
 	// This won't be blocked.
@@ -120,3 +121,15 @@ func main() {
 	log.Printf("Elapsed time: %d", elapsedTime)
 }
 ```
+## Metrics
+![prometheus]
+We do not have a unified dashboard, which can filter by environment, due to this, you have to enter the specific environment
+
+Requisites
+    * Make sure you have **prometheus collector endpoint** turned on in your application
+    * **ENV** variable (dev|uat|pro|any)
+    * **APP_NAME** variable (repository name)
+
+* [dev]((https://monitoring.dev.dp.iskaypet.com/d/6shkc-L4kk/http-clients?orgId=1))
+
+[prometheus]: images/metrics.png

@@ -46,7 +46,7 @@ func (s *skipList) insert(key string, ttl time.Time) *skipListNode {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	// Like flipping a coin up to the maximum height
-	// Level will have a value between 0 and 31
+	// Level will have a values between 0 and 31
 	for level < maxHeight && rand.Intn(2) == 1 {
 		level++
 
