@@ -1,9 +1,10 @@
 package rest_test
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
-	"testing"
 )
 
 func TestCollector(t *testing.T) {

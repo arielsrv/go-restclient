@@ -8,18 +8,16 @@ import (
 )
 
 var (
-	HTTPCollector  *Collector
-	QueueCollector *Collector
+	HTTPCollector *Collector
 )
 
 func init() {
 	serviceMetricCollector := NewPrometheusServiceMetricCollector()
-	HTTPCollector = NewCollector(Default(), HTTP, serviceMetricCollector)
+	HTTPCollector = NewCollector(Default(), "http_client", serviceMetricCollector)
 }
 
 type ClientMetricCollector interface {
 	IncrementCounter(clientName string, eventType string, eventSubType string, value ...float64)
-	Record(clientName, eventType string, eventSubType string, value float64)
 	RecordExecutionTime(clientName, eventType string, eventSubType string, elapsedTime time.Duration)
 }
 
@@ -37,11 +35,11 @@ func Default() *Config {
 
 type Collector struct {
 	config      *Config
-	serviceType ServiceType
+	serviceType string
 	collector   ServiceCollector
 }
 
-func NewCollector(config *Config, serviceType ServiceType, collector ServiceCollector) *Collector {
+func NewCollector(config *Config, serviceType string, collector ServiceCollector) *Collector {
 	return &Collector{
 		config:      config,
 		serviceType: serviceType,
@@ -64,26 +62,11 @@ func (c Collector) IncrementCounter(clientName string, eventType string, eventSu
 		})
 }
 
-func (c Collector) Record(clientName string, eventType string, eventSubType string, value float64) {
-	c.collector.Record(
-		ValueDto{
-			metricDto: metricDto{
-				serviceType:  string(c.serviceType),
-				environment:  c.config.Environment,
-				application:  c.config.Application,
-				clientName:   clientName,
-				eventType:    eventType,
-				eventSubType: eventSubType,
-			},
-			value: value,
-		})
-}
-
 func (c Collector) RecordExecutionTime(clientName, eventType string, eventSubType string, elapsedTime time.Duration) {
 	c.collector.RecordExecutionTime(
 		TimerDto{
 			metricDto: metricDto{
-				serviceType:  string(c.serviceType),
+				serviceType:  c.serviceType,
 				environment:  c.config.Environment,
 				application:  c.config.Application,
 				clientName:   clientName,
@@ -101,10 +84,6 @@ type ServiceCollector interface {
 }
 
 type ServiceType string
-
-const (
-	HTTP ServiceType = "http_client"
-)
 
 type Mapper interface {
 	BuildLabels() map[string]string
