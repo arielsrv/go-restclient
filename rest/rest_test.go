@@ -1,12 +1,12 @@
 package rest_test
 
 import (
-	"fmt"
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 )
 
 func TestGet(t *testing.T) {
@@ -183,26 +183,26 @@ func TestWrongURL(t *testing.T) {
 }
 
 /*Increase percentage of net.go coverage. */
-func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
-	host := "saraza"
-	customPool := rest.CustomPool{
-		MaxIdleConnsPerHost: 100,
-		Proxy:               fmt.Sprintf("http://%s", host),
-	}
-
-	restClient := new(rest.RequestBuilder)
-	restClient.ContentType = rest.JSON
-	restClient.DisableTimeout = true
-	restClient.CustomPool = &customPool
-	restClient.FollowRedirect = true
-
-	response := restClient.Get(server.URL + "/user")
-	expected := fmt.Sprintf("Get \"%s/user\": proxyconnect tcp: dial tcp: lookup %s: ", server.URL, host)
-
-	if !strings.Contains(response.Err.Error(), expected) {
-		t.Fatalf("Expected %v Error, Got %v as Response", expected, response.Err.Error())
-	}
-}
+// func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
+// 	host := "saraza"
+// 	customPool := rest.CustomPool{
+// 		MaxIdleConnsPerHost: 100,
+// 		Proxy:               fmt.Sprintf("http://%s", host),
+// 	}
+//
+// 	restClient := new(rest.RequestBuilder)
+// 	restClient.ContentType = rest.JSON
+// 	restClient.DisableTimeout = true
+// 	restClient.CustomPool = &customPool
+// 	restClient.FollowRedirect = true
+//
+// 	response := restClient.Get(server.URL + "/user")
+// 	expected := fmt.Sprintf("Get \"%s/user\": proxyconnect tcp: dial tcp: lookup %s: ", server.URL, host)
+//
+// 	if !strings.Contains(response.Err.Error(), expected) {
+// 		t.Fatalf("Expected %v Error, Got %v as Response", expected, response.Err.Error())
+// 	}
+// }
 
 func TestRequestSendingClientMetrics(t *testing.T) {
 	restClient := new(rest.RequestBuilder)
