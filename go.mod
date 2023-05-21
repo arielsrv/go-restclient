@@ -4,9 +4,9 @@ go 1.20
 
 require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
-	github.com/prometheus/client_golang v1.15.0
-	github.com/sirupsen/logrus v1.9.0
-	github.com/stretchr/testify v1.8.2
+	github.com/prometheus/client_golang v1.15.1
+	github.com/sirupsen/logrus v1.9.2
+	github.com/stretchr/testify v1.8.3
 )
 
 require (
