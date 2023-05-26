@@ -1,0 +1,3 @@
+#!/bin/bash
+.gitlab/common/git.sh
+go test -race ./...

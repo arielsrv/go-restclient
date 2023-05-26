@@ -17,12 +17,9 @@
 
 .idea
 .vscode
-build/
 coverage.html
 coverage.out
 .DS_Store
-cmd/
-
 report.xml
 gl-code-quality-report.json
 coverage-report.html
