@@ -26,7 +26,7 @@ code_navigation:
 
 compile:
   stage: build
-  image: docker.io/golang:${go_version}
+  image: docker.io/golang:${GO_VERSION}
   script:
     - chmod +x .gitlab/machine.sh
     - .gitlab/machine.sh
@@ -39,7 +39,7 @@ compile:
 
 unit:
   stage: test
-  image: docker.io/golang:${go_version}
+  image: docker.io/golang:${GO_VERSION}
   variables:
     output: report.xml
   script:
@@ -58,7 +58,7 @@ unit:
 
 coverage:
   stage: test
-  image: docker.io/golang:${go_version}
+  image: docker.io/golang:${GO_VERSION}
   variables:
     output: coverage-report.out
     html: coverage-report.html
