@@ -3,7 +3,6 @@ package rest_test
 import (
 	"encoding/json"
 	"encoding/xml"
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 	"io"
 	"math/rand"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"strconv"
 	"testing"
 	"time"
+
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 )
 
 var lastModifiedDate = time.Now()

@@ -10,12 +10,31 @@
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
 - Request Body can be `string`, `[]byte`, `struct` & `map`
 
+## Local environment
+
+You don't need **VPN** or **Vanity Gateway Server** to use internal Iskaypet packages for Go.
+
+**$HOME/.gitconfig**
+
+> [url "https://oauth2:{$GITLAB_TOKEN}@gitlab.com"]\
+> insteadOf = https://gitlab.com
+
+**$HOME/.netrc**
+
+> machine gitlab.com\
+> login your_gitlab_account\
+> password your_gitlab_token
+
+**GOPRIVATE**
+export GOPRIVATE=gitlab.com/iskaypetcom
+
 ## Developer tools
 
-- [Golang Lint](https://golangci-lint.run/)
-- [Golang Task](https://taskfile.dev/)
-- [Golang Dependencies Update](https://github.com/oligot/go-mod-upgrade)
-- [jq](https://stedolan.github.io/jq/)
+* [Local environment](#environment)
+* [Golang Lint](https://golangci-lint.run/)
+* [Golang Task](https://taskfile.dev/)
+* [Golang Dependencies Update](https://github.com/oligot/go-mod-upgrade)
+* [jq](https://stedolan.github.io/jq/)
 
 ### For macOs
 
@@ -38,12 +57,11 @@ $ brew install jq
 go.mod
 
 ```go
-require gitlab.com/iskaypetcom/digital/tools/dev/go-restclient v0.0.3
-replace gitlab.com/iskaypetcom/digital/tools/dev/go-restclient => gitlab.com/iskaypetcom/digital/tools/dev/go-restclient.git v0.0.3
+go get gitlab.com/iskaypetcom/digital/tools/dev/go-restclient v0.0.3
 ```
 
 ```shell
-export GONOSUMDB=gitlab.com
+export GOPRIVATE=gitlab.com/iskaypetcom
 ```
 
 # ⚡️ Quickstart

@@ -1,10 +1,11 @@
 package rest_test
 
 import (
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 	"net/http"
 	"strconv"
 	"testing"
+
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 )
 
 func TestForkJoin(t *testing.T) {

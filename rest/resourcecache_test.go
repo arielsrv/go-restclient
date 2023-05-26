@@ -1,11 +1,12 @@
 package rest_test
 
 import (
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 	"net/http"
 	"strconv"
 	"testing"
 	"time"
+
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 )
 
 func TestCacheGetLowCacheMaxSize(t *testing.T) {

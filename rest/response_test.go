@@ -1,10 +1,11 @@
 package rest_test
 
 import (
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 	"net/http"
 	"strings"
 	"testing"
+
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 )
 
 func TestResponseBytesAndString(t *testing.T) {

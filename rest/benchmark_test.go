@@ -1,11 +1,12 @@
 package rest_test
 
 import (
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 	"log"
 	"net/http"
 	"strconv"
 	"testing"
+
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 )
 
 func BenchmarkGet(b *testing.B) {

@@ -1,9 +1,10 @@
 package rest_test
 
 import (
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 	"net/http"
 	"testing"
+
+	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
 )
 
 func TestMockup(t *testing.T) {
