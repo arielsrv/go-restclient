@@ -43,7 +43,7 @@ unit:
   artifacts:
     when: always
     reports:
-      junit: ${output}
+      junit: report.xml
   allow_failure: false
   only:
     - branches
