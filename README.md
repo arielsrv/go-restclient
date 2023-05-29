@@ -1,6 +1,6 @@
-[![pipeline status](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/badges/main/pipeline.svg)](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/-/commits/main)
-[![coverage report](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/badges/main/coverage.svg)](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/-/commits/main)
-[![release](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/-/badges/release.svg)](https://gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/-/releases)
+[![pipeline status](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/badges/main/pipeline.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/commits/main)
+[![coverage report](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/badges/main/coverage.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/commits/main)
+[![release](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/badges/release.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/releases)
 
 > This package provides a http client adapter with some features
 
@@ -63,7 +63,7 @@ $ brew install jq
 go.mod
 
 ```go
-go get gitlab.com/iskaypetcom/digital/tools/dev/go-restclient@v0.0.4
+go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@v0.0.4
 ```
 
 ```shell
@@ -81,7 +81,7 @@ import (
 	"net/http"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
 type UserDTO struct {

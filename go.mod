@@ -1,4 +1,4 @@
-module gitlab.com/iskaypetcom/digital/tools/dev/go-restclient
+module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient
 
 go 1.20
 

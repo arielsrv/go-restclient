@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
 func TestResponseBytesAndString(t *testing.T) {

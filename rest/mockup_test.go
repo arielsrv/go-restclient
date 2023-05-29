@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"gitlab.com/iskaypetcom/digital/tools/dev/go-restclient/rest"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
 func TestMockup(t *testing.T) {
