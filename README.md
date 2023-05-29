@@ -19,7 +19,13 @@ You don't need **VPN** or **Vanity Gateway Server** to use internal Iskaypet pac
 > [url "https://oauth2:{$GITLAB_TOKEN}@gitlab.com"]\
 > insteadOf = https://gitlab.com
 
-**$HOME/.netrc**
+**$HOME/.netrc** (macOs/Unix)
+
+> machine gitlab.com\
+> login your_gitlab_account\
+> password your_gitlab_token
+
+**%HOME%/_netrc** (Windows)
 
 > machine gitlab.com\
 > login your_gitlab_account\
