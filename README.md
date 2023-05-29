@@ -25,7 +25,7 @@ You don't need **VPN**, **Vanity Gateway Server** or SSH protocol to use interna
 > login your_gitlab_account\
 > password your_gitlab_token
 
-**%HOME%/_netrc** (Windows)
+**%USERPROFILE%/_netrc** (Windows)
 
 > machine gitlab.com\
 > login your_gitlab_account\
