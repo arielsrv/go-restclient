@@ -12,7 +12,7 @@
 
 ## Local environment
 
-You don't need **VPN**, **Vanity Gateway Server** or SSH protocol to use internal Iskaypet packages for Go.
+You don't need **VPN**, **Vanity Gateway Server** or **SSH** protocol to use internal Iskaypet packages for Go.
 
 **$HOME/.gitconfig**
 
