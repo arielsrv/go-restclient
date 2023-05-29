@@ -16,23 +16,23 @@ You don't need **VPN**, **Vanity Gateway Server** or **SSH** protocol to use int
 
 **$HOME/.gitconfig**
 
-> [url "https://oauth2:{$GITLAB_TOKEN}@gitlab.com"]\
-> insteadOf = https://gitlab.com
+> [url "https://oauth2:**{$GITLAB_TOKEN}**@gitlab.com"]\
+> &emsp;insteadOf = https://gitlab.com
 
 **$HOME/.netrc** (macOs/Unix)
 
 > machine gitlab.com\
-> login your_gitlab_account\
-> password your_gitlab_token
+> &emsp;login **your_gitlab_account**\
+> &emsp;password **your_gitlab_token**
 
 **%USERPROFILE%/_netrc** (Windows)
 
 > machine gitlab.com\
-> login your_gitlab_account\
-> password your_gitlab_token
+> &emsp;login **your_gitlab_account**\
+> &emsp;password **your_gitlab_token**
 
 **GOPRIVATE**
-export GOPRIVATE=gitlab.com/iskaypetcom
+> export GOPRIVATE=gitlab.com/iskaypetcom
 
 ## Developer tools
 
