@@ -52,6 +52,11 @@ tasks:
     desc: Check for latest direct dependencies.
     cmds:
       - go-mod-upgrade
+  update:
+    desc: Check for latest direct dependencies
+    deps: [ download ]
+    cmds:
+      - go list -mod=mod -u -m -json all | go-mod-outdated -update -direct
   build:
     desc: Build the go EXECUTABLE.
     generates:
