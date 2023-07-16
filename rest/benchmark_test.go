@@ -1,11 +1,11 @@
 package rest_test
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 	"testing"
 
+	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 

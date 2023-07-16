@@ -77,7 +77,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 	"net/http"
 	"time"
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 	"net/http"
 	"time"
 
@@ -71,5 +71,5 @@ func main() {
 		}
 	}
 	elapsedTime := time.Since(startTime)
-	log.Printf("Elapsed time: %d", elapsedTime)
+	log.Infof("Elapsed time: %d", elapsedTime)
 }
