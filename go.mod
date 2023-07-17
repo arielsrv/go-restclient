@@ -3,11 +3,9 @@ module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient
 go 1.20
 
 require (
-	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/prometheus/client_golang v1.16.0
-	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.2
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.3
 )
 
 require (
@@ -22,6 +20,7 @@ require (
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

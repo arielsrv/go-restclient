@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest/log"
+	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 )
 
 var (
