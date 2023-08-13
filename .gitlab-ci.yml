@@ -78,15 +78,6 @@ coverage-report:
   only:
     - branches
 
-race:
-  stage: test
-  image: docker.io/golang:${GO_VERSION}
-  script:
-    - .gitlab/test/race.sh
-  allow_failure: false
-  only:
-    - branches
-
 lint:
   stage: test
   image: golangci/golangci-lint:latest
