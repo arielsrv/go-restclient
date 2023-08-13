@@ -198,7 +198,7 @@ func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
 	restClient.FollowRedirect = true
 
 	response := restClient.Get(server.URL + "/user")
-	expected := fmt.Sprintf("Get \"%s/user\": proxyconnect tcp: dial tcp: lookup %s: ", server.URL, host)
+	expected := fmt.Sprintf("Get \"%s/user\": proxyconnect tcp: dial tcp: lookup %s", server.URL, host)
 
 	if !strings.Contains(response.Err.Error(), expected) {
 		t.Fatalf("Expected %v Error, Got %v as Response", expected, response.Err.Error())
