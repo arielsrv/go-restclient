@@ -2,8 +2,6 @@ module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient
 
 go 1.21
 
-toolchain go1.21.0
-
 require (
 	github.com/prometheus/client_golang v1.16.0
 	github.com/stretchr/testify v1.8.4
