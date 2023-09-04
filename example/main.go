@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 	"net/http"
 	"time"
+
+	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
