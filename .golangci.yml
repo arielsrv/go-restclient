@@ -1,11 +1,11 @@
 # This code is licensed under the terms of the MIT license https://opensource.org/license/mit
 # Copyright (c) 2021 Marat Reymers
 
-## Golden config for golangci-lint v1.54.1
+## Golden config for golangci-lint v1.54.2
 #
 # This is the best config for golangci-lint based on my experience and opinion.
 # It is very strict, but not extremely strict.
-# Feel free to adopt and change it for your needs.
+# Feel free to adapt and change it for your needs.
 
 run:
   # Timeout for analysis, e.g. 30s, 5m.
@@ -105,13 +105,16 @@ linters-settings:
     # `strconv.ParseInt`, `strconv.ParseUint`, `strconv.ParseFloat`.
     # Default: []
     ignored-functions:
+      - flag.Arg
+      - flag.Duration.*
+      - flag.Float.*
+      - flag.Int.*
+      - flag.Uint.*
       - os.Chmod
-      - os.Mkdir
-      - os.MkdirAll
+      - os.Mkdir.*
       - os.OpenFile
       - os.WriteFile
-      - prometheus.ExponentialBuckets
-      - prometheus.ExponentialBucketsRange
+      - prometheus.ExponentialBuckets.*
       - prometheus.LinearBuckets
 
   gomodguard:
