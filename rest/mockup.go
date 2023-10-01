@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 const MockNotFoundError string = "MockUp nil!"
@@ -54,6 +55,9 @@ type Mock struct {
 
 	// Response Body
 	RespBody string
+
+	// Transport error
+	Timeout time.Duration
 }
 
 // StartMockupServer sets the enviroment to send all client requests
@@ -152,6 +156,7 @@ func mockupHandler(writer http.ResponseWriter, req *http.Request) {
 		m := mockMap[req.Method+" "+normalizedURL]
 		mockDBMutex.RUnlock()
 		if m != nil {
+			time.Sleep(m.Timeout)
 			// Add headers
 			for k, v := range m.RespHeaders {
 				for _, vv := range v {
