@@ -59,6 +59,7 @@ type IRequestBuilder interface {
 	AsyncHead(url string, f func(*Response))
 	AsyncOptions(url string, f func(*Response))
 	ForkJoin(f func(*Concurrent))
+	SetHeader(key, value string)
 }
 
 // RequestBuilder is the baseline for creating requests
@@ -123,6 +124,14 @@ type CustomPool struct {
 type BasicAuth struct {
 	UserName string
 	Password string
+}
+
+var mtx sync.RWMutex
+
+func (rb *RequestBuilder) SetHeader(key, value string) {
+	mtx.Lock()
+	defer mtx.Unlock()
+	rb.Headers.Set(key, value)
 }
 
 // Get issues a GET HTTP verb to the specified URL.
@@ -258,7 +267,7 @@ func doAsyncRequest(r *Response, f func(*Response)) {
 // ForkJoin let you *fork* requests, and *wait* until all of them have return.
 //
 // Concurrent has methods for Get, Post, Put, Patch, Delete, Head & Options,
-// with the almost the same API as the synchronous methods.
+// with almost the same API as the synchronous methods.
 // The difference is that these methods return a FutureResponse, which holds a pointer to
 // Response. Response inside FutureResponse is nil until the request has finished.
 //
