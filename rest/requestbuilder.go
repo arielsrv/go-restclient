@@ -128,6 +128,8 @@ type BasicAuth struct {
 
 var mtx sync.RWMutex
 
+// SetHeader Sets header to current request.
+// NTH: pass headers reference by optional param to avoid use synchronization, today is not a performance issue
 func (rb *RequestBuilder) SetHeader(key, value string) {
 	mtx.Lock()
 	defer mtx.Unlock()
