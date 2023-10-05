@@ -1,6 +1,10 @@
 package rest
 
-var dfltBuilder = RequestBuilder{}
+import "sync"
+
+var dfltBuilder = RequestBuilder{
+	mtx: sync.RWMutex{},
+}
 
 // Get issues a GET HTTP verb to the specified URL.
 //

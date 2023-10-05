@@ -246,8 +246,8 @@ func (rb *RequestBuilder) getConnectionTimeout() time.Duration {
 
 func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cacheURL string) {
 	// @TODO: apineiro Replace by optional params when there is a lot of traffic
-	mtx.Lock()
-	defer mtx.Unlock()
+	rb.mtx.Lock()
+	defer rb.mtx.Unlock()
 	// Custom Headers
 	if rb.Headers != nil {
 		for key, values := range map[string][]string(rb.Headers) {

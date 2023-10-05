@@ -108,6 +108,8 @@ type RequestBuilder struct {
 
 	// Public for metrics
 	Name string
+
+	mtx sync.RWMutex
 }
 
 // CustomPool defines a separate internal *transport* and connection pooling.
@@ -126,13 +128,11 @@ type BasicAuth struct {
 	Password string
 }
 
-var mtx sync.RWMutex
-
 // SetHeader Sets header to current request.
 // NTH: pass headers reference by optional param to avoid use synchronization, today is not a performance issue
 func (rb *RequestBuilder) SetHeader(key, value string) {
-	mtx.Lock()
-	defer mtx.Unlock()
+	rb.mtx.Lock()
+	defer rb.mtx.Unlock()
 	rb.Headers.Set(key, value)
 }
 
