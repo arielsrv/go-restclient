@@ -15,6 +15,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/oauth2"
 )
 
 var readVerbs = [3]string{http.MethodGet, http.MethodHead, http.MethodOptions}
@@ -56,10 +58,12 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 		return
 	}
 
-	// Get Client (client + transport)
-	client := rb.getClient()
+	ctx := context.Background()
 
-	request, err := http.NewRequestWithContext(context.Background(), verb, reqURL, reader)
+	// Get Client (client + transport)
+	client := rb.getClient(ctx)
+
+	request, err := http.NewRequestWithContext(ctx, verb, reqURL, reader)
 
 	if err != nil {
 		result.Err = err
@@ -161,7 +165,7 @@ func (rb *RequestBuilder) marshalReqBody(body interface{}) (io.Reader, error) {
 	}
 	return nil, nil
 }
-func (rb *RequestBuilder) getClient() *http.Client {
+func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 	// This will be executed only once
 	// per request builder
 	rb.clientMtxOnce.Do(func() {
@@ -208,7 +212,14 @@ func (rb *RequestBuilder) getClient() *http.Client {
 			}
 		}
 
-		rb.Client = &http.Client{Transport: tr}
+		rb.Client = &http.Client{
+			Transport: tr,
+		}
+
+		if rb.OAuth != nil {
+			ctx = context.WithValue(ctx, oauth2.HTTPClient, rb.Client)
+			rb.Client = rb.OAuth.Client(ctx)
+		}
 	})
 
 	if !rb.FollowRedirect {

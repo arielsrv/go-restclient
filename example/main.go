@@ -1,76 +1,59 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
-	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
-type UserDTO struct {
-	ID   int64
-	Name string
-}
-
 func main() {
-	requestBuilder := rest.RequestBuilder{
-		Timeout:        time.Millisecond * 3000,
-		ConnectTimeout: time.Millisecond * 5000,
-		Name:           "example_client",
-		BaseURL:        "https://gorest.co.in/public/v2",
-		CustomPool: &rest.CustomPool{
-			MaxIdleConnsPerHost: 20,
-			Transport:           &http.Transport{},
+	rb := rest.RequestBuilder{
+		Timeout:        time.Millisecond * 120,
+		ConnectTimeout: time.Millisecond * 2000,
+		BaseURL:        "https://staging-eu01-kiwoko.demandware.net/s/-/dw/data/v22_6",
+		OAuth: &clientcredentials.Config{
+			ClientID:     "a11d0149-687e-452e-9c94-783d489d4f72",
+			ClientSecret: "Kiwoko@1234",
+			TokenURL:     "https://account.demandware.com/dw/oauth2/access_token",
+			AuthStyle:    oauth2.AuthStyleInHeader,
 		},
 	}
 
-	// This won't be blocked.
-	requestBuilder.AsyncGet("/users", func(response *rest.Response) {
-		if response.StatusCode == http.StatusOK {
-			log.Println(response)
+	var sitesResponse struct {
+		Data []struct {
+			ID string `json:"id"`
+		} `json:"data"`
+	}
+
+	for {
+		response := rb.Get("/sites")
+		if response.Err != nil {
+			log.Print(response.Err)
+			continue
 		}
-	})
 
-	response := requestBuilder.Get("/users")
-	if response.StatusCode != http.StatusOK {
-		log.Fatal(response.Err.Error())
-	}
-
-	var usersDto []UserDTO
-	err := response.FillUp(&usersDto)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// or typed filled up
-	_, err = rest.TypedFillUp[[]UserDTO](response)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var futures []*rest.FutureResponse
-
-	requestBuilder.ForkJoin(func(c *rest.Concurrent) {
-		for i := 0; i < len(usersDto); i++ {
-			futures = append(futures, c.Get(fmt.Sprintf("/users/%d", usersDto[i].ID)))
+		if response.StatusCode != http.StatusOK {
+			log.Println(response.String())
+			log.Printf("invalid status_code: %d", response.StatusCode)
+			continue
 		}
-	})
 
-	log.Println("Wait all ...")
-	startTime := time.Now()
-	for i := range futures {
-		if futures[i].Response().StatusCode == http.StatusOK {
-			var userDto UserDTO
-			convertionErr := futures[i].Response().FillUp(&userDto)
-			if convertionErr != nil {
-				log.Fatal(convertionErr)
-			}
-			log.Println("\t" + userDto.Name)
+		err := response.FillUp(&sitesResponse)
+		if err != nil {
+			log.Println(err)
+			continue
 		}
+
+		log.Println("Sites: ")
+		for i := 0; i < len(sitesResponse.Data); i++ {
+			log.Printf("\t%s", sitesResponse.Data[i].ID)
+		}
+
+		time.Sleep(1000 * time.Millisecond)
 	}
-	elapsedTime := time.Since(startTime)
-	log.Infof("Elapsed time: %d", elapsedTime)
 }

@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 // The default transport used by all RequestBuilders
@@ -110,6 +112,9 @@ type RequestBuilder struct {
 	Name string
 
 	mtx sync.RWMutex
+
+	// OAuth Credentials
+	OAuth *clientcredentials.Config
 }
 
 // CustomPool defines a separate internal *transport* and connection pooling.
@@ -129,7 +134,7 @@ type BasicAuth struct {
 }
 
 // SetHeader Sets header to current request.
-// NTH: pass headers reference by optional param to avoid use synchronization, today is not a performance issue
+// NTH: pass headers reference by optional param to avoid use synchronization, today is not a performance issue.
 func (rb *RequestBuilder) SetHeader(key, value string) {
 	rb.mtx.Lock()
 	defer rb.mtx.Unlock()
