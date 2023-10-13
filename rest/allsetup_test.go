@@ -12,6 +12,9 @@ import (
 	"testing"
 	"time"
 
+	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
+	"golang.org/x/oauth2"
+
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -59,6 +62,8 @@ func setup() {
 	tmux.HandleFunc("/cache/lastmodified/user", usersLastModified)
 	tmux.HandleFunc("/slow/cache/user", slowUsersCache)
 	tmux.HandleFunc("/slow/user", slowUsers)
+	tmux.HandleFunc("/auth", auth)
+	tmux.HandleFunc("/auth/token", authToken)
 
 	// One user
 	tmux.HandleFunc("/user/", oneUser)
@@ -85,6 +90,27 @@ func slowUsersCache(writer http.ResponseWriter, req *http.Request) {
 func slowUsers(writer http.ResponseWriter, req *http.Request) {
 	time.Sleep(10 * time.Millisecond)
 	allUsers(writer, req)
+}
+
+func auth(writer http.ResponseWriter, _ *http.Request) {
+	writer.WriteHeader(http.StatusOK)
+}
+
+func authToken(writer http.ResponseWriter, _ *http.Request) {
+	token := new(oauth2.Token)
+	token.AccessToken = "access_token"
+	token.RefreshToken = "refresh_token"
+	token.Expiry = time.Now().Add(time.Duration(30) * time.Minute)
+	token.TokenType = "Bearer"
+
+	ub, err := json.Marshal(token)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	writer.Write(ub)
 }
 
 func usersCache(writer http.ResponseWriter, req *http.Request) {

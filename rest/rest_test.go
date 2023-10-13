@@ -7,6 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
+
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -270,4 +274,24 @@ func TestResponseExceedsRequestTimeout(t *testing.T) {
 	if !suResponseErrIsTimeoutExceeded() {
 		t.Fatalf("Timeouts configuration should get an error after connect")
 	}
+}
+
+func TestResponseExceedsRequestOAuth(t *testing.T) {
+	restClient := rest.RequestBuilder{
+		CustomPool: &rest.CustomPool{Transport: &http.Transport{}},
+		OAuth: &clientcredentials.Config{
+			ClientID:     "a11d0149-687e-452e-9c94-783d489d4f72",
+			ClientSecret: "client_secret",
+			TokenURL:     server.URL + "/auth/token",
+			AuthStyle:    oauth2.AuthStyleInHeader,
+		},
+	}
+	restClient.ConnectTimeout = 1000 * time.Millisecond
+	restClient.Timeout = 2000 * time.Millisecond
+	restClient.ContentType = rest.JSON
+
+	suResponse := restClient.Get(server.URL + "/auth")
+
+	assert.NotNil(t, suResponse)
+	assert.NoError(t, suResponse.Err)
 }
