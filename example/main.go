@@ -12,10 +12,12 @@ import (
 )
 
 func main() {
+	baseURL := "https://staging-eu01-kiwoko.demandware.net/s/-/dw/data/v22_6"
+
 	rb := rest.RequestBuilder{
-		Timeout:        time.Millisecond * 120,
+		Timeout:        time.Millisecond * 500,
 		ConnectTimeout: time.Millisecond * 2000,
-		BaseURL:        "https://staging-eu01-kiwoko.demandware.net/s/-/dw/data/v22_6",
+		BaseURL:        baseURL,
 		OAuth: &clientcredentials.Config{
 			ClientID:     "a11d0149-687e-452e-9c94-783d489d4f72",
 			ClientSecret: "Kiwoko@1234",
