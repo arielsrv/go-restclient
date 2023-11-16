@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
-
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
 func TestGet(t *testing.T) {
@@ -293,5 +293,5 @@ func TestResponseExceedsRequestOAuth(t *testing.T) {
 	suResponse := restClient.Get(server.URL + "/auth")
 
 	assert.NotNil(t, suResponse)
-	assert.NoError(t, suResponse.Err)
+	require.NoError(t, suResponse.Err)
 }

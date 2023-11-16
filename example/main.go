@@ -5,10 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
-
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
 func main() {

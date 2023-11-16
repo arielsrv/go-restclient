@@ -4,8 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
+	"github.com/stretchr/testify/require"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -27,7 +26,7 @@ func TestMockup(t *testing.T) {
 	}
 
 	err := rest.AddMockups(&mock)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	v := rest.Get(myURL)
 	if v.String() != "foo" {

@@ -13,16 +13,15 @@ import (
 	"time"
 
 	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
-	"golang.org/x/oauth2"
-
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"golang.org/x/oauth2"
 )
 
 var lastModifiedDate = time.Now()
 
 type User struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID   int    `json:"id"   xml:"id"`
+	Name string `json:"name" xml:"name"`
 }
 
 var tmux = http.NewServeMux()
