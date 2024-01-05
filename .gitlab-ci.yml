@@ -17,7 +17,6 @@ stages:
 
 code_navigation:
   image: sourcegraph/lsif-go:v1
-  stage: build
   allow_failure: true
   script:
     - .gitlab/common/git.sh
