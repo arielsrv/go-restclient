@@ -16,7 +16,7 @@ stages:
   - test
 
 code_navigation:
-  image: sourcegraph/lsif-go:latest
+  image: docker.io/golang:${GO_VERSION}
   stage: build
   allow_failure: true
   script:
