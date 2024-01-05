@@ -2,7 +2,6 @@ package rest
 
 import (
 	"container/list"
-	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"net/http"
@@ -11,6 +10,8 @@ import (
 	"sync/atomic"
 	"time"
 	"unsafe"
+
+	"github.com/goccy/go-json"
 )
 
 // Response ...
