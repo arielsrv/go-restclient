@@ -1,5 +1,10 @@
 #!/bin/bash
 .gitlab/common/git.sh
-curl -L  https://github.com/sourcegraph/lsif-go/releases/download/v1.2.0/src_linux_amd64 -o /usr/local/bin/lsif-go
+
+TAG=v1.9.3
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m | sed -e 's/x86_64/amd64/')
+echo "${TAG}" "${OS}" "${ARCH}"
+curl https://github.com/sourcegraph/lsif-go/releases/download/"${TAG}"/src_"${OS}"_"${ARCH}" -o /usr/local/bin/lsif-go
 chmod +x /usr/local/bin/lsif-go
 lsif-go
