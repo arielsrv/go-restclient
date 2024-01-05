@@ -16,11 +16,12 @@ stages:
   - test
 
 code_navigation:
-  image: docker.io/golang:${GO_VERSION}
+  image: sourcegraph/lsif-go:v1
   stage: build
   allow_failure: true
   script:
-    - .gitlab/code_navigation.sh
+    - .gitlab/common/git.sh
+    - lsif-go
   artifacts:
     reports:
       lsif: dump.lsif
