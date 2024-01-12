@@ -2,14 +2,14 @@ module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient
 
 go 1.21
 
-toolchain go1.21.5
+toolchain go1.21.6
 
 require (
 	github.com/goccy/go-json v0.10.2
 	github.com/prometheus/client_golang v1.18.0
 	github.com/stretchr/testify v1.8.4
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.3
-	golang.org/x/oauth2 v0.15.0
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.4
+	golang.org/x/oauth2 v0.16.0
 )
 
 require (
@@ -24,8 +24,8 @@ require (
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	golang.org/x/net v0.19.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
