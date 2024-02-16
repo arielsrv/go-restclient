@@ -2,7 +2,6 @@ package rest_test
 
 import (
 	"encoding/xml"
-	"fmt"
 	"io"
 	"math/rand"
 	"net/http"
@@ -232,7 +231,7 @@ func usersForm(writer http.ResponseWriter, req *http.Request) {
 
 		form, err := url.ParseQuery(string(b))
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			return
 		}
 
