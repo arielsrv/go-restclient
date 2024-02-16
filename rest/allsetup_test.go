@@ -2,10 +2,12 @@ package rest_test
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strconv"
 	"testing"
@@ -55,6 +57,7 @@ func setup() {
 	// users
 	tmux.HandleFunc("/user", allUsers)
 	tmux.HandleFunc("/xml/user", usersXML)
+	tmux.HandleFunc("/form/user", usersForm)
 	tmux.HandleFunc("/cache/user", usersCache)
 	tmux.HandleFunc("/cache/expires/user", usersCacheWithExpires)
 	tmux.HandleFunc("/cache/etag/user", usersEtag)
@@ -202,6 +205,48 @@ func usersXML(writer http.ResponseWriter, req *http.Request) {
 		ub, _ := json.Marshal(u)
 
 		writer.Header().Set("Content-Type", "application/xml")
+		writer.WriteHeader(http.StatusCreated)
+		writer.Write(ub)
+
+		return
+	}
+}
+
+func usersForm(writer http.ResponseWriter, req *http.Request) {
+	// Get
+	if req.Method == http.MethodGet {
+		b, _ := json.Marshal(users)
+
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Header().Set("Cache-Control", "no-cache")
+		writer.Write(b)
+	}
+
+	// Post
+	if req.Method == http.MethodPost {
+		b, err := io.ReadAll(req.Body)
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		form, err := url.ParseQuery(string(b))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		u := new(User)
+		u.ID = 3
+		u.Name = form["name"][0]
+
+		ub, err := json.Marshal(u)
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusCreated)
 		writer.Write(ub)
 
