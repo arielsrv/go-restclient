@@ -3,13 +3,14 @@ package rest
 import (
 	"container/list"
 	"encoding/xml"
-	"errors"
 	"net/http"
 	"net/http/httputil"
 	"strings"
 	"sync/atomic"
 	"time"
 	"unsafe"
+
+	"github.com/pkg/errors"
 
 	"github.com/goccy/go-json"
 )

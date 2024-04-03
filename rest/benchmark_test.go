@@ -14,7 +14,7 @@ func BenchmarkGet(b *testing.B) {
 		resp := rb.Get("/user")
 
 		if resp.StatusCode != http.StatusOK {
-			log.Print("f[" + strconv.Itoa(i) + "] Status != OK (200)")
+			log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
 		}
 	}
 }
@@ -24,7 +24,7 @@ func BenchmarkCacheGet(b *testing.B) {
 		resp := rb.Get("/cache/user")
 
 		if resp.StatusCode != http.StatusOK {
-			log.Print("f[" + strconv.Itoa(i) + "] Status != OK (200)")
+			log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
 		}
 	}
 }
@@ -34,7 +34,7 @@ func BenchmarkSlowGet(b *testing.B) {
 		resp := rb.Get("/slow/user")
 
 		if resp.StatusCode != http.StatusOK {
-			log.Print("f[" + strconv.Itoa(i) + "] Status != OK (200)")
+			log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
 		}
 	}
 }
