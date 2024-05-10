@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
-	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 	"io"
 	"net"
 	"net/http"
@@ -15,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 
 	"github.com/pkg/errors"
 
