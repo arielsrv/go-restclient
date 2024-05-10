@@ -195,6 +195,22 @@ func TestSetHeader(t *testing.T) {
 	}
 }
 
+func TestSetName(t *testing.T) {
+	t.Setenv("HOSTNAME", "localhost")
+	builder := rest.RequestBuilder{
+		BaseURL: server.URL,
+	}
+
+	builder.Headers = make(http.Header)
+	builder.SetHeader("X-Test", "test")
+
+	r := builder.Get("/header")
+
+	if r.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+}
+
 func TestWrongURL(t *testing.T) {
 	r := rest.Get("foo")
 	if r.Err == nil {

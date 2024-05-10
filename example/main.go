@@ -1,9 +1,10 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"time"
+
+	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 	"golang.org/x/oauth2"
@@ -34,25 +35,25 @@ func main() {
 	for {
 		response := rb.Get("/sites")
 		if response.Err != nil {
-			log.Print(response.Err)
+			log.Info(response.Err)
 			continue
 		}
 
 		if response.StatusCode != http.StatusOK {
-			log.Println(response.String())
-			log.Printf("invalid status_code: %d", response.StatusCode)
+			log.Info(response.String())
+			log.Infof("invalid status_code: %d", response.StatusCode)
 			continue
 		}
 
 		err := response.FillUp(&sitesResponse)
 		if err != nil {
-			log.Println(err)
+			log.Info(err)
 			continue
 		}
 
-		log.Println("Sites: ")
+		log.Info("Sites: ")
 		for i := 0; i < len(sitesResponse.Data); i++ {
-			log.Printf("\t%s", sitesResponse.Data[i].ID)
+			log.Infof("\t%s", sitesResponse.Data[i].ID)
 		}
 
 		time.Sleep(1000 * time.Millisecond)

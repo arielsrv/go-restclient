@@ -94,13 +94,13 @@ func main() {
 		Timeout:        time.Millisecond * 3000,
 		ConnectTimeout: time.Millisecond * 5000,
 		BaseURL:        "https://gorest.co.in/public/v2",
-        Name: "example_client",                           // for metrics
+        Name: "example_client",                           // recommended, for metrics (default is HOSTNAME from Kubernetes)
 	}
 
 	// This won't be blocked.
 	requestBuilder.AsyncGet("/users", func(response *rest.Response) {
 		if response.StatusCode == http.StatusOK {
-			log.Println(response)
+			log.Info(response)
 		}
 	})
 
@@ -129,7 +129,7 @@ func main() {
 		}
 	})
 
-	log.Println("Wait all ...")
+	log.Info("Wait all ...")
 	startTime := time.Now()
 	for i := range futures {
 		if futures[i].Response().StatusCode == http.StatusOK {
@@ -138,11 +138,11 @@ func main() {
 			if convertionErr != nil {
 				log.Fatal(convertionErr)
 			}
-			log.Println("\t" + userDto.Name)
+			log.Info("\t" + userDto.Name)
 		}
 	}
 	elapsedTime := time.Since(startTime)
-	log.Printf("Elapsed time: %d", elapsedTime)
+	log.Infof("Elapsed time: %d", elapsedTime)
 }
 ```
 ## Metrics

@@ -149,7 +149,7 @@ func FlushMockups() {
 }
 
 func mockupHandler(writer http.ResponseWriter, req *http.Request) {
-	normalizedURL, err := getNormalizedURL(req.Header.Get("X-Original-URL"))
+	normalizedURL, err := getNormalizedURL(req.Header.Get("X-Original-Url"))
 
 	if err == nil {
 		mockDBMutex.RLock()

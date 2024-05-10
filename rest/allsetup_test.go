@@ -151,7 +151,7 @@ func usersEtag(writer http.ResponseWriter, req *http.Request) {
 		b, _ := json.Marshal(users)
 
 		writer.Header().Set("Content-Type", "application/json")
-		writer.Header().Set("ETag", "1234")
+		writer.Header().Set("Etag", "1234")
 		writer.Write(b)
 	}
 }

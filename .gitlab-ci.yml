@@ -1,8 +1,9 @@
 variables:
-  GO_VERSION: '1.21.6'
+  GO_VERSION: '1.22.3'
   GONOSUMDB: gitlab.com
   GOPRIVATE: gitlab.com/iskaypetcom
   GITLAB_TOKEN: "${CICD_TOKEN}"
+  GOEXPERIMENT: nocoverageredesign
 
 default:
   tags:

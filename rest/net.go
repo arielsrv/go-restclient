@@ -6,10 +6,12 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 	"io"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -217,6 +219,7 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 		}
 
 		if rb.OAuth != nil {
+			log.Debug("Using OAuth2 client")
 			ctx = context.WithValue(ctx, oauth2.HTTPClient, rb.Client)
 			rb.Client = rb.OAuth.Client(ctx)
 		}
@@ -228,6 +231,15 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 		}
 	} else {
 		rb.Client.CheckRedirect = defaultCheckRedirectFunc
+	}
+
+	if rb.Name == "" {
+		log.Debugf("No name provided for request builder, using hostname")
+		if hostname, found := os.LookupEnv("HOSTNAME"); found {
+			rb.Name = hostname
+		}
+
+		rb.Name = "unknown"
 	}
 
 	return rb.Client
@@ -274,7 +286,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 
 	// If mockup
 	if *mockUpEnv {
-		req.Header.Set("X-Original-URL", cacheURL)
+		req.Header.Set("X-Original-Url", cacheURL)
 	}
 
 	// Basic Auth
@@ -377,7 +389,7 @@ func setLastModified(resp *Response) bool {
 }
 
 func setETag(resp *Response) bool {
-	resp.etag = resp.Header.Get("ETag")
+	resp.etag = resp.Header.Get("Etag")
 
 	return resp.etag != ""
 }
