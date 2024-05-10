@@ -3,6 +3,7 @@ package rest_test
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -56,6 +57,23 @@ func TestPostXML(t *testing.T) {
 	}
 
 	resp := rbXML.Post("/xml/user", &User{Name: "Maria"})
+
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatal("Status != OK (201)")
+	}
+}
+
+func TestPostForm(t *testing.T) {
+	fbForm := rest.RequestBuilder{
+		BaseURL:     server.URL,
+		ContentType: rest.FORM,
+		Headers: map[string][]string{
+			"Accept":    {"*/*"},
+			"My-Header": {"My-Value"},
+		},
+	}
+
+	resp := fbForm.Post("/form/user", url.Values{"name": []string{"Maria"}})
 
 	if resp.StatusCode != http.StatusCreated {
 		t.Fatal("Status != OK (201)")

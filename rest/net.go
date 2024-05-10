@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 	"io"
@@ -16,6 +15,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/goccy/go-json"
 	"golang.org/x/oauth2"
@@ -226,7 +227,7 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 	})
 
 	if !rb.FollowRedirect {
-		rb.Client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		rb.Client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
 			return errors.New("avoided redirect attempt")
 		}
 	} else {
@@ -268,18 +269,6 @@ func (rb *RequestBuilder) getConnectionTimeout() time.Duration {
 }
 
 func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cacheURL string) {
-	// @TODO: apineiro Replace by optional params when there is a lot of traffic
-	rb.mtx.Lock()
-	defer rb.mtx.Unlock()
-	// Custom Headers
-	if rb.Headers != nil {
-		for key, values := range map[string][]string(rb.Headers) {
-			for _, value := range values {
-				req.Header.Add(key, value)
-			}
-		}
-	}
-
 	// Default headers
 	req.Header.Set("Connection", "keep-alive")
 	req.Header.Set("Cache-Control", "no-cache")
@@ -299,7 +288,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 		if rb.UserAgent != "" {
 			return rb.UserAgent
 		}
-		return "github.com/arielsrv/rest"
+		return "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient"
 	}())
 
 	// Encoding
@@ -328,6 +317,21 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 			req.Header.Set("If-None-Match", cacheResp.etag)
 		case cacheResp.lastModified != nil:
 			req.Header.Set("If-Modified-Since", cacheResp.lastModified.Format(HTTPDateFormat))
+		}
+	}
+
+	// @TODO: apineiro Replace by optional params when there is a lot of traffic
+	rb.mtx.Lock()
+	defer rb.mtx.Unlock()
+	// Custom Headers
+	if rb.Headers != nil {
+		for key, values := range map[string][]string(rb.Headers) {
+			if req.Header[key] != nil {
+				req.Header.Del(key)
+			}
+			for _, value := range values {
+				req.Header.Add(key, value)
+			}
 		}
 	}
 }
