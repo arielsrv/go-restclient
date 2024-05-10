@@ -25,6 +25,8 @@ code_navigation:
   artifacts:
     reports:
       lsif: dump.lsif
+  only:
+    - branches
 
 compile:
   stage: build
