@@ -237,11 +237,12 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 
 	if rb.Name == "" {
 		log.Debugf("No name provided for request builder, using hostname")
-		if hostname, found := os.LookupEnv("HOSTNAME"); found {
+		hostname, found := os.LookupEnv("HOSTNAME")
+		if found {
 			rb.Name = hostname
+		} else {
+			rb.Name = "unknown"
 		}
-
-		rb.Name = "unknown"
 	}
 
 	return rb.Client
