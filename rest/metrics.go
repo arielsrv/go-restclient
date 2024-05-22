@@ -2,6 +2,7 @@ package rest
 
 import (
 	"os"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -29,7 +30,7 @@ type Config struct {
 
 func Default() *Config {
 	return &Config{
-		Environment: os.Getenv("ENV"),
+		Environment: strings.ToLower(os.Getenv("ENV")),
 		Application: os.Getenv("APP_NAME"),
 	}
 }
