@@ -749,13 +749,9 @@
     "list": [
       {
         "current": {
-          "selected": true,
-          "text": [
-            "dev"
-          ],
-          "value": [
-            "dev"
-          ]
+          "selected": false,
+          "text": "dev",
+          "value": "dev"
         },
         "hide": 0,
         "includeAll": true,
