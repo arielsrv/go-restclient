@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"io"
 	"math/rand"
@@ -12,7 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/goccy/go-json"
 	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 	"golang.org/x/oauth2"

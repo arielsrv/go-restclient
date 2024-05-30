@@ -3,6 +3,7 @@ package rest
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -19,7 +20,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/goccy/go-json"
 	"golang.org/x/oauth2"
 )
 

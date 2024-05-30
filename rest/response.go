@@ -2,6 +2,7 @@ package rest
 
 import (
 	"container/list"
+	"encoding/json"
 	"encoding/xml"
 	"net/http"
 	"net/http/httputil"
@@ -11,8 +12,6 @@ import (
 	"unsafe"
 
 	"github.com/pkg/errors"
-
-	"github.com/goccy/go-json"
 )
 
 // Response ...
