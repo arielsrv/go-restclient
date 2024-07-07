@@ -215,13 +215,11 @@ func NewPrometheusServiceMetricCollector() *PrometheusServiceMetricCollector {
 }
 
 func register(collectors ...prometheus.Collector) {
-	if len(collectors) > 0 {
-		for i := 0; i < len(collectors); i++ {
-			err := prometheus.Register(collectors[i])
-			if err != nil {
-				log.Error(err)
-				continue
-			}
+	for i := range len(collectors) {
+		err := prometheus.Register(collectors[i])
+		if err != nil {
+			log.Error(err)
+			continue
 		}
 	}
 }

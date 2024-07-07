@@ -130,7 +130,7 @@ func getNormalizedURL(urlStr string) (string, error) {
 			i++
 		}
 		sort.Strings(mk)
-		for j := 0; j < len(mk); j++ {
+		for j := range len(mk) {
 			if j+1 < len(mk) {
 				result = fmt.Sprintf("%s%s=%s&", result, mk[j], urlObj.Query().Get(mk[j]))
 			} else {

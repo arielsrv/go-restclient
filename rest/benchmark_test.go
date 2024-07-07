@@ -42,7 +42,7 @@ func BenchmarkSlowGet(b *testing.B) {
 func BenchmarkSlowConcurrentGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		rb.ForkJoin(func(cr *rest.Concurrent) {
-			for j := 0; j < 100; j++ {
+			for range 100 {
 				cr.Get("/slow/user")
 			}
 		})

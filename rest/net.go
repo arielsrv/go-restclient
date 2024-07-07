@@ -339,7 +339,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 }
 
 func matchVerbs(s string, sarray [3]string) bool {
-	for i := 0; i < len(sarray); i++ {
+	for i := range len(sarray) {
 		if sarray[i] == s {
 			return true
 		}

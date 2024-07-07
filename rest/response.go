@@ -62,7 +62,7 @@ func (r *Response) FillUp(fill interface{}) error {
 
 	ctype := strings.ToLower(r.Header.Get("Content-Type"))
 
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		switch {
 		case strings.Contains(ctype, ctypeJSON):
 			return json.Unmarshal(r.byteBody, fill)
