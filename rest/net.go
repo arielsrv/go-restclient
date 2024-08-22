@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 
 	"github.com/pkg/errors"
 

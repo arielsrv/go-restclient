@@ -1,5 +1,5 @@
 variables:
-  GO_VERSION: '1.22.5'
+  GO_VERSION: '1.22.6'
   GONOSUMDB: gitlab.com
   GOPRIVATE: gitlab.com/iskaypetcom
   GITLAB_TOKEN: "${CICD_TOKEN}"

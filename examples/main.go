@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 	"golang.org/x/oauth2"
