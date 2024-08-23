@@ -2,7 +2,6 @@ package rest
 
 import (
 	"container/list"
-	"encoding/json"
 	"encoding/xml"
 	"net/http"
 	"net/http/httputil"
@@ -10,6 +9,8 @@ import (
 	"sync/atomic"
 	"time"
 	"unsafe"
+
+	"encoding/json"
 
 	"github.com/pkg/errors"
 )

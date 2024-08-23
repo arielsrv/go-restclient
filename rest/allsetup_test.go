@@ -1,7 +1,6 @@
 package rest_test
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"io"
 	"math/rand"
@@ -12,6 +11,8 @@ import (
 	"strconv"
 	"testing"
 	"time"
+
+	"encoding/json"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
