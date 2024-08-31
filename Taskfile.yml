@@ -16,6 +16,8 @@ tasks:
     desc: Linter report
     cmds:
       - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+      - go run mvdan.cc/gofumpt@latest -w -l .
+      - go run github.com/dkorunic/betteralign/cmd/betteralign@latest -test_files -generated_files -apply ./...
   test:race:
     desc: Run race conditions test.
     cmds:
