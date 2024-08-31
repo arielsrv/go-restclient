@@ -38,9 +38,9 @@ func (fr *FutureResponse) Response() *Response {
 // The difference is that Concurrent methods returns a FutureResponse, instead
 // of a Response.
 type Concurrent struct {
+	reqBuilder *RequestBuilder
 	list       list.List
 	wg         sync.WaitGroup
-	reqBuilder *RequestBuilder
 }
 
 // Get issues a GET HTTP verb to the specified URL, concurrently with any other

@@ -9,9 +9,7 @@ import (
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 )
 
-var (
-	HTTPCollector *Collector
-)
+var HTTPCollector *Collector
 
 func init() {
 	serviceMetricCollector := NewPrometheusServiceMetricCollector()
@@ -36,9 +34,9 @@ func Default() *Config {
 }
 
 type Collector struct {
+	collector   ServiceCollector
 	config      *Config
 	serviceType string
-	collector   ServiceCollector
 }
 
 func NewCollector(config *Config, serviceType string, collector ServiceCollector) *Collector {
@@ -119,9 +117,8 @@ func (m *metricDto) getValue(value string) string {
 }
 
 type CounterDto struct {
-	values []float64
-
 	metricDto
+	values []float64
 }
 
 func (c *CounterDto) BuildLabels() []string {
@@ -129,9 +126,8 @@ func (c *CounterDto) BuildLabels() []string {
 }
 
 type TimerDto struct {
-	elapsedTime time.Duration
-
 	metricDto
+	elapsedTime time.Duration
 }
 
 func (t *TimerDto) BuildLabels() []string {

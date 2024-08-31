@@ -79,7 +79,7 @@ func TestGetTypedFillUpJSON(t *testing.T) {
 func TestGetFillUpXML(t *testing.T) {
 	var u []User
 
-	var rbXML = rest.RequestBuilder{
+	rbXML := rest.RequestBuilder{
 		BaseURL:     server.URL,
 		ContentType: rest.XML,
 	}

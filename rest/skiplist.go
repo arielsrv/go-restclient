@@ -16,8 +16,8 @@ const maxHeight = 31
 
 // The skiplist struct itself.
 type skipList struct {
-	height int
 	head   *skipListNode
+	height int
 }
 
 // A node representation.

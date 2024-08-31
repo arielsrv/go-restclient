@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"io"
 	"math/rand"
@@ -12,8 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"encoding/json"
-
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 	"golang.org/x/oauth2"
@@ -22,12 +21,14 @@ import (
 var lastModifiedDate = time.Now()
 
 type User struct {
-	ID   int    `json:"id"   xml:"id"`
 	Name string `json:"name" xml:"name"`
+	ID   int    `json:"id"   xml:"id"`
 }
 
-var tmux = http.NewServeMux()
-var server = httptest.NewServer(tmux)
+var (
+	tmux   = http.NewServeMux()
+	server = httptest.NewServer(tmux)
+)
 
 var users []User
 

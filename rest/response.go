@@ -2,6 +2,7 @@ package rest
 
 import (
 	"container/list"
+	"encoding/json"
 	"encoding/xml"
 	"net/http"
 	"net/http/httputil"
@@ -10,23 +11,21 @@ import (
 	"time"
 	"unsafe"
 
-	"encoding/json"
-
 	"github.com/pkg/errors"
 )
 
 // Response ...
 type Response struct {
+	Err      error
+	cacheHit atomic.Value
 	*http.Response
-	Err             error
-	byteBody        []byte
 	listElement     *list.Element
 	skipListElement *skipListNode
 	ttl             *time.Time
 	lastModified    *time.Time
 	etag            string
+	byteBody        []byte
 	revalidate      bool
-	cacheHit        atomic.Value
 }
 
 func (r *Response) size() int64 {

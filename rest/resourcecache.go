@@ -46,8 +46,8 @@ const (
 )
 
 type lruMsg struct {
-	operation lruOperation
 	resp      *Response
+	operation lruOperation
 }
 
 type resourceTTLLruMap struct {
@@ -155,8 +155,8 @@ func (rCache *resourceTTLLruMap) setNX(key string, value *Response) {
 
 		for i := 0; ByteSize(cacheSize) >= MaxCacheSize && i < 10; i++ {
 			rCache.lruChan <- &lruMsg{
-				last,
 				nil,
+				last,
 			}
 
 			k := <-rCache.popChan

@@ -14,12 +14,16 @@ import (
 
 const MockNotFoundError string = "MockUp nil!"
 
-var mockUpEnv = flag.Bool("mock", false, "Use 'mock' flag to tell package rest that you would like to use mockups.")
-var mockMap = make(map[string]*Mock)
-var mockDBMutex sync.RWMutex
+var (
+	mockUpEnv   = flag.Bool("mock", false, "Use 'mock' flag to tell package rest that you would like to use mockups.")
+	mockMap     = make(map[string]*Mock)
+	mockDBMutex sync.RWMutex
+)
 
-var mockServer *httptest.Server
-var mux *http.ServeMux
+var (
+	mockServer *httptest.Server
+	mux        *http.ServeMux
+)
 
 var mockServerURL *url.URL
 
@@ -33,6 +37,11 @@ var mockServerURL *url.URL
 //
 //	StartMockupServer()
 type Mock struct {
+	// Request array Headers
+	ReqHeaders http.Header
+
+	// Response Array Headers
+	RespHeaders http.Header
 
 	// Request URL
 	URL string
@@ -41,20 +50,14 @@ type Mock struct {
 	// As a good practice use the constants in http package (http.MethodGet, etc.)
 	HTTPMethod string
 
-	// Request array Headers
-	ReqHeaders http.Header
-
 	// Request Body, used with POST, PUT & PATCH
 	ReqBody string
 
-	// Response HTTP Code
-	RespHTTPCode int
-
-	// Response Array Headers
-	RespHeaders http.Header
-
 	// Response Body
 	RespBody string
+
+	// Response HTTP Code
+	RespHTTPCode int
 
 	// Transport error
 	Timeout time.Duration

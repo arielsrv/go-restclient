@@ -3,6 +3,7 @@ package rest
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -15,8 +16,6 @@ import (
 	"strings"
 	"time"
 
-	"encoding/json"
-
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 
 	"github.com/pkg/errors"
@@ -24,9 +23,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var readVerbs = [3]string{http.MethodGet, http.MethodHead, http.MethodOptions}
-var contentVerbs = [3]string{http.MethodPost, http.MethodPut, http.MethodPatch}
-var defaultCheckRedirectFunc func(req *http.Request, via []*http.Request) error
+var (
+	readVerbs                = [3]string{http.MethodGet, http.MethodHead, http.MethodOptions}
+	contentVerbs             = [3]string{http.MethodPost, http.MethodPut, http.MethodPatch}
+	defaultCheckRedirectFunc func(req *http.Request, via []*http.Request) error
+)
 
 var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
@@ -69,7 +70,6 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 	client := rb.getClient(ctx)
 
 	request, err := http.NewRequestWithContext(ctx, verb, reqURL, reader)
-
 	if err != nil {
 		result.Err = err
 		return
@@ -170,6 +170,7 @@ func (rb *RequestBuilder) marshalReqBody(body interface{}) (io.Reader, error) {
 	}
 	return nil, nil
 }
+
 func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 	// This will be executed only once
 	// per request builder
