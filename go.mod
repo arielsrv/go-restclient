@@ -1,13 +1,13 @@
 module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient
 
-go 1.23
+go 1.23.1
 
 require (
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.20.2
+	github.com/prometheus/client_golang v1.20.4
 	github.com/stretchr/testify v1.9.0
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22
-	golang.org/x/oauth2 v0.22.0
+	golang.org/x/oauth2 v0.23.0
 )
 
 require (
