@@ -12,10 +12,12 @@ import (
 func main() {
 	baseURL := "https://gorest.co.in/public/v2"
 
-	rb := rest.RequestBuilder{
+	httpClient := &rest.RequestBuilder{
 		Timeout:        time.Millisecond * 1000,
 		ConnectTimeout: time.Millisecond * 5000,
 		BaseURL:        baseURL,
+		// OAuth: 		...
+		// CustomPool:  ...
 	}
 
 	var users []struct {
@@ -26,7 +28,7 @@ func main() {
 		Status string `json:"status"`
 	}
 
-	response := rb.Get("/users")
+	response := httpClient.Get("/users")
 	if response.Err != nil {
 		log.Fatal(response.Err)
 	}
@@ -35,7 +37,18 @@ func main() {
 		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
 	}
 
-	err := response.FillUp(&users)
+	// Typed fill up
+	result, err := rest.Unmarshal[[]UserDTO](response)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := range result {
+		log.Infof("User: %v", result[i])
+	}
+
+	// Untyped fill up
+	err = response.FillUp(&users)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,4 +56,12 @@ func main() {
 	for i := range users {
 		log.Infof("User: %v", users[i])
 	}
+}
+
+type UserDTO struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Gender string `json:"gender"`
+	Status string `json:"status"`
 }
