@@ -6,6 +6,7 @@
 
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs
 - Fork-Join request pattern, for sending many requests concurrently, getting better client performance.
+- Response Caching, based on response headers (cache-control, last-modified, etag, expires)
 - Async request pattern.
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
 - Request Body can be `string`, `[]byte`, `struct` & `map`
