@@ -10,47 +10,6 @@
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
 - Request Body can be `string`, `[]byte`, `struct` & `map`
 
-## Local environment
-
-You don't need **VPN**, **Vanity Gateway Server** or **SSH** protocol to use internal Iskaypet packages for Go.
-
-**$HOME/.gitconfig**
-
-> [url "https://oauth2:**{$GITLAB_TOKEN}**@gitlab.com"]\
-> &emsp;insteadOf = https://gitlab.com
-
-**$HOME/.netrc** (macOs/Unix)
-
-> machine gitlab.com\
-> &emsp;login **your_gitlab_account**\
-> &emsp;password **your_gitlab_token**
-
-**%USERPROFILE%/_netrc** (Windows)
-
-> machine gitlab.com\
-> &emsp;login **your_gitlab_account**\
-> &emsp;password **your_gitlab_token**
-
-**GOPRIVATE**
-> export GOPRIVATE=gitlab.com/iskaypetcom
-
-## Developer tools
-
-* [Local environment](#environment)
-* [Golang Lint](https://golangci-lint.run/)
-* [Golang Task](https://taskfile.dev/)
-* [Golang Dependencies Update](https://github.com/oligot/go-mod-upgrade)
-* [jq](https://stedolan.github.io/jq/)
-
-### For macOs
-
-```shell
-$ brew install go-task/tap/go-task
-$ brew install golangci-lint
-$ go install github.com/oligot/go-mod-upgrade@latest
-$ brew install jq
-```
-
 ## Table of contents
 
 * [RESTClient](#rest-client)
@@ -63,7 +22,7 @@ $ brew install jq
 go.mod
 
 ```go
-go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@v0.0.4
+go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 ```
 
 ```shell
@@ -76,74 +35,50 @@ export GOPRIVATE=gitlab.com/iskaypetcom
 package main
 
 import (
-	"fmt"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"net/http"
-	"time"
+    "net/http"
+    "time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+    "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+
+    "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
-type UserDTO struct {
-	ID   int64
-	Name string
-}
-
 func main() {
-	requestBuilder := rest.RequestBuilder{
-		Timeout:        time.Millisecond * 3000,
-		ConnectTimeout: time.Millisecond * 5000,
-		BaseURL:        "https://gorest.co.in/public/v2",
-        Name: "example_client",                           // recommended, for metrics (default is HOSTNAME from Kubernetes)
-	}
+    baseURL := "https://gorest.co.in/public/v2"
 
-	// This won't be blocked.
-	requestBuilder.AsyncGet("/users", func(response *rest.Response) {
-		if response.StatusCode == http.StatusOK {
-			log.Info(response)
-		}
-	})
+    rb := rest.RequestBuilder{
+        Timeout:        time.Millisecond * 1000,
+        ConnectTimeout: time.Millisecond * 5000,
+        BaseURL:        baseURL,
+    }
 
-	response := requestBuilder.Get("/users")
-	if response.StatusCode != http.StatusOK {
-		log.Fatal(response.Err.Error())
-	}
+    var users []struct {
+        ID     int    `json:"id"`
+        Name   string `json:"name"`
+        Email  string `json:"email"`
+        Gender string `json:"gender"`
+        Status string `json:"status"`
+    }
 
-	var usersDto []UserDTO
-	err := response.FillUp(&usersDto)
-	if err != nil {
-		log.Fatal(err)
-	}
+    response := rb.Get("/users")
+    if response.Err != nil {
+        log.Fatal(response.Err)
+    }
 
-	// or typed filled up
-	_, err = rest.TypedFillUp[[]UserDTO](response)
-	if err != nil {
-		log.Fatal(err)
-	}
+    if response.StatusCode != http.StatusOK {
+        log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+    }
 
-	var futures []*rest.FutureResponse
+    err := response.FillUp(&users)
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	requestBuilder.ForkJoin(func(c *rest.Concurrent) {
-		for i := 0; i < len(usersDto); i++ {
-			futures = append(futures, c.Get(fmt.Sprintf("/users/%d", usersDto[i].ID)))
-		}
-	})
-
-	log.Info("Wait all ...")
-	startTime := time.Now()
-	for i := range futures {
-		if futures[i].Response().StatusCode == http.StatusOK {
-			var userDto UserDTO
-			convertionErr := futures[i].Response().FillUp(&userDto)
-			if convertionErr != nil {
-				log.Fatal(convertionErr)
-			}
-			log.Info("\t" + userDto.Name)
-		}
-	}
-	elapsedTime := time.Since(startTime)
-	log.Infof("Elapsed time: %d", elapsedTime)
+    for i := range users {
+        log.Infof("User: %v", users[i])
+    }
 }
+
 ```
 ## Metrics
 ![prometheus]
