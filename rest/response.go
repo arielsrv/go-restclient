@@ -87,6 +87,21 @@ func TypedFillUp[TResult any](r *Response) (*TResult, error) {
 	return target, nil
 }
 
+func Unmarshal[T any](r *Response) (T, error) {
+	var zero T
+	if r == nil {
+		return zero, errors.New("response is nil")
+	}
+
+	var result T
+	err := r.FillUp(&result)
+	if err != nil {
+		return zero, err
+	}
+
+	return result, nil
+}
+
 // CacheHit shows if a response was get from the cache.
 func (r *Response) CacheHit() bool {
 	if hit, ok := r.cacheHit.Load().(bool); hit && ok {

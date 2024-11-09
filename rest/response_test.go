@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -76,6 +78,27 @@ func TestGetTypedFillUpJSON(t *testing.T) {
 	t.Fatal("Couldn't found Alice")
 }
 
+func TestGetTypedGenericUnmarshalJSON(t *testing.T) {
+	resp := rb.Get("/user")
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+
+	result, err := rest.Unmarshal[[]User](resp)
+	if err != nil {
+		t.Fatal("Json fill up failed. Error: " + err.Error())
+	}
+
+	for _, v := range result {
+		if v.Name == "Alice" {
+			return
+		}
+	}
+
+	t.Fatal("Couldn't found Alice")
+}
+
 func TestGetFillUpXML(t *testing.T) {
 	var u []User
 
@@ -102,4 +125,44 @@ func TestGetFillUpXML(t *testing.T) {
 	}
 
 	t.Fatal("Couldn't found Alice")
+}
+
+func TestResponse_Unmarshal_Error(t *testing.T) {
+	response := &rest.Response{
+		Response: &http.Response{
+			Header: map[string][]string{
+				"Content-Type": {"application/json"},
+			},
+		},
+	}
+
+	var user User
+	require.Error(t, response.FillUp(user))
+}
+
+func TestResponse_Unmarshal_Error_Type(t *testing.T) {
+	response := &rest.Response{
+		Response: &http.Response{
+			Header: map[string][]string{
+				"Content-Type": {"application/json"},
+			},
+		},
+	}
+
+	var user User
+	require.Error(t, response.FillUp(&user))
+	user, err := rest.Unmarshal[User](response)
+	require.Error(t, err)
+}
+
+func TestResponse_Unmarshal_Nil(t *testing.T) {
+	user, err := rest.Unmarshal[*User](nil)
+	require.Error(t, err)
+	require.Nil(t, user)
+}
+
+func TestResponse_Unmarshal_Nil_List(t *testing.T) {
+	user, err := rest.Unmarshal[[]User](nil)
+	require.Error(t, err)
+	require.Nil(t, user)
 }

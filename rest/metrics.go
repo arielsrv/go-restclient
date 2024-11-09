@@ -211,7 +211,7 @@ func NewPrometheusServiceMetricCollector() *PrometheusServiceMetricCollector {
 }
 
 func register(collectors ...prometheus.Collector) {
-	for i := range len(collectors) {
+	for i := range collectors {
 		err := prometheus.Register(collectors[i])
 		if err != nil {
 			log.Error(err)

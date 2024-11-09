@@ -224,8 +224,8 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 
 		if rb.OAuth != nil {
 			log.Debug("Using OAuth2 client")
-			ctx = context.WithValue(ctx, oauth2.HTTPClient, rb.Client)
-			rb.Client = rb.OAuth.Client(ctx)
+			nestedCtx := context.WithValue(ctx, oauth2.HTTPClient, rb.Client)
+			rb.Client = rb.OAuth.Client(nestedCtx)
 		}
 	})
 
@@ -341,7 +341,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 }
 
 func matchVerbs(s string, sarray [3]string) bool {
-	for i := range len(sarray) {
+	for i := range sarray {
 		if sarray[i] == s {
 			return true
 		}
