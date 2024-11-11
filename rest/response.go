@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -87,7 +88,8 @@ func TypedFillUp[TResult any](r *Response) (*TResult, error) {
 	return target, nil
 }
 
-func Unmarshal[T any](r *Response) (T, error) {
+// Deserialize fills the provided pointer with the JSON or XML response.
+func Deserialize[T any](r *Response) (T, error) {
 	var zero T
 	if r == nil {
 		return zero, errors.New("response is nil")
@@ -140,4 +142,24 @@ func (r *Response) Debug() string {
 	dump += r.String() + "\n"
 
 	return dump
+}
+
+func (r *Response) IsOk() bool {
+	if r.StatusCode >= 200 && r.StatusCode < 300 {
+		return true
+	}
+
+	return false
+}
+
+func (r *Response) VerifyIsOkOrError() error {
+	if r.Err != nil {
+		return r.Err
+	}
+
+	if !r.IsOk() {
+		return fmt.Errorf("request failed with status code: %s", r.Status)
+	}
+
+	return nil
 }

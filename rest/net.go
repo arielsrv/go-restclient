@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -24,8 +25,8 @@ import (
 )
 
 var (
-	readVerbs                = [3]string{http.MethodGet, http.MethodHead, http.MethodOptions}
-	contentVerbs             = [3]string{http.MethodPost, http.MethodPut, http.MethodPatch}
+	readVerbs                = []string{http.MethodGet, http.MethodHead, http.MethodOptions}
+	contentVerbs             = []string{http.MethodPost, http.MethodPut, http.MethodPatch}
 	defaultCheckRedirectFunc func(req *http.Request, via []*http.Request) error
 )
 
@@ -41,7 +42,7 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 	reqURL = rb.BaseURL + reqURL
 
 	// If Cache enable && operation is read: Cache GET
-	if !rb.DisableCache && matchVerbs(verb, readVerbs) {
+	if !rb.DisableCache && slices.Contains(readVerbs, verb) {
 		if cacheResp = resourceCache.get(reqURL); cacheResp != nil {
 			cacheResp.cacheHit.Store(true)
 			if !cacheResp.revalidate {
@@ -122,8 +123,8 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 		result.revalidate = true
 	}
 
-	// If Cache enable: Cache SETNX
-	if !rb.DisableCache && matchVerbs(verb, readVerbs) && (ttl || lastModified || etag) {
+	// If Cache enable: Cache SENA
+	if !rb.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
 		resourceCache.setNX(cacheURL, result)
 	}
 
@@ -310,7 +311,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 	if cType != "" {
 		req.Header.Set("Accept", "application/"+cType)
 
-		if matchVerbs(req.Method, contentVerbs) {
+		if slices.Contains(contentVerbs, req.Method) {
 			req.Header.Set("Content-Type", "application/"+cType)
 		}
 	}
@@ -338,16 +339,6 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 			}
 		}
 	}
-}
-
-func matchVerbs(s string, sarray [3]string) bool {
-	for i := range sarray {
-		if sarray[i] == s {
-			return true
-		}
-	}
-
-	return false
 }
 
 func setTTL(resp *Response) (set bool) {

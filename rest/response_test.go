@@ -57,6 +57,34 @@ func TestGetFillUpJSON(t *testing.T) {
 	t.Fatal("Couldn't found Alice")
 }
 
+func TestGetFillUpJSON_IsOk(t *testing.T) {
+	var u []User
+
+	resp := rb.Get("/user")
+
+	if !resp.IsOk() {
+		t.Fatal("Status != OK (200)")
+	}
+
+	err := resp.FillUp(&u)
+	if err != nil {
+		t.Fatal("Json fill up failed. Error: " + err.Error())
+	}
+
+	err = resp.VerifyIsOkOrError()
+	if err != nil {
+		t.Fatal("Error in VerifyIsOkOrError: " + err.Error())
+	}
+
+	for _, v := range users {
+		if v.Name == "Alice" {
+			return
+		}
+	}
+
+	t.Fatal("Couldn't found Alice")
+}
+
 func TestGetTypedFillUpJSON(t *testing.T) {
 	resp := rb.Get("/user")
 
@@ -85,7 +113,7 @@ func TestGetTypedGenericUnmarshalJSON(t *testing.T) {
 		t.Fatal("Status != OK (200)")
 	}
 
-	result, err := rest.Unmarshal[[]User](resp)
+	result, err := rest.Deserialize[[]User](resp)
 	if err != nil {
 		t.Fatal("Json fill up failed. Error: " + err.Error())
 	}
@@ -138,6 +166,8 @@ func TestResponse_Unmarshal_Error(t *testing.T) {
 
 	var user User
 	require.Error(t, response.FillUp(user))
+	require.Error(t, response.VerifyIsOkOrError())
+	require.False(t, response.IsOk())
 }
 
 func TestResponse_Unmarshal_Error_Type(t *testing.T) {
@@ -151,18 +181,18 @@ func TestResponse_Unmarshal_Error_Type(t *testing.T) {
 
 	var user User
 	require.Error(t, response.FillUp(&user))
-	user, err := rest.Unmarshal[User](response)
+	user, err := rest.Deserialize[User](response)
 	require.Error(t, err)
 }
 
 func TestResponse_Unmarshal_Nil(t *testing.T) {
-	user, err := rest.Unmarshal[*User](nil)
+	user, err := rest.Deserialize[*User](nil)
 	require.Error(t, err)
 	require.Nil(t, user)
 }
 
 func TestResponse_Unmarshal_Nil_List(t *testing.T) {
-	user, err := rest.Unmarshal[[]User](nil)
+	user, err := rest.Deserialize[[]User](nil)
 	require.Error(t, err)
 	require.Nil(t, user)
 }

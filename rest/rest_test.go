@@ -308,6 +308,8 @@ func TestResponseExceedsRequestTimeout(t *testing.T) {
 	if !suResponseErrIsTimeoutExceeded() {
 		t.Fatalf("Timeouts configuration should get an error after connect")
 	}
+
+	require.Error(t, suResponse.VerifyIsOkOrError())
 }
 
 func TestResponseExceedsRequestOAuth(t *testing.T) {

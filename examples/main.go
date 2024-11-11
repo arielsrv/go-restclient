@@ -38,7 +38,7 @@ func main() {
 	}
 
 	// Typed fill up
-	result, err := rest.Unmarshal[[]UserDTO](response)
+	result, err := rest.Deserialize[[]UserDTO](response)
 	if err != nil {
 		log.Fatal(err)
 	}
