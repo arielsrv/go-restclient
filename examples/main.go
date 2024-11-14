@@ -13,13 +13,17 @@ import (
 func main() {
 	baseURL := "https://gorest.co.in/public/v2"
 
+	headers := make(http.Header)
+	headers.Add("Accept", "application/json")
+	headers.Add("Content-Type", "application/json")
+
 	httpClient := &rest.RequestBuilder{
 		Timeout:        time.Millisecond * 1000,
 		ConnectTimeout: time.Millisecond * 5000,
 		BaseURL:        baseURL,
+		EnableTrace:    true,
 		// OAuth: 		...
 		// CustomPool:  ...
-		// EnableTrace:  ...
 	}
 
 	var users []struct {
@@ -30,7 +34,7 @@ func main() {
 		Status string `json:"status"`
 	}
 
-	response := httpClient.GetWithContext(context.Background(), "/users")
+	response := httpClient.GetWithContext(context.Background(), "/users", headers)
 	if response.Err != nil {
 		log.Fatal(response.Err)
 	}

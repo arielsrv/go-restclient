@@ -80,6 +80,10 @@ func withHeader(writer http.ResponseWriter, req *http.Request) {
 		if h := req.Header.Get("X-Test"); h == "test" {
 			return
 		}
+
+		if h := req.Header.Get("My-Header"); h == "My-Value" {
+			return
+		}
 	}
 
 	writer.WriteHeader(http.StatusBadRequest)

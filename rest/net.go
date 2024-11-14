@@ -35,7 +35,7 @@ var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
 const HTTPDateFormat string = "Mon, 01 Jan 2006 15:04:05 GMT"
 
-func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL string, reqBody any) (result *Response) {
+func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL string, reqBody any, headers ...http.Header) (result *Response) {
 	var cacheURL string
 	var cacheResp *Response
 
@@ -81,7 +81,7 @@ func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL str
 	}
 
 	// Set extra parameters
-	rb.setParams(request, cacheResp, cacheURL)
+	rb.setParams(request, cacheResp, cacheURL, headers...)
 
 	startTime := time.Now()
 	// Make the request
@@ -281,7 +281,7 @@ func (rb *RequestBuilder) getConnectionTimeout() time.Duration {
 	}
 }
 
-func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cacheURL string) {
+func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cacheURL string, headers ...http.Header) {
 	// Default headers
 	req.Header.Set("Connection", "keep-alive")
 	req.Header.Set("Cache-Control", "no-cache")
@@ -333,17 +333,10 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 		}
 	}
 
-	// @TODO: apineiro Replace by optional params when there is a lot of traffic
-	rb.mtx.Lock()
-	defer rb.mtx.Unlock()
-	// Custom Headers
-	if rb.Headers != nil {
-		for key, values := range map[string][]string(rb.Headers) {
-			if req.Header[key] != nil {
-				req.Header.Del(key)
-			}
-			for _, value := range values {
-				req.Header.Add(key, value)
+	if len(headers) > 0 {
+		for _, h := range headers {
+			for k, v := range h {
+				req.Header[k] = v
 			}
 		}
 	}

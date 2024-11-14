@@ -47,46 +47,42 @@ const (
 )
 
 type IRequestBuilder interface {
-	Get(url string) *Response
-	GetWithContext(ctx context.Context, url string) *Response
-	Post(url string, body any) *Response
-	PostWithContext(ctx context.Context, url string, body any) *Response
-	PutWithContext(ctx context.Context, url string, body any) *Response
-	Put(url string, body any) *Response
-	Patch(url string, body any) *Response
-	PatchWithContext(ctx context.Context, url string, body any) *Response
-	Delete(url string) *Response
-	DeleteWithContext(ctx context.Context, url string) *Response
-	Head(url string) *Response
-	HeadWithContext(ctx context.Context, url string) *Response
-	Options(url string) *Response
-	OptionsWithContext(ctx context.Context, url string) *Response
-	AsyncGet(url string, f func(*Response))
-	AsyncGetWithContext(ctx context.Context, url string, f func(*Response))
-	AsyncPost(url string, body any, f func(*Response))
-	AsyncPostWithContext(ctx context.Context, url string, body any, f func(*Response))
-	AsyncPut(url string, body any, f func(*Response))
-	AsyncPutWithContext(ctx context.Context, url string, body any, f func(*Response))
-	AsyncPatch(url string, body any, f func(*Response))
-	AsyncPatchWithContext(ctx context.Context, url string, body any, f func(*Response))
-	AsyncDelete(url string, f func(*Response))
-	AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response))
-	AsyncHead(url string, f func(*Response))
-	AsyncHeadWithContext(ctx context.Context, url string, f func(*Response))
-	AsyncOptions(url string, f func(*Response))
-	AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response))
+	Get(url string, headers ...http.Header) *Response
+	GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	Post(url string, body any, headers ...http.Header) *Response
+	PostWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
+	PutWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
+	Put(url string, body any, headers ...http.Header) *Response
+	Patch(url string, body any, headers ...http.Header) *Response
+	PatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
+	Delete(url string, headers ...http.Header) *Response
+	DeleteWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	Head(url string, headers ...http.Header) *Response
+	HeadWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	Options(url string, headers ...http.Header) *Response
+	OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	AsyncGet(url string, f func(*Response), headers ...http.Header)
+	AsyncGetWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
+	AsyncPost(url string, body any, f func(*Response), headers ...http.Header)
+	AsyncPostWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header)
+	AsyncPut(url string, body any, f func(*Response), headers ...http.Header)
+	AsyncPutWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header)
+	AsyncPatch(url string, body any, f func(*Response), headers ...http.Header)
+	AsyncPatchWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header)
+	AsyncDelete(url string, f func(*Response), headers ...http.Header)
+	AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
+	AsyncHead(url string, f func(*Response), headers ...http.Header)
+	AsyncHeadWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
+	AsyncOptions(url string, f func(*Response), headers ...http.Header)
+	AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
 
 	ForkJoin(f func(*Concurrent))
-	SetHeader(key, value string)
 }
 
 // RequestBuilder is the baseline for creating requests
 // There's a Default Builder that you may use for simple requests
 // RequestBuilder si thread-safe, and you should store it for later re-used.
 type RequestBuilder struct {
-	// Headers to be sent in the request
-	Headers http.Header
-
 	// Create a CustomPool if you don't want to share the *transport*, with others
 	// RequestBuilder
 	CustomPool *CustomPool
@@ -151,21 +147,13 @@ type BasicAuth struct {
 	Password string
 }
 
-// SetHeader Sets header to current request.
-// NTH: pass headers reference by optional param to avoid use synchronization, today is not a performance issue.
-func (rb *RequestBuilder) SetHeader(key, value string) {
-	rb.mtx.Lock()
-	defer rb.mtx.Unlock()
-	rb.Headers.Set(key, value)
-}
-
 // Get issues a GET HTTP verb to the specified URL.
 //
 // In Restful, GET is used for "reading" or retrieving a resource.
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
-func (rb *RequestBuilder) Get(url string) *Response {
-	return rb.GetWithContext(context.Background(), url)
+func (rb *RequestBuilder) Get(url string, headers ...http.Header) *Response {
+	return rb.GetWithContext(context.Background(), url, headers...)
 }
 
 // GetWithContext issues a GET HTTP verb to the specified URL.
@@ -173,8 +161,8 @@ func (rb *RequestBuilder) Get(url string) *Response {
 // In Restful, GET is used for "reading" or retrieving a resource.
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
-func (rb *RequestBuilder) GetWithContext(ctx context.Context, url string) *Response {
-	return rb.doRequest(ctx, http.MethodGet, url, nil)
+func (rb *RequestBuilder) GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response {
+	return rb.doRequest(ctx, http.MethodGet, url, nil, headers...)
 }
 
 // Post issues a POST HTTP verb to the specified URL.
@@ -184,8 +172,8 @@ func (rb *RequestBuilder) GetWithContext(ctx context.Context, url string) *Respo
 // 404(Not Found), or 409(Conflict) if resource already exist.
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) Post(url string, body any) *Response {
-	return rb.PostWithContext(context.Background(), url, body)
+func (rb *RequestBuilder) Post(url string, body any, headers ...http.Header) *Response {
+	return rb.PostWithContext(context.Background(), url, body, headers...)
 }
 
 // PostWithContext issues a POST HTTP verb to the specified URL.
@@ -195,8 +183,8 @@ func (rb *RequestBuilder) Post(url string, body any) *Response {
 // 404(Not Found), or 409(Conflict) if resource already exist.
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) PostWithContext(ctx context.Context, url string, body any) *Response {
-	return rb.doRequest(ctx, http.MethodPost, url, body)
+func (rb *RequestBuilder) PostWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response {
+	return rb.doRequest(ctx, http.MethodPost, url, body, headers...)
 }
 
 // Put issues a PUT HTTP verb to the specified URL.
@@ -206,8 +194,8 @@ func (rb *RequestBuilder) PostWithContext(ctx context.Context, url string, body 
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) Put(url string, body any) *Response {
-	return rb.PutWithContext(context.Background(), url, body)
+func (rb *RequestBuilder) Put(url string, body any, headers ...http.Header) *Response {
+	return rb.PutWithContext(context.Background(), url, body, headers...)
 }
 
 // PutWithContext issues a PUT HTTP verb to the specified URL.
@@ -217,8 +205,8 @@ func (rb *RequestBuilder) Put(url string, body any) *Response {
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) PutWithContext(ctx context.Context, url string, body any) *Response {
-	return rb.doRequest(ctx, http.MethodPut, url, body)
+func (rb *RequestBuilder) PutWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response {
+	return rb.doRequest(ctx, http.MethodPut, url, body, headers...)
 }
 
 // Patch issues a PATCH HTTP verb to the specified URL.
@@ -228,8 +216,8 @@ func (rb *RequestBuilder) PutWithContext(ctx context.Context, url string, body a
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) Patch(url string, body any) *Response {
-	return rb.PatchWithContext(context.Background(), url, body)
+func (rb *RequestBuilder) Patch(url string, body any, headers ...http.Header) *Response {
+	return rb.PatchWithContext(context.Background(), url, body, headers...)
 }
 
 // PatchWithContext issues a PATCH HTTP verb to the specified URL.
@@ -239,8 +227,8 @@ func (rb *RequestBuilder) Patch(url string, body any) *Response {
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) PatchWithContext(ctx context.Context, url string, body any) *Response {
-	return rb.doRequest(ctx, http.MethodPatch, url, body)
+func (rb *RequestBuilder) PatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response {
+	return rb.doRequest(ctx, http.MethodPatch, url, body, headers...)
 }
 
 // Delete issues a DELETE HTTP verb to the specified URL
@@ -248,8 +236,8 @@ func (rb *RequestBuilder) PatchWithContext(ctx context.Context, url string, body
 // In Restful, DELETE is used to "delete" a resource.
 // Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request).
-func (rb *RequestBuilder) Delete(url string) *Response {
-	return rb.DeleteWithContext(context.Background(), url)
+func (rb *RequestBuilder) Delete(url string, headers ...http.Header) *Response {
+	return rb.DeleteWithContext(context.Background(), url, headers...)
 }
 
 // DeleteWithContext issues a DELETE HTTP verb to the specified URL
@@ -257,8 +245,8 @@ func (rb *RequestBuilder) Delete(url string) *Response {
 // In Restful, DELETE is used to "delete" a resource.
 // Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request).
-func (rb *RequestBuilder) DeleteWithContext(ctx context.Context, url string) *Response {
-	return rb.doRequest(ctx, http.MethodDelete, url, nil)
+func (rb *RequestBuilder) DeleteWithContext(ctx context.Context, url string, headers ...http.Header) *Response {
+	return rb.doRequest(ctx, http.MethodDelete, url, nil, headers...)
 }
 
 // Head issues a HEAD HTTP verb to the specified URL
@@ -266,8 +254,8 @@ func (rb *RequestBuilder) DeleteWithContext(ctx context.Context, url string) *Re
 // In Restful, HEAD is used to "read" a resource headers only.
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
-func (rb *RequestBuilder) Head(url string) *Response {
-	return rb.HeadWithContext(context.Background(), url)
+func (rb *RequestBuilder) Head(url string, headers ...http.Header) *Response {
+	return rb.HeadWithContext(context.Background(), url, headers...)
 }
 
 // HeadWithContext issues a HEAD HTTP verb to the specified URL
@@ -275,8 +263,8 @@ func (rb *RequestBuilder) Head(url string) *Response {
 // In Restful, HEAD is used to "read" a resource headers only.
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
-func (rb *RequestBuilder) HeadWithContext(ctx context.Context, url string) *Response {
-	return rb.doRequest(ctx, http.MethodHead, url, nil)
+func (rb *RequestBuilder) HeadWithContext(ctx context.Context, url string, headers ...http.Header) *Response {
+	return rb.doRequest(ctx, http.MethodHead, url, nil, headers...)
 }
 
 // Options issues a OPTIONS HTTP verb to the specified URL
@@ -285,8 +273,8 @@ func (rb *RequestBuilder) HeadWithContext(ctx context.Context, url string) *Resp
 // and supported HTTP verbs.
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
-func (rb *RequestBuilder) Options(url string) *Response {
-	return rb.OptionsWithContext(context.Background(), url)
+func (rb *RequestBuilder) Options(url string, headers ...http.Header) *Response {
+	return rb.OptionsWithContext(context.Background(), url, headers...)
 }
 
 // OptionsWithContext issues a OPTIONS HTTP verb to the specified URL
@@ -295,120 +283,120 @@ func (rb *RequestBuilder) Options(url string) *Response {
 // and supported HTTP verbs.
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
-func (rb *RequestBuilder) OptionsWithContext(ctx context.Context, url string) *Response {
-	return rb.doRequest(ctx, http.MethodOptions, url, nil)
+func (rb *RequestBuilder) OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response {
+	return rb.doRequest(ctx, http.MethodOptions, url, nil, headers...)
 }
 
 // AsyncGet is the *asynchronous* option for GET.
 // The go routine calling AsyncGet(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncGet(url string, f func(*Response)) {
-	rb.AsyncGetWithContext(context.Background(), url, f)
+func (rb *RequestBuilder) AsyncGet(url string, f func(*Response), headers ...http.Header) {
+	rb.AsyncGetWithContext(context.Background(), url, f, headers...)
 }
 
 // AsyncGetWithContext is the *asynchronous* option for GET.
 // The go routine calling AsyncGet(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncGetWithContext(ctx context.Context, url string, f func(*Response)) {
-	go doAsyncRequest(rb.GetWithContext(ctx, url), f)
+func (rb *RequestBuilder) AsyncGetWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header) {
+	go doAsyncRequest(rb.GetWithContext(ctx, url, headers...), f)
 }
 
 // AsyncPost is the *asynchronous* option for POST.
 // The go routine calling AsyncPost(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPost(url string, body any, f func(*Response)) {
-	rb.AsyncPostWithContext(context.Background(), url, body, f)
+func (rb *RequestBuilder) AsyncPost(url string, body any, f func(*Response), headers ...http.Header) {
+	rb.AsyncPostWithContext(context.Background(), url, body, f, headers...)
 }
 
 // AsyncPostWithContext is the *asynchronous* option for POST.
 // The go routine calling AsyncPost(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPostWithContext(ctx context.Context, url string, body any, f func(*Response)) {
-	go doAsyncRequest(rb.PostWithContext(ctx, url, body), f)
+func (rb *RequestBuilder) AsyncPostWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header) {
+	go doAsyncRequest(rb.PostWithContext(ctx, url, body, headers...), f)
 }
 
 // AsyncPut is the *asynchronous* option for PUT.
 // The go routine calling AsyncPut(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPut(url string, body any, f func(*Response)) {
-	rb.AsyncPutWithContext(context.Background(), url, body, f)
+func (rb *RequestBuilder) AsyncPut(url string, body any, f func(*Response), headers ...http.Header) {
+	rb.AsyncPutWithContext(context.Background(), url, body, f, headers...)
 }
 
 // AsyncPutWithContext is the *asynchronous* option for PUT.
 // The go routine calling AsyncPut(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPutWithContext(ctx context.Context, url string, body any, f func(*Response)) {
-	go doAsyncRequest(rb.PutWithContext(ctx, url, body), f)
+func (rb *RequestBuilder) AsyncPutWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header) {
+	go doAsyncRequest(rb.PutWithContext(ctx, url, body, headers...), f)
 }
 
 // AsyncPatch is the *asynchronous* option for PATCH.
 // The go routine calling AsyncPatch(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPatch(url string, body any, f func(*Response)) {
-	rb.AsyncPatchWithContext(context.Background(), url, body, f)
+func (rb *RequestBuilder) AsyncPatch(url string, body any, f func(*Response), headers ...http.Header) {
+	rb.AsyncPatchWithContext(context.Background(), url, body, f, headers...)
 }
 
 // AsyncPatchWithContext is the *asynchronous* option for PATCH.
 // The go routine calling AsyncPatch(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPatchWithContext(ctx context.Context, url string, body any, f func(*Response)) {
-	go doAsyncRequest(rb.PatchWithContext(ctx, url, body), f)
+func (rb *RequestBuilder) AsyncPatchWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header) {
+	go doAsyncRequest(rb.PatchWithContext(ctx, url, body, headers...), f)
 }
 
 // AsyncDelete is the *asynchronous* option for DELETE.
 // The go routine calling AsyncDelete(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncDelete(url string, f func(*Response)) {
-	rb.AsyncDeleteWithContext(context.Background(), url, f)
+func (rb *RequestBuilder) AsyncDelete(url string, f func(*Response), headers ...http.Header) {
+	rb.AsyncDeleteWithContext(context.Background(), url, f, headers...)
 }
 
 // AsyncDeleteWithContext is the *asynchronous* option for DELETE.
 // The go routine calling AsyncDelete(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response)) {
-	go doAsyncRequest(rb.DeleteWithContext(ctx, url), f)
+func (rb *RequestBuilder) AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header) {
+	go doAsyncRequest(rb.DeleteWithContext(ctx, url, headers...), f)
 }
 
 // AsyncHead is the *asynchronous* option for HEAD.
 // The go routine calling AsyncHead(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncHead(url string, f func(*Response)) {
-	rb.AsyncHeadWithContext(context.Background(), url, f)
+func (rb *RequestBuilder) AsyncHead(url string, f func(*Response), headers ...http.Header) {
+	rb.AsyncHeadWithContext(context.Background(), url, f, headers...)
 }
 
 // AsyncHeadWithContext is the *asynchronous* option for HEAD.
 // The go routine calling AsyncHead(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncHeadWithContext(ctx context.Context, url string, f func(*Response)) {
-	go doAsyncRequest(rb.HeadWithContext(ctx, url), f)
+func (rb *RequestBuilder) AsyncHeadWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header) {
+	go doAsyncRequest(rb.HeadWithContext(ctx, url, headers...), f)
 }
 
 // AsyncOptions is the *asynchronous* option for OPTIONS.
 // The go routine calling AsyncOptions(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncOptions(url string, f func(*Response)) {
-	rb.AsyncOptionsWithContext(context.Background(), url, f)
+func (rb *RequestBuilder) AsyncOptions(url string, f func(*Response), headers ...http.Header) {
+	rb.AsyncOptionsWithContext(context.Background(), url, f, headers...)
 }
 
 // AsyncOptionsWithContext is the *asynchronous* option for OPTIONS.
 // The go routine calling AsyncOptions(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response)) {
-	go doAsyncRequest(rb.OptionsWithContext(ctx, url), f)
+func (rb *RequestBuilder) AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header) {
+	go doAsyncRequest(rb.OptionsWithContext(ctx, url, headers...), f)
 }
 
 func doAsyncRequest(r *Response, f func(*Response)) {

@@ -20,14 +20,9 @@
 
 # Installation
 
-go.mod
-
-```go
-go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
-```
 
 ```shell
-export GOPRIVATE=gitlab.com/iskaypetcom
+go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 ```
 
 # ⚡️ Quickstart
@@ -36,6 +31,7 @@ export GOPRIVATE=gitlab.com/iskaypetcom
 package main
 
 import (
+    "context"
     "net/http"
     "time"
 
@@ -47,12 +43,17 @@ import (
 func main() {
     baseURL := "https://gorest.co.in/public/v2"
 
+    headers := make(http.Header)
+    headers.Add("Accept", "application/json")
+    headers.Add("Content-Type", "application/json")
+
     httpClient := &rest.RequestBuilder{
         Timeout:        time.Millisecond * 1000,
         ConnectTimeout: time.Millisecond * 5000,
         BaseURL:        baseURL,
         // OAuth: 		...
         // CustomPool:  ...
+        // EnableTrace:  ...
     }
 
     var users []struct {
@@ -63,7 +64,7 @@ func main() {
         Status string `json:"status"`
     }
 
-    response := httpClient.Get("/users")
+    response := httpClient.GetWithContext(context.Background(), "/users", headers)
     if response.Err != nil {
         log.Fatal(response.Err)
     }
@@ -73,7 +74,7 @@ func main() {
     }
 
     // Typed fill up
-    result, err := rest.Unmarshal[[]UserDTO](response)
+    result, err := rest.Deserialize[[]UserDTO](response)
     if err != nil {
         log.Fatal(err)
     }
@@ -94,25 +95,25 @@ func main() {
 }
 
 type UserDTO struct {
-    ID     int    `json:"id"`
     Name   string `json:"name"`
     Email  string `json:"email"`
     Gender string `json:"gender"`
     Status string `json:"status"`
+    ID     int    `json:"id"`
 }
 ```
 ## Metrics
 ![prometheus]
 
 Requisites
-* Make sure you have **prometheus collector endpoint** turned on in your application
-* **ENV** variable (dev|uat|pro|any)
-* **APP_NAME** variable (repository name)
+- Make sure you have **prometheus collector endpoint** turned on in your application
+- **ENV** variable (dev|uat|pro|any)
+- **APP_NAME** variable (repository name)
 
 We do not have a unified dashboard, which can filter by environment, due to this, you have to enter the specific
 environment
 
 Dashboard
-* [dev](https://monitoring.dev.dp.iskaypet.com/d/6shkc-L4kk/http-clients?orgId=1)
+- [dev](https://monitoring.dev.dp.iskaypet.com/d/6shkc-L4kk/http-clients?orgId=1)
 
 [prometheus]: images/metrics.png

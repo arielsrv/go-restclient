@@ -67,10 +67,6 @@ func TestPostForm(t *testing.T) {
 	fbForm := rest.RequestBuilder{
 		BaseURL:     server.URL,
 		ContentType: rest.FORM,
-		Headers: map[string][]string{
-			"Accept":    {"*/*"},
-			"My-Header": {"My-Value"},
-		},
 	}
 
 	resp := fbForm.Post("/form/user", url.Values{"name": []string{"Maria"}})
@@ -113,11 +109,13 @@ func TestOptions(t *testing.T) {
 }
 
 func TestAsyncGet(t *testing.T) {
+	h := make(http.Header)
+	h.Add("X-Custom-Header", "Custom-Value")
 	rest.AsyncGet(server.URL+"/user", func(r *rest.Response) {
 		if r.StatusCode != http.StatusOK {
 			t.Fatal("Status != OK (200)")
 		}
-	})
+	}, h)
 
 	time.Sleep(50 * time.Millisecond)
 }
@@ -188,10 +186,9 @@ func TestHeaders(t *testing.T) {
 
 	builder := rest.RequestBuilder{
 		BaseURL: server.URL,
-		Headers: h,
 	}
 
-	r := builder.Get("/header")
+	r := builder.Get("/header", h)
 
 	if r.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200)")
@@ -203,10 +200,10 @@ func TestSetHeader(t *testing.T) {
 		BaseURL: server.URL,
 	}
 
-	builder.Headers = make(http.Header)
-	builder.SetHeader("X-Test", "test")
+	h := make(http.Header)
+	h.Add("My-Header", "My-Value")
 
-	r := builder.Get("/header")
+	r := builder.Get("/header", h)
 
 	if r.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200)")
@@ -219,10 +216,10 @@ func TestSetName(t *testing.T) {
 		BaseURL: server.URL,
 	}
 
-	builder.Headers = make(http.Header)
-	builder.SetHeader("X-Test", "test")
+	h := make(http.Header)
+	h.Add("X-Test", "test")
 
-	r := builder.Get("/header")
+	r := builder.Get("/header", h)
 
 	if r.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200)")

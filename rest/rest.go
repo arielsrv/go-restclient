@@ -1,6 +1,9 @@
 package rest
 
-import "sync"
+import (
+	"net/http"
+	"sync"
+)
 
 var dfltBuilder = RequestBuilder{
 	mtx: sync.RWMutex{},
@@ -96,8 +99,8 @@ func Options(url string) *Response {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncGet uses the DefaultBuilder.
-func AsyncGet(url string, f func(*Response)) {
-	dfltBuilder.AsyncGet(url, f)
+func AsyncGet(url string, f func(*Response), headers ...http.Header) {
+	dfltBuilder.AsyncGet(url, f, headers...)
 }
 
 // AsyncPost is the *asynchronous* option for POST.
@@ -106,8 +109,8 @@ func AsyncGet(url string, f func(*Response)) {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncPost uses the DefaultBuilder.
-func AsyncPost(url string, body any, f func(*Response)) {
-	dfltBuilder.AsyncPost(url, body, f)
+func AsyncPost(url string, body any, f func(*Response), headers ...http.Header) {
+	dfltBuilder.AsyncPost(url, body, f, headers...)
 }
 
 // AsyncPut is the *asynchronous* option for PUT.
@@ -116,8 +119,8 @@ func AsyncPost(url string, body any, f func(*Response)) {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncPut uses the DefaultBuilder.
-func AsyncPut(url string, body any, f func(*Response)) {
-	dfltBuilder.AsyncPut(url, body, f)
+func AsyncPut(url string, body any, f func(*Response), headers ...http.Header) {
+	dfltBuilder.AsyncPut(url, body, f, headers...)
 }
 
 // AsyncPatch is the *asynchronous* option for PATCH.
@@ -126,8 +129,8 @@ func AsyncPut(url string, body any, f func(*Response)) {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncPatch uses the DefaultBuilder.
-func AsyncPatch(url string, body any, f func(*Response)) {
-	dfltBuilder.AsyncPatch(url, body, f)
+func AsyncPatch(url string, body any, f func(*Response), headers ...http.Header) {
+	dfltBuilder.AsyncPatch(url, body, f, headers...)
 }
 
 // AsyncDelete is the *asynchronous* option for DELETE.
@@ -136,8 +139,8 @@ func AsyncPatch(url string, body any, f func(*Response)) {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncDelete uses the DefaultBuilder.
-func AsyncDelete(url string, f func(*Response)) {
-	dfltBuilder.AsyncDelete(url, f)
+func AsyncDelete(url string, f func(*Response), headers ...http.Header) {
+	dfltBuilder.AsyncDelete(url, f, headers...)
 }
 
 // AsyncHead is the *asynchronous* option for HEAD.
@@ -146,8 +149,8 @@ func AsyncDelete(url string, f func(*Response)) {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncHead uses the DefaultBuilder.
-func AsyncHead(url string, f func(*Response)) {
-	dfltBuilder.AsyncHead(url, f)
+func AsyncHead(url string, f func(*Response), headers ...http.Header) {
+	dfltBuilder.AsyncHead(url, f, headers...)
 }
 
 // AsyncOptions is the *asynchronous* option for OPTIONS.
@@ -156,14 +159,14 @@ func AsyncHead(url string, f func(*Response)) {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncOptions uses the DefaultBuilder.
-func AsyncOptions(url string, f func(*Response)) {
-	dfltBuilder.AsyncOptions(url, f)
+func AsyncOptions(url string, f func(*Response), headers ...http.Header) {
+	dfltBuilder.AsyncOptions(url, f, headers...)
 }
 
 // ForkJoin let you *fork* requests, and *wait* until all of them have return.
 //
 // Concurrent has methods for Get, Post, Put, Patch, Delete, Head & Options,
-// with the almost the same API as the synchronous methods.
+// with almost the same API as the synchronous methods.
 // The difference is that these methods return a FutureResponse, which holds a pointer to
 // Response. Response inside FutureResponse is nil until request has finished.
 //
