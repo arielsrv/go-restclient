@@ -48,33 +48,32 @@ const (
 
 type IRequestBuilder interface {
 	Get(url string) *Response
-	Post(url string, body interface{}) *Response
-	Put(url string, body interface{}) *Response
-	Patch(url string, body interface{}) *Response
-	Delete(url string) *Response
-	Head(url string) *Response
-	Options(url string) *Response
-	AsyncGet(url string, f func(*Response))
-	AsyncPost(url string, body interface{}, f func(*Response))
-	AsyncPut(url string, body interface{}, f func(*Response))
-	AsyncPatch(url string, body interface{}, f func(*Response))
-	AsyncDelete(url string, f func(*Response))
-	AsyncHead(url string, f func(*Response))
-	AsyncOptions(url string, f func(*Response))
-
 	GetWithContext(ctx context.Context, url string) *Response
+	Post(url string, body interface{}) *Response
 	PostWithContext(ctx context.Context, url string, body interface{}) *Response
 	PutWithContext(ctx context.Context, url string, body interface{}) *Response
+	Put(url string, body interface{}) *Response
+	Patch(url string, body interface{}) *Response
 	PatchWithContext(ctx context.Context, url string, body interface{}) *Response
+	Delete(url string) *Response
 	DeleteWithContext(ctx context.Context, url string) *Response
+	Head(url string) *Response
 	HeadWithContext(ctx context.Context, url string) *Response
+	Options(url string) *Response
 	OptionsWithContext(ctx context.Context, url string) *Response
+	AsyncGet(url string, f func(*Response))
 	AsyncGetWithContext(ctx context.Context, url string, f func(*Response))
+	AsyncPost(url string, body interface{}, f func(*Response))
 	AsyncPostWithContext(ctx context.Context, url string, body interface{}, f func(*Response))
+	AsyncPut(url string, body interface{}, f func(*Response))
 	AsyncPutWithContext(ctx context.Context, url string, body interface{}, f func(*Response))
+	AsyncPatch(url string, body interface{}, f func(*Response))
 	AsyncPatchWithContext(ctx context.Context, url string, body interface{}, f func(*Response))
+	AsyncDelete(url string, f func(*Response))
 	AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response))
+	AsyncHead(url string, f func(*Response))
 	AsyncHeadWithContext(ctx context.Context, url string, f func(*Response))
+	AsyncOptions(url string, f func(*Response))
 	AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response))
 
 	ForkJoin(f func(*Concurrent))
