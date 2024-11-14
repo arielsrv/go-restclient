@@ -40,9 +40,13 @@ import (
 )
 
 func main() {
+    // Create a new context with a timeout of 5 seconds
+    // This will automatically cancel the request if it takes longer than 5 seconds to complete
+
     ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(5000))
     defer cancel()
 
+    // Create a new REST client with custom settings
     client := &rest.Client{
         BaseURL:        "https://gorest.co.in/public/v2",
         Timeout:        time.Millisecond * 1000,
@@ -60,6 +64,23 @@ func main() {
         // FollowRedirect: false,
     }
 
+    // Set headers for the request
+    headers := make(http.Header)
+    headers.Add("Accept", "application/json")
+    headers.Add("Content-Type", "application/json")
+
+    // Make a GET request
+    response := client.GetWithContext(ctx, "/users", headers)
+    if response.Err != nil {
+        log.Fatal(response.Err)
+    }
+
+    // Check status code and handle errors accordingly or response.IsOk()
+    if response.StatusCode != http.StatusOK {
+        log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+    }
+
+    // Untyped fill up
     var users []struct {
         ID     int    `json:"id"`
         Name   string `json:"name"`
@@ -68,25 +89,13 @@ func main() {
         Status string `json:"status"`
     }
 
-    headers := make(http.Header)
-    headers.Add("Accept", "application/json")
-    headers.Add("Content-Type", "application/json")
-
-    response := client.GetWithContext(ctx, "/users", headers)
-    if response.Err != nil {
-        log.Fatal(response.Err)
-    }
-
-    if response.StatusCode != http.StatusOK {
-        log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
-    }
-
-    // Untyped fill up
+    // Untyped fill up or typed with rest.Deserialize[struct | []struct](response)
     err := response.FillUp(&users)
     if err != nil {
         log.Fatal(err)
     }
 
+    // Print the users
     for i := range users {
         log.Infof("User: %v", users[i])
     }
