@@ -9,6 +9,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/http/httptrace"
 	"net/url"
 	"os"
 	"regexp"
@@ -19,6 +20,8 @@ import (
 
 	"github.com/pkg/errors"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 )
 
@@ -63,10 +66,15 @@ func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL str
 		return
 	}
 
-	// Get Client (client + transport)
-	client := rb.getClient(ctx)
+	parentCtx := ctx
+	if rb.EnableTrace {
+		clientTrace := otelhttptrace.NewClientTrace(ctx)
+		parentCtx = httptrace.WithClientTrace(ctx, clientTrace)
+	}
 
-	request, err := http.NewRequestWithContext(ctx, verb, reqURL, reader)
+	client := rb.getClient(parentCtx)
+
+	request, err := http.NewRequestWithContext(parentCtx, verb, reqURL, reader)
 	if err != nil {
 		result.Err = err
 		return
@@ -219,10 +227,14 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 			Transport: tr,
 		}
 
+		if rb.EnableTrace {
+			rb.Client = &http.Client{
+				Transport: otelhttp.NewTransport(rb.Client.Transport),
+			}
+		}
+
 		if rb.OAuth != nil {
-			log.Debug("Using OAuth2 client")
-			nestedCtx := context.WithValue(ctx, oauth2.HTTPClient, rb.Client)
-			rb.Client = rb.OAuth.Client(nestedCtx)
+			rb.Client = rb.OAuth.Client(context.WithValue(ctx, oauth2.HTTPClient, rb.Client))
 		}
 	})
 

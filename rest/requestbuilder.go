@@ -131,6 +131,9 @@ type RequestBuilder struct {
 
 	// Set the http client to follow a redirect if we get a 3xx response
 	FollowRedirect bool
+
+	// Enable tracing
+	EnableTrace bool
 }
 
 // CustomPool defines a separate internal *transport* and connection pooling.
