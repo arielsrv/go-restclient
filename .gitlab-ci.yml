@@ -1,8 +1,9 @@
 variables:
-  GO_VERSION: '1.21.8'
+  GO_VERSION: '1.23.2'
   GONOSUMDB: gitlab.com
   GOPRIVATE: gitlab.com/iskaypetcom
   GITLAB_TOKEN: "${CICD_TOKEN}"
+  GOEXPERIMENT: nocoverageredesign
 
 default:
   tags:
@@ -24,6 +25,8 @@ code_navigation:
   artifacts:
     reports:
       lsif: dump.lsif
+  only:
+    - branches
 
 compile:
   stage: build

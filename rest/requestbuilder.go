@@ -68,9 +68,30 @@ type IRequestBuilder interface {
 // There's a Default Builder that you may use for simple requests
 // RequestBuilder si thread-safe, and you should store it for later re-used.
 type RequestBuilder struct {
-
 	// Headers to be sent in the request
 	Headers http.Header
+
+	// Create a CustomPool if you don't want to share the *transport*, with others
+	// RequestBuilder
+	CustomPool *CustomPool
+
+	// Set Basic Auth for this RequestBuilder
+	BasicAuth *BasicAuth
+
+	// Public for custom fine-tuning
+	Client *http.Client
+
+	// OAuth Credentials
+	OAuth *clientcredentials.Config
+
+	// Base URL to be used for each Request. The final URL will be BaseURL + URL.
+	BaseURL string
+
+	// Set a specific User Agent for this RequestBuilder
+	UserAgent string
+
+	// Public for metrics
+	Name string
 
 	// Complete request time out.
 	Timeout time.Duration
@@ -78,11 +99,12 @@ type RequestBuilder struct {
 	// Connection timeout, it bounds the time spent obtaining a successful connection
 	ConnectTimeout time.Duration
 
-	// Base URL to be used for each Request. The final URL will be BaseURL + URL.
-	BaseURL string
-
 	// ContentType
 	ContentType ContentType
+
+	mtx sync.RWMutex
+
+	clientMtxOnce sync.Once
 
 	// Disable 	internal caching of Responses
 	DisableCache bool
@@ -92,38 +114,15 @@ type RequestBuilder struct {
 
 	// Set the http client to follow a redirect if we get a 3xx response
 	FollowRedirect bool
-
-	// Create a CustomPool if you don't want to share the *transport*, with others
-	// RequestBuilder
-	CustomPool *CustomPool
-
-	// Set Basic Auth for this RequestBuilder
-	BasicAuth *BasicAuth
-
-	// Set a specific User Agent for this RequestBuilder
-	UserAgent string
-
-	// Public for custom fine-tuning
-	Client *http.Client
-
-	clientMtxOnce sync.Once
-
-	// Public for metrics
-	Name string
-
-	mtx sync.RWMutex
-
-	// OAuth Credentials
-	OAuth *clientcredentials.Config
 }
 
 // CustomPool defines a separate internal *transport* and connection pooling.
 type CustomPool struct {
-	MaxIdleConnsPerHost int
-	Proxy               string
-
 	// Public for custom fine-tuning
 	Transport http.RoundTripper
+	Proxy     string
+
+	MaxIdleConnsPerHost int
 }
 
 // BasicAuth gives the possibility to set UserName and Password for a given

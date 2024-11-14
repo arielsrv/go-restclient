@@ -77,7 +77,7 @@ func TestCacheGetExpires(t *testing.T) {
 func TestCacheForkJoinGet(t *testing.T) {
 	var f [100]*rest.FutureResponse
 
-	for x := 0; x < 1000; x++ {
+	for range 1000 {
 		rb.ForkJoin(func(cr *rest.Concurrent) {
 			for i := range f {
 				f[i] = cr.Get("/cache/user")
@@ -110,7 +110,7 @@ func TestCacheSlowGet(t *testing.T) {
 func TestCacheSlowForkJoinGet(t *testing.T) {
 	var f [100]*rest.FutureResponse
 
-	for x := 0; x < 10; x++ {
+	for range 10 {
 		rb.ForkJoin(func(cr *rest.Concurrent) {
 			for i := range f {
 				f[i] = cr.Get("/slow/cache/user")

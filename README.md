@@ -6,50 +6,10 @@
 
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs
 - Fork-Join request pattern, for sending many requests concurrently, getting better client performance.
+- Response Caching, based on response headers (cache-control, last-modified, etag, expires)
 - Async request pattern.
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
 - Request Body can be `string`, `[]byte`, `struct` & `map`
-
-## Local environment
-
-You don't need **VPN**, **Vanity Gateway Server** or **SSH** protocol to use internal Iskaypet packages for Go.
-
-**$HOME/.gitconfig**
-
-> [url "https://oauth2:**{$GITLAB_TOKEN}**@gitlab.com"]\
-> &emsp;insteadOf = https://gitlab.com
-
-**$HOME/.netrc** (macOs/Unix)
-
-> machine gitlab.com\
-> &emsp;login **your_gitlab_account**\
-> &emsp;password **your_gitlab_token**
-
-**%USERPROFILE%/_netrc** (Windows)
-
-> machine gitlab.com\
-> &emsp;login **your_gitlab_account**\
-> &emsp;password **your_gitlab_token**
-
-**GOPRIVATE**
-> export GOPRIVATE=gitlab.com/iskaypetcom
-
-## Developer tools
-
-* [Local environment](#environment)
-* [Golang Lint](https://golangci-lint.run/)
-* [Golang Task](https://taskfile.dev/)
-* [Golang Dependencies Update](https://github.com/oligot/go-mod-upgrade)
-* [jq](https://stedolan.github.io/jq/)
-
-### For macOs
-
-```shell
-$ brew install go-task/tap/go-task
-$ brew install golangci-lint
-$ go install github.com/oligot/go-mod-upgrade@latest
-$ brew install jq
-```
 
 ## Table of contents
 
@@ -63,7 +23,7 @@ $ brew install jq
 go.mod
 
 ```go
-go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@v0.0.4
+go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 ```
 
 ```shell
@@ -76,73 +36,69 @@ export GOPRIVATE=gitlab.com/iskaypetcom
 package main
 
 import (
-	"fmt"
-	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
-	"net/http"
-	"time"
+    "net/http"
+    "time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+    "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+
+    "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
-type UserDTO struct {
-	ID   int64
-	Name string
+func main() {
+    baseURL := "https://gorest.co.in/public/v2"
+
+    httpClient := &rest.RequestBuilder{
+        Timeout:        time.Millisecond * 1000,
+        ConnectTimeout: time.Millisecond * 5000,
+        BaseURL:        baseURL,
+        // OAuth: 		...
+        // CustomPool:  ...
+    }
+
+    var users []struct {
+        ID     int    `json:"id"`
+        Name   string `json:"name"`
+        Email  string `json:"email"`
+        Gender string `json:"gender"`
+        Status string `json:"status"`
+    }
+
+    response := httpClient.Get("/users")
+    if response.Err != nil {
+        log.Fatal(response.Err)
+    }
+
+    if response.StatusCode != http.StatusOK {
+        log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+    }
+
+    // Typed fill up
+    result, err := rest.Unmarshal[[]UserDTO](response)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    for i := range result {
+        log.Infof("User: %v", result[i])
+    }
+
+    // Untyped fill up
+    err = response.FillUp(&users)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    for i := range users {
+        log.Infof("User: %v", users[i])
+    }
 }
 
-func main() {
-	requestBuilder := rest.RequestBuilder{
-		Timeout:        time.Millisecond * 3000,
-		ConnectTimeout: time.Millisecond * 5000,
-		BaseURL:        "https://gorest.co.in/public/v2",
-        Name: "example_client",                           // for metrics
-	}
-
-	// This won't be blocked.
-	requestBuilder.AsyncGet("/users", func(response *rest.Response) {
-		if response.StatusCode == http.StatusOK {
-			log.Println(response)
-		}
-	})
-
-	response := requestBuilder.Get("/users")
-	if response.StatusCode != http.StatusOK {
-		log.Fatal(response.Err.Error())
-	}
-
-	var usersDto []UserDTO
-	err := response.FillUp(&usersDto)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// or typed filled up
-	_, err = rest.TypedFillUp[[]UserDTO](response)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var futures []*rest.FutureResponse
-
-	requestBuilder.ForkJoin(func(c *rest.Concurrent) {
-		for i := 0; i < len(usersDto); i++ {
-			futures = append(futures, c.Get(fmt.Sprintf("/users/%d", usersDto[i].ID)))
-		}
-	})
-
-	log.Println("Wait all ...")
-	startTime := time.Now()
-	for i := range futures {
-		if futures[i].Response().StatusCode == http.StatusOK {
-			var userDto UserDTO
-			convertionErr := futures[i].Response().FillUp(&userDto)
-			if convertionErr != nil {
-				log.Fatal(convertionErr)
-			}
-			log.Println("\t" + userDto.Name)
-		}
-	}
-	elapsedTime := time.Since(startTime)
-	log.Printf("Elapsed time: %d", elapsedTime)
+type UserDTO struct {
+    ID     int    `json:"id"`
+    Name   string `json:"name"`
+    Email  string `json:"email"`
+    Gender string `json:"gender"`
+    Status string `json:"status"`
 }
 ```
 ## Metrics

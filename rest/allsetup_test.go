@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"io"
 	"math/rand"
@@ -12,8 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/goccy/go-json"
-	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 	"golang.org/x/oauth2"
 )
@@ -21,12 +21,14 @@ import (
 var lastModifiedDate = time.Now()
 
 type User struct {
-	ID   int    `json:"id"   xml:"id"`
 	Name string `json:"name" xml:"name"`
+	ID   int    `json:"id"   xml:"id"`
 }
 
-var tmux = http.NewServeMux()
-var server = httptest.NewServer(tmux)
+var (
+	tmux   = http.NewServeMux()
+	server = httptest.NewServer(tmux)
+)
 
 var users []User
 
@@ -153,7 +155,7 @@ func usersEtag(writer http.ResponseWriter, req *http.Request) {
 		b, _ := json.Marshal(users)
 
 		writer.Header().Set("Content-Type", "application/json")
-		writer.Header().Set("ETag", "1234")
+		writer.Header().Set("Etag", "1234")
 		writer.Write(b)
 	}
 }

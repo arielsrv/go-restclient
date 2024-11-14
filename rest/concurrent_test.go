@@ -42,7 +42,7 @@ func TestForkJoin(t *testing.T) {
 func TestSlowForkJoinGet(t *testing.T) {
 	var f [100]*rest.FutureResponse
 
-	for x := 0; x < 50; x++ {
+	for range 50 {
 		rb.ForkJoin(func(cr *rest.Concurrent) {
 			for i := range f {
 				f[i] = cr.Get("/slow/user")

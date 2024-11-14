@@ -2,15 +2,14 @@ package rest
 
 import (
 	"os"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	log "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 )
 
-var (
-	HTTPCollector *Collector
-)
+var HTTPCollector *Collector
 
 func init() {
 	serviceMetricCollector := NewPrometheusServiceMetricCollector()
@@ -29,15 +28,15 @@ type Config struct {
 
 func Default() *Config {
 	return &Config{
-		Environment: os.Getenv("ENV"),
+		Environment: strings.ToLower(os.Getenv("ENV")),
 		Application: os.Getenv("APP_NAME"),
 	}
 }
 
 type Collector struct {
+	collector   ServiceCollector
 	config      *Config
 	serviceType string
-	collector   ServiceCollector
 }
 
 func NewCollector(config *Config, serviceType string, collector ServiceCollector) *Collector {
@@ -118,9 +117,8 @@ func (m *metricDto) getValue(value string) string {
 }
 
 type CounterDto struct {
-	values []float64
-
 	metricDto
+	values []float64
 }
 
 func (c *CounterDto) BuildLabels() []string {
@@ -128,9 +126,8 @@ func (c *CounterDto) BuildLabels() []string {
 }
 
 type TimerDto struct {
-	elapsedTime time.Duration
-
 	metricDto
+	elapsedTime time.Duration
 }
 
 func (t *TimerDto) BuildLabels() []string {
@@ -214,13 +211,11 @@ func NewPrometheusServiceMetricCollector() *PrometheusServiceMetricCollector {
 }
 
 func register(collectors ...prometheus.Collector) {
-	if len(collectors) > 0 {
-		for i := 0; i < len(collectors); i++ {
-			err := prometheus.Register(collectors[i])
-			if err != nil {
-				log.Error(err)
-				continue
-			}
+	for i := range collectors {
+		err := prometheus.Register(collectors[i])
+		if err != nil {
+			log.Error(err)
+			continue
 		}
 	}
 }

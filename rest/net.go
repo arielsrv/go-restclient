@@ -3,26 +3,32 @@ package rest
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+
 	"github.com/pkg/errors"
 
-	"github.com/goccy/go-json"
 	"golang.org/x/oauth2"
 )
 
-var readVerbs = [3]string{http.MethodGet, http.MethodHead, http.MethodOptions}
-var contentVerbs = [3]string{http.MethodPost, http.MethodPut, http.MethodPatch}
-var defaultCheckRedirectFunc func(req *http.Request, via []*http.Request) error
+var (
+	readVerbs                = []string{http.MethodGet, http.MethodHead, http.MethodOptions}
+	contentVerbs             = []string{http.MethodPost, http.MethodPut, http.MethodPatch}
+	defaultCheckRedirectFunc func(req *http.Request, via []*http.Request) error
+)
 
 var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
@@ -36,7 +42,7 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 	reqURL = rb.BaseURL + reqURL
 
 	// If Cache enable && operation is read: Cache GET
-	if !rb.DisableCache && matchVerbs(verb, readVerbs) {
+	if !rb.DisableCache && slices.Contains(readVerbs, verb) {
 		if cacheResp = resourceCache.get(reqURL); cacheResp != nil {
 			cacheResp.cacheHit.Store(true)
 			if !cacheResp.revalidate {
@@ -65,7 +71,6 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 	client := rb.getClient(ctx)
 
 	request, err := http.NewRequestWithContext(ctx, verb, reqURL, reader)
-
 	if err != nil {
 		result.Err = err
 		return
@@ -118,8 +123,8 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 		result.revalidate = true
 	}
 
-	// If Cache enable: Cache SETNX
-	if !rb.DisableCache && matchVerbs(verb, readVerbs) && (ttl || lastModified || etag) {
+	// If Cache enable: Cache SENA
+	if !rb.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
 		resourceCache.setNX(cacheURL, result)
 	}
 
@@ -166,6 +171,7 @@ func (rb *RequestBuilder) marshalReqBody(body interface{}) (io.Reader, error) {
 	}
 	return nil, nil
 }
+
 func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 	// This will be executed only once
 	// per request builder
@@ -218,8 +224,9 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 		}
 
 		if rb.OAuth != nil {
-			ctx = context.WithValue(ctx, oauth2.HTTPClient, rb.Client)
-			rb.Client = rb.OAuth.Client(ctx)
+			log.Debug("Using OAuth2 client")
+			nestedCtx := context.WithValue(ctx, oauth2.HTTPClient, rb.Client)
+			rb.Client = rb.OAuth.Client(nestedCtx)
 		}
 	})
 
@@ -229,6 +236,16 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 		}
 	} else {
 		rb.Client.CheckRedirect = defaultCheckRedirectFunc
+	}
+
+	if rb.Name == "" {
+		log.Debugf("No name provided for request builder, using hostname")
+		hostname, found := os.LookupEnv("HOSTNAME")
+		if found {
+			rb.Name = hostname
+		} else {
+			rb.Name = "unknown"
+		}
 	}
 
 	return rb.Client
@@ -263,7 +280,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 
 	// If mockup
 	if *mockUpEnv {
-		req.Header.Set("X-Original-URL", cacheURL)
+		req.Header.Set("X-Original-Url", cacheURL)
 	}
 
 	// Basic Auth
@@ -294,7 +311,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 	if cType != "" {
 		req.Header.Set("Accept", "application/"+cType)
 
-		if matchVerbs(req.Method, contentVerbs) {
+		if slices.Contains(contentVerbs, req.Method) {
 			req.Header.Set("Content-Type", "application/"+cType)
 		}
 	}
@@ -322,16 +339,6 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 			}
 		}
 	}
-}
-
-func matchVerbs(s string, sarray [3]string) bool {
-	for i := 0; i < len(sarray); i++ {
-		if sarray[i] == s {
-			return true
-		}
-	}
-
-	return false
 }
 
 func setTTL(resp *Response) (set bool) {
@@ -381,7 +388,7 @@ func setLastModified(resp *Response) bool {
 }
 
 func setETag(resp *Response) bool {
-	resp.etag = resp.Header.Get("ETag")
+	resp.etag = resp.Header.Get("Etag")
 
 	return resp.etag != ""
 }
