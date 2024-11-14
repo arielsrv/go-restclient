@@ -59,9 +59,9 @@ func main() {
 }
 
 type UserDTO struct {
-	ID     int    `json:"id"`
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Gender string `json:"gender"`
 	Status string `json:"status"`
+	ID     int    `json:"id"`
 }

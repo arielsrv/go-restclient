@@ -17,10 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-
 	"github.com/pkg/errors"
-
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"golang.org/x/oauth2"
 )
 
@@ -34,7 +32,7 @@ var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
 const HTTPDateFormat string = "Mon, 01 Jan 2006 15:04:05 GMT"
 
-func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interface{}) (result *Response) {
+func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL string, reqBody interface{}) (result *Response) {
 	var cacheURL string
 	var cacheResp *Response
 
@@ -64,8 +62,6 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 		result.Err = err
 		return
 	}
-
-	ctx := context.Background()
 
 	// Get Client (client + transport)
 	client := rb.getClient(ctx)

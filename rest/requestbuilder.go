@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"net/http"
 	"sync"
 	"time"
@@ -60,6 +61,22 @@ type IRequestBuilder interface {
 	AsyncDelete(url string, f func(*Response))
 	AsyncHead(url string, f func(*Response))
 	AsyncOptions(url string, f func(*Response))
+
+	GetWithContext(ctx context.Context, url string) *Response
+	PostWithContext(ctx context.Context, url string, body interface{}) *Response
+	PutWithContext(ctx context.Context, url string, body interface{}) *Response
+	PatchWithContext(ctx context.Context, url string, body interface{}) *Response
+	DeleteWithContext(ctx context.Context, url string) *Response
+	HeadWithContext(ctx context.Context, url string) *Response
+	OptionsWithContext(ctx context.Context, url string) *Response
+	AsyncGetWithContext(ctx context.Context, url string, f func(*Response))
+	AsyncPostWithContext(ctx context.Context, url string, body interface{}, f func(*Response))
+	AsyncPutWithContext(ctx context.Context, url string, body interface{}, f func(*Response))
+	AsyncPatchWithContext(ctx context.Context, url string, body interface{}, f func(*Response))
+	AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response))
+	AsyncHeadWithContext(ctx context.Context, url string, f func(*Response))
+	AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response))
+
 	ForkJoin(f func(*Concurrent))
 	SetHeader(key, value string)
 }
@@ -146,7 +163,16 @@ func (rb *RequestBuilder) SetHeader(key, value string) {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (rb *RequestBuilder) Get(url string) *Response {
-	return rb.doRequest(http.MethodGet, url, nil)
+	return rb.doRequest(context.Background(), http.MethodGet, url, nil)
+}
+
+// GetWithContext issues a GET HTTP verb to the specified URL.
+//
+// In Restful, GET is used for "reading" or retrieving a resource.
+// Client should expect a response status code of 200(OK) if resource exists,
+// 404(Not Found) if it doesn't, or 400(Bad Request).
+func (rb *RequestBuilder) GetWithContext(ctx context.Context, url string) *Response {
+	return rb.doRequest(ctx, http.MethodGet, url, nil)
 }
 
 // Post issues a POST HTTP verb to the specified URL.
@@ -157,7 +183,18 @@ func (rb *RequestBuilder) Get(url string) *Response {
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (rb *RequestBuilder) Post(url string, body interface{}) *Response {
-	return rb.doRequest(http.MethodPost, url, body)
+	return rb.doRequest(context.Background(), http.MethodPost, url, body)
+}
+
+// PostWithContext issues a POST HTTP verb to the specified URL.
+//
+// In Restful, POST is used for "creating" a resource.
+// Client should expect a response status code of 201(Created), 400(Bad Request),
+// 404(Not Found), or 409(Conflict) if resource already exist.
+//
+// Body could be any of the form: string, []byte, struct & map.
+func (rb *RequestBuilder) PostWithContext(ctx context.Context, url string, body interface{}) *Response {
+	return rb.doRequest(ctx, http.MethodPost, url, body)
 }
 
 // Put issues a PUT HTTP verb to the specified URL.
@@ -168,7 +205,18 @@ func (rb *RequestBuilder) Post(url string, body interface{}) *Response {
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (rb *RequestBuilder) Put(url string, body interface{}) *Response {
-	return rb.doRequest(http.MethodPut, url, body)
+	return rb.doRequest(context.Background(), http.MethodPut, url, body)
+}
+
+// PutWithContext issues a PUT HTTP verb to the specified URL.
+//
+// In Restful, PUT is used for "updating" a resource.
+// Client should expect a response status code of 200(OK), 404(Not Found),
+// or 400(Bad Request). 200(OK) could be also 204(No Content)
+//
+// Body could be any of the form: string, []byte, struct & map.
+func (rb *RequestBuilder) PutWithContext(ctx context.Context, url string, body interface{}) *Response {
+	return rb.doRequest(ctx, http.MethodPut, url, body)
 }
 
 // Patch issues a PATCH HTTP verb to the specified URL.
@@ -179,7 +227,18 @@ func (rb *RequestBuilder) Put(url string, body interface{}) *Response {
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (rb *RequestBuilder) Patch(url string, body interface{}) *Response {
-	return rb.doRequest(http.MethodPatch, url, body)
+	return rb.doRequest(context.Background(), http.MethodPatch, url, body)
+}
+
+// PatchWithContext issues a PATCH HTTP verb to the specified URL.
+//
+// In Restful, PATCH is used for "partially updating" a resource.
+// Client should expect a response status code of 200(OK), 404(Not Found),
+// or 400(Bad Request). 200(OK) could be also 204(No Content)
+//
+// Body could be any of the form: string, []byte, struct & map.
+func (rb *RequestBuilder) PatchWithContext(ctx context.Context, url string, body interface{}) *Response {
+	return rb.doRequest(ctx, http.MethodPatch, url, body)
 }
 
 // Delete issues a DELETE HTTP verb to the specified URL
@@ -188,7 +247,16 @@ func (rb *RequestBuilder) Patch(url string, body interface{}) *Response {
 // Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request).
 func (rb *RequestBuilder) Delete(url string) *Response {
-	return rb.doRequest(http.MethodDelete, url, nil)
+	return rb.doRequest(context.Background(), http.MethodDelete, url, nil)
+}
+
+// DeleteWithContext issues a DELETE HTTP verb to the specified URL
+//
+// In Restful, DELETE is used to "delete" a resource.
+// Client should expect a response status code of 200(OK), 404(Not Found),
+// or 400(Bad Request).
+func (rb *RequestBuilder) DeleteWithContext(ctx context.Context, url string) *Response {
+	return rb.doRequest(ctx, http.MethodDelete, url, nil)
 }
 
 // Head issues a HEAD HTTP verb to the specified URL
@@ -197,7 +265,16 @@ func (rb *RequestBuilder) Delete(url string) *Response {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (rb *RequestBuilder) Head(url string) *Response {
-	return rb.doRequest(http.MethodHead, url, nil)
+	return rb.doRequest(context.Background(), http.MethodHead, url, nil)
+}
+
+// HeadWithContext issues a HEAD HTTP verb to the specified URL
+//
+// In Restful, HEAD is used to "read" a resource headers only.
+// Client should expect a response status code of 200(OK) if resource exists,
+// 404(Not Found) if it doesn't, or 400(Bad Request).
+func (rb *RequestBuilder) HeadWithContext(ctx context.Context, url string) *Response {
+	return rb.doRequest(ctx, http.MethodHead, url, nil)
 }
 
 // Options issues a OPTIONS HTTP verb to the specified URL
@@ -207,7 +284,17 @@ func (rb *RequestBuilder) Head(url string) *Response {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (rb *RequestBuilder) Options(url string) *Response {
-	return rb.doRequest(http.MethodOptions, url, nil)
+	return rb.doRequest(context.Background(), http.MethodOptions, url, nil)
+}
+
+// OptionsWithContext issues a OPTIONS HTTP verb to the specified URL
+//
+// In Restful, OPTIONS is used to get information about the resource
+// and supported HTTP verbs.
+// Client should expect a response status code of 200(OK) if resource exists,
+// 404(Not Found) if it doesn't, or 400(Bad Request).
+func (rb *RequestBuilder) OptionsWithContext(ctx context.Context, url string) *Response {
+	return rb.doRequest(ctx, http.MethodOptions, url, nil)
 }
 
 // AsyncGet is the *asynchronous* option for GET.
@@ -218,12 +305,28 @@ func (rb *RequestBuilder) AsyncGet(url string, f func(*Response)) {
 	go doAsyncRequest(rb.Get(url), f)
 }
 
+// AsyncGetWithContext is the *asynchronous* option for GET.
+// The go routine calling AsyncGet(), will not be blocked.
+//
+// Whenever the Response is ready, the *f* function will be called back.
+func (rb *RequestBuilder) AsyncGetWithContext(ctx context.Context, url string, f func(*Response)) {
+	go doAsyncRequest(rb.GetWithContext(ctx, url), f)
+}
+
 // AsyncPost is the *asynchronous* option for POST.
 // The go routine calling AsyncPost(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncPost(url string, body interface{}, f func(*Response)) {
 	go doAsyncRequest(rb.Post(url, body), f)
+}
+
+// AsyncPostWithContext is the *asynchronous* option for POST.
+// The go routine calling AsyncPost(), will not be blocked.
+//
+// Whenever the Response is ready, the *f* function will be called back.
+func (rb *RequestBuilder) AsyncPostWithContext(ctx context.Context, url string, body interface{}, f func(*Response)) {
+	go doAsyncRequest(rb.PostWithContext(ctx, url, body), f)
 }
 
 // AsyncPut is the *asynchronous* option for PUT.
@@ -234,12 +337,28 @@ func (rb *RequestBuilder) AsyncPut(url string, body interface{}, f func(*Respons
 	go doAsyncRequest(rb.Put(url, body), f)
 }
 
+// AsyncPutWithContext is the *asynchronous* option for PUT.
+// The go routine calling AsyncPut(), will not be blocked.
+//
+// Whenever the Response is ready, the *f* function will be called back.
+func (rb *RequestBuilder) AsyncPutWithContext(ctx context.Context, url string, body interface{}, f func(*Response)) {
+	go doAsyncRequest(rb.PutWithContext(ctx, url, body), f)
+}
+
 // AsyncPatch is the *asynchronous* option for PATCH.
 // The go routine calling AsyncPatch(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncPatch(url string, body interface{}, f func(*Response)) {
 	go doAsyncRequest(rb.Patch(url, body), f)
+}
+
+// AsyncPatchWithContext is the *asynchronous* option for PATCH.
+// The go routine calling AsyncPatch(), will not be blocked.
+//
+// Whenever the Response is ready, the *f* function will be called back.
+func (rb *RequestBuilder) AsyncPatchWithContext(ctx context.Context, url string, body interface{}, f func(*Response)) {
+	go doAsyncRequest(rb.PatchWithContext(ctx, url, body), f)
 }
 
 // AsyncDelete is the *asynchronous* option for DELETE.
@@ -250,6 +369,14 @@ func (rb *RequestBuilder) AsyncDelete(url string, f func(*Response)) {
 	go doAsyncRequest(rb.Delete(url), f)
 }
 
+// AsyncDeleteWithContext is the *asynchronous* option for DELETE.
+// The go routine calling AsyncDelete(), will not be blocked.
+//
+// Whenever the Response is ready, the *f* function will be called back.
+func (rb *RequestBuilder) AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response)) {
+	go doAsyncRequest(rb.DeleteWithContext(ctx, url), f)
+}
+
 // AsyncHead is the *asynchronous* option for HEAD.
 // The go routine calling AsyncHead(), will not be blocked.
 //
@@ -258,12 +385,28 @@ func (rb *RequestBuilder) AsyncHead(url string, f func(*Response)) {
 	go doAsyncRequest(rb.Head(url), f)
 }
 
+// AsyncHeadWithContext is the *asynchronous* option for HEAD.
+// The go routine calling AsyncHead(), will not be blocked.
+//
+// Whenever the Response is ready, the *f* function will be called back.
+func (rb *RequestBuilder) AsyncHeadWithContext(ctx context.Context, url string, f func(*Response)) {
+	go doAsyncRequest(rb.HeadWithContext(ctx, url), f)
+}
+
 // AsyncOptions is the *asynchronous* option for OPTIONS.
 // The go routine calling AsyncOptions(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncOptions(url string, f func(*Response)) {
 	go doAsyncRequest(rb.Options(url), f)
+}
+
+// AsyncOptionsWithContext is the *asynchronous* option for OPTIONS.
+// The go routine calling AsyncOptions(), will not be blocked.
+//
+// Whenever the Response is ready, the *f* function will be called back.
+func (rb *RequestBuilder) AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response)) {
+	go doAsyncRequest(rb.OptionsWithContext(ctx, url), f)
 }
 
 func doAsyncRequest(r *Response, f func(*Response)) {

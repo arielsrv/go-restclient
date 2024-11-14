@@ -2,6 +2,7 @@ package rest
 
 import (
 	"container/list"
+	"context"
 	"net/http"
 	"sync"
 	"sync/atomic"
@@ -50,7 +51,7 @@ type Concurrent struct {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (c *Concurrent) Get(url string) *FutureResponse {
-	return c.doRequest(http.MethodGet, url, nil)
+	return c.doRequest(context.Background(), http.MethodGet, url, nil)
 }
 
 // Post issues a POST HTTP verb to the specified URL, concurrently with any other
@@ -62,7 +63,7 @@ func (c *Concurrent) Get(url string) *FutureResponse {
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (c *Concurrent) Post(url string, body interface{}) *FutureResponse {
-	return c.doRequest(http.MethodPost, url, body)
+	return c.doRequest(context.Background(), http.MethodPost, url, body)
 }
 
 // Patch issues a PATCH HTTP verb to the specified URL, concurrently with any other
@@ -74,7 +75,7 @@ func (c *Concurrent) Post(url string, body interface{}) *FutureResponse {
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (c *Concurrent) Patch(url string, body interface{}) *FutureResponse {
-	return c.doRequest(http.MethodPatch, url, body)
+	return c.doRequest(context.Background(), http.MethodPatch, url, body)
 }
 
 // Put issues a PUT HTTP verb to the specified URL, concurrently with any other
@@ -86,7 +87,7 @@ func (c *Concurrent) Patch(url string, body interface{}) *FutureResponse {
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (c *Concurrent) Put(url string, body interface{}) *FutureResponse {
-	return c.doRequest(http.MethodPut, url, body)
+	return c.doRequest(context.Background(), http.MethodPut, url, body)
 }
 
 // Delete issues a DELETE HTTP verb to the specified URL, concurrently with any other
@@ -96,7 +97,7 @@ func (c *Concurrent) Put(url string, body interface{}) *FutureResponse {
 // Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request).
 func (c *Concurrent) Delete(url string) *FutureResponse {
-	return c.doRequest(http.MethodDelete, url, nil)
+	return c.doRequest(context.Background(), http.MethodDelete, url, nil)
 }
 
 // Head issues a HEAD HTTP verb to the specified URL, concurrently with any other
@@ -106,7 +107,7 @@ func (c *Concurrent) Delete(url string) *FutureResponse {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (c *Concurrent) Head(url string) *FutureResponse {
-	return c.doRequest(http.MethodHead, url, nil)
+	return c.doRequest(context.Background(), http.MethodHead, url, nil)
 }
 
 // Options issues a OPTIONS HTTP verb to the specified URL, concurrently with any other
@@ -117,15 +118,15 @@ func (c *Concurrent) Head(url string) *FutureResponse {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (c *Concurrent) Options(url string) *FutureResponse {
-	return c.doRequest(http.MethodOptions, url, nil)
+	return c.doRequest(context.Background(), http.MethodOptions, url, nil)
 }
 
-func (c *Concurrent) doRequest(verb string, url string, reqBody interface{}) *FutureResponse {
+func (c *Concurrent) doRequest(ctx context.Context, verb string, url string, reqBody interface{}) *FutureResponse {
 	fr := new(FutureResponse)
 
 	future := func() {
 		defer c.wg.Done()
-		r := c.reqBuilder.doRequest(verb, url, reqBody)
+		r := c.reqBuilder.doRequest(ctx, verb, url, reqBody)
 		atomic.StorePointer(&fr.p, unsafe.Pointer(r))
 	}
 	c.list.PushBack(future)
