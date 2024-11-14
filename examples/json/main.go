@@ -17,8 +17,11 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(5000))
 	defer cancel()
 
+	// Get a default REST client (with default settings and interface)
+	var client rest.HTTPClient
+
 	// Create a new REST client with custom settings
-	client := &rest.Client{
+	client = &rest.Client{
 		BaseURL:        "https://gorest.co.in/public/v2",
 		Timeout:        time.Millisecond * 1000,
 		ConnectTimeout: time.Millisecond * 5000,
