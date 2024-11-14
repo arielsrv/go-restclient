@@ -258,6 +258,28 @@ func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
 	}
 }
 
+func TestRequestWithProxyAndFollowRedirect_Trace(t *testing.T) {
+	host := "saraza"
+	customPool := rest.CustomPool{
+		MaxIdleConnsPerHost: 100,
+		Proxy:               fmt.Sprintf("http://%s", host),
+	}
+
+	restClient := new(rest.RequestBuilder)
+	restClient.ContentType = rest.JSON
+	restClient.DisableTimeout = true
+	restClient.CustomPool = &customPool
+	restClient.FollowRedirect = true
+	restClient.EnableTrace = true
+
+	response := restClient.Get(server.URL + "/user")
+	expected := fmt.Sprintf("Get \"%s/user\": proxyconnect tcp: dial tcp: lookup %s", server.URL, host)
+
+	if !strings.Contains(response.Err.Error(), expected) {
+		t.Fatalf("Expected %v Error, Got %v as Response", expected, response.Err.Error())
+	}
+}
+
 func TestRequestSendingClientMetrics(t *testing.T) {
 	restClient := new(rest.RequestBuilder)
 
