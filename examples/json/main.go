@@ -11,6 +11,9 @@ import (
 )
 
 func main() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(5000))
+	defer cancel()
+
 	client := &rest.Client{
 		BaseURL:        "https://gorest.co.in/public/v2",
 		Timeout:        time.Millisecond * 1000,
@@ -18,12 +21,11 @@ func main() {
 		ContentType:    rest.JSON,
 		Name:           "example-client",
 		// EnableTrace:    true,
-		// CustomPool:     nil,
-		// BasicAuth:      nil,
-		// Client:         nil,
-		// OAuth:          nil,
-		// BaseURL:        baseURL,
-		// UserAgent:      "",
+		// CustomPool:     &...,
+		// BasicAuth:      &...,
+		// Client:         &...,
+		// OAuth:          &...,
+		// UserAgent:      "<Your User Agent>",
 		// DisableCache:   false,
 		// DisableTimeout: false,
 		// FollowRedirect: false,
@@ -41,7 +43,7 @@ func main() {
 	headers.Add("Accept", "application/json")
 	headers.Add("Content-Type", "application/json")
 
-	response := client.GetWithContext(context.Background(), "/users", headers)
+	response := client.GetWithContext(ctx, "/users", headers)
 	if response.Err != nil {
 		log.Fatal(response.Err)
 	}
