@@ -42,7 +42,7 @@
 //
 //	is done by two strategies working together: Time To Live (TTL) and
 //
-// Least Recently Used (LRU). Objects are inserted in the cache based on
+// Least Recently Used (LRU). List are inserted in the cache based on
 // Response Headers. You can establish a maximum Memory Size for the cache
 // and objects are flushed based on time expiration (TTL) or by hitting the maximum
 // memory limit. In the last case, least accessed objects will be removed first.
