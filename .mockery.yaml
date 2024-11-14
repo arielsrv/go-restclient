@@ -1,0 +1,12 @@
+filename: "mock_{{.InterfaceName}}.go"
+dir: "rest/mocks/{{.InterfaceDirRelative}}"
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "mocks"
+all: True
+disable-version-string: True
+with-expecter: True
+packages:
+  gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest:
+    config:
+      recursive: True
+log-level: Warn

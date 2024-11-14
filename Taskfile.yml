@@ -31,6 +31,10 @@ tasks:
     cmds:
       - go install gotest.tools/gotestsum@latest
       - gotestsum --junitfile report.xml --format testname
+  test:mock:
+    desc: Create mocks
+    cmds:
+      - mockery --config .mockery.yaml
   coverage:
     desc: Makes report coverage.
     cmds:
