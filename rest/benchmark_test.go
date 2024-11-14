@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
 func BenchmarkGet(b *testing.B) {
@@ -36,15 +35,5 @@ func BenchmarkSlowGet(b *testing.B) {
 		if resp.StatusCode != http.StatusOK {
 			log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
 		}
-	}
-}
-
-func BenchmarkSlowConcurrentGet(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		rb.ForkJoin(func(cr *rest.Concurrent) {
-			for range 100 {
-				cr.Get("/slow/user")
-			}
-		})
 	}
 }

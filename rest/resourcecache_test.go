@@ -2,7 +2,6 @@ package rest_test
 
 import (
 	"net/http"
-	"strconv"
 	"testing"
 	"time"
 
@@ -74,24 +73,6 @@ func TestCacheGetExpires(t *testing.T) {
 	}
 }
 
-func TestCacheForkJoinGet(t *testing.T) {
-	var f [100]*rest.FutureResponse
-
-	for range 1000 {
-		rb.ForkJoin(func(cr *rest.Concurrent) {
-			for i := range f {
-				f[i] = cr.Get("/cache/user")
-			}
-		})
-
-		for i := range f {
-			if f[i].Response().StatusCode != http.StatusOK {
-				t.Fatal("f[" + strconv.Itoa(i) + "] Status != OK (200)")
-			}
-		}
-	}
-}
-
 func TestCacheSlowGet(t *testing.T) {
 	var f [1000]*rest.Response
 
@@ -104,26 +85,5 @@ func TestCacheSlowGet(t *testing.T) {
 
 		// Wait for so we get cache eviction
 		time.Sleep(3 * time.Millisecond)
-	}
-}
-
-func TestCacheSlowForkJoinGet(t *testing.T) {
-	var f [100]*rest.FutureResponse
-
-	for range 10 {
-		rb.ForkJoin(func(cr *rest.Concurrent) {
-			for i := range f {
-				f[i] = cr.Get("/slow/cache/user")
-			}
-		})
-
-		for i := range f {
-			if f[i].Response().StatusCode != http.StatusOK {
-				t.Fatal("f[" + strconv.Itoa(i) + "] Status != OK (200)")
-			}
-		}
-
-		// Wait for so we get cache eviction
-		time.Sleep(300 * time.Millisecond)
 	}
 }

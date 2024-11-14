@@ -162,25 +162,3 @@ func AsyncHead(url string, f func(*Response), headers ...http.Header) {
 func AsyncOptions(url string, f func(*Response), headers ...http.Header) {
 	dfltBuilder.AsyncOptions(url, f, headers...)
 }
-
-// ForkJoin let you *fork* requests, and *wait* until all of them have return.
-//
-// Concurrent has methods for Get, Post, Put, Patch, Delete, Head & Options,
-// with almost the same API as the synchronous methods.
-// The difference is that these methods return a FutureResponse, which holds a pointer to
-// Response. Response inside FutureResponse is nil until request has finished.
-//
-//	var futureA, futureB *rest.FutureResponse
-//
-//	rest.ForkJoin(func(c *rest.Concurrent){
-//		futureA = c.Get("/url/1")
-//		futureB = c.Get("/url/2")
-//	})
-//
-//	fmt.Println(futureA.Response())
-//	fmt.Println(futureB.Response())
-//
-// AsyncOptions uses the DefaultBuilder.
-func ForkJoin(f func(*Concurrent)) {
-	dfltBuilder.ForkJoin(f)
-}

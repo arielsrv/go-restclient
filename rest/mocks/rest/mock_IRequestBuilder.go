@@ -850,39 +850,6 @@ func (_c *MockIRequestBuilder_DeleteWithContext_Call) RunAndReturn(run func(cont
 	return _c
 }
 
-// ForkJoin provides a mock function with given fields: f
-func (_m *MockIRequestBuilder) ForkJoin(f func(*rest.Concurrent)) {
-	_m.Called(f)
-}
-
-// MockIRequestBuilder_ForkJoin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ForkJoin'
-type MockIRequestBuilder_ForkJoin_Call struct {
-	*mock.Call
-}
-
-// ForkJoin is a helper method to define mock.On call
-//   - f func(*rest.Concurrent)
-func (_e *MockIRequestBuilder_Expecter) ForkJoin(f interface{}) *MockIRequestBuilder_ForkJoin_Call {
-	return &MockIRequestBuilder_ForkJoin_Call{Call: _e.mock.On("ForkJoin", f)}
-}
-
-func (_c *MockIRequestBuilder_ForkJoin_Call) Run(run func(f func(*rest.Concurrent))) *MockIRequestBuilder_ForkJoin_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(func(*rest.Concurrent)))
-	})
-	return _c
-}
-
-func (_c *MockIRequestBuilder_ForkJoin_Call) Return() *MockIRequestBuilder_ForkJoin_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *MockIRequestBuilder_ForkJoin_Call) RunAndReturn(run func(func(*rest.Concurrent))) *MockIRequestBuilder_ForkJoin_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Get provides a mock function with given fields: url, headers
 func (_m *MockIRequestBuilder) Get(url string, headers ...http.Header) *rest.Response {
 	_va := make([]interface{}, len(headers))
