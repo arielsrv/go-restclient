@@ -113,7 +113,7 @@ func (r *Response) CacheHit() bool {
 }
 
 // Debug let any request/response to be dumped, showing how the request/response
-// went through the wire, only if debug mode is *on* on RequestBuilder.
+// went through the wire, only if debug mode is *on* on RESTClient.
 func (r *Response) Debug() string {
 	var strReq, strResp string
 

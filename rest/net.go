@@ -35,15 +35,15 @@ var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
 const HTTPDateFormat string = "Mon, 01 Jan 2006 15:04:05 GMT"
 
-func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL string, reqBody any, headers ...http.Header) (result *Response) {
+func (r *Client) newRequest(ctx context.Context, verb string, reqURL string, reqBody any, headers ...http.Header) (result *Response) {
 	var cacheURL string
 	var cacheResp *Response
 
 	result = new(Response)
-	reqURL = rb.BaseURL + reqURL
+	reqURL = r.BaseURL + reqURL
 
 	// If Cache enable && operation is read: Cache GET
-	if !rb.DisableCache && slices.Contains(readVerbs, verb) {
+	if !r.DisableCache && slices.Contains(readVerbs, verb) {
 		if cacheResp = resourceCache.get(reqURL); cacheResp != nil {
 			cacheResp.cacheHit.Store(true)
 			if !cacheResp.revalidate {
@@ -53,7 +53,7 @@ func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL str
 	}
 
 	// Marshal request to JSON or XML
-	reader, err := rb.marshalReqBody(reqBody)
+	reader, err := r.marshalReqBody(reqBody)
 	if err != nil {
 		result.Err = err
 		return
@@ -67,12 +67,12 @@ func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL str
 	}
 
 	parentCtx := ctx
-	if rb.EnableTrace {
+	if r.EnableTrace {
 		clientTrace := otelhttptrace.NewClientTrace(ctx)
 		parentCtx = httptrace.WithClientTrace(ctx, clientTrace)
 	}
 
-	client := rb.getClient(parentCtx)
+	client := r.getClient(parentCtx)
 
 	request, err := http.NewRequestWithContext(parentCtx, verb, reqURL, reader)
 	if err != nil {
@@ -81,21 +81,21 @@ func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL str
 	}
 
 	// Set extra parameters
-	rb.setParams(request, cacheResp, cacheURL, headers...)
+	r.setParams(request, cacheResp, cacheURL, headers...)
 
 	startTime := time.Now()
 	// Make the request
 	httpResp, err := client.Do(request)
 	elapsedTime := time.Since(startTime)
 
-	HTTPCollector.RecordExecutionTime(rb.Name, "http_connection", "response_time", elapsedTime)
+	HTTPCollector.RecordExecutionTime(r.Name, "http_connection", "response_time", elapsedTime)
 
 	if err != nil {
 		var netError net.Error
 		if errors.As(err, &netError) && netError.Timeout() {
-			HTTPCollector.IncrementCounter(rb.Name, "http_connection_error", "timeout")
+			HTTPCollector.IncrementCounter(r.Name, "http_connection_error", "timeout")
 		}
-		HTTPCollector.IncrementCounter(rb.Name, "http_connection_error", "network")
+		HTTPCollector.IncrementCounter(r.Name, "http_connection_error", "network")
 		result.Err = err
 		return
 	}
@@ -108,7 +108,7 @@ func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL str
 		return
 	}
 
-	HTTPCollector.IncrementCounter(rb.Name, "http_status", strconv.Itoa(httpResp.StatusCode))
+	HTTPCollector.IncrementCounter(r.Name, "http_status", strconv.Itoa(httpResp.StatusCode))
 
 	// If we get a 304, return response from cache
 	if httpResp.StatusCode == http.StatusNotModified {
@@ -128,7 +128,7 @@ func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL str
 	}
 
 	// If Cache enable: Cache SENA
-	if !rb.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
+	if !r.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
 		resourceCache.setNX(cacheURL, result)
 	}
 
@@ -153,9 +153,9 @@ func checkMockup(reqURL string) (string, string, error) {
 	return reqURL, cacheURL, nil
 }
 
-func (rb *RequestBuilder) marshalReqBody(body any) (io.Reader, error) {
+func (r *Client) marshalReqBody(body any) (io.Reader, error) {
 	if body != nil {
-		switch rb.ContentType {
+		switch r.ContentType {
 		case JSON:
 			b, err := json.Marshal(body)
 			return bytes.NewBuffer(b), err
@@ -176,31 +176,31 @@ func (rb *RequestBuilder) marshalReqBody(body any) (io.Reader, error) {
 	return nil, nil
 }
 
-func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
+func (r *Client) getClient(ctx context.Context) *http.Client {
 	// This will be executed only once
 	// per request builder
-	rb.clientMtxOnce.Do(func() {
-		dTransportMtxOnce.Do(func() {
-			if defaultTransport == nil {
-				defaultTransport = &http.Transport{
+	r.clientMtxOnce.Do(func() {
+		dfltTransportOnce.Do(func() {
+			if dfltTransport == nil {
+				dfltTransport = &http.Transport{
 					MaxIdleConnsPerHost:   DefaultMaxIdleConnsPerHost,
 					Proxy:                 http.ProxyFromEnvironment,
-					DialContext:           (&net.Dialer{Timeout: rb.getConnectionTimeout()}).DialContext,
-					ResponseHeaderTimeout: rb.getRequestTimeout(),
+					DialContext:           (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext,
+					ResponseHeaderTimeout: r.getRequestTimeout(),
 				}
 			}
 
 			defaultCheckRedirectFunc = http.Client{}.CheckRedirect
 		})
 
-		tr := defaultTransport
+		tr := dfltTransport
 
-		if cp := rb.CustomPool; cp != nil {
+		if cp := r.CustomPool; cp != nil {
 			if cp.Transport == nil {
 				tr = &http.Transport{
-					MaxIdleConnsPerHost:   rb.CustomPool.MaxIdleConnsPerHost,
-					DialContext:           (&net.Dialer{Timeout: rb.getConnectionTimeout()}).DialContext,
-					ResponseHeaderTimeout: rb.getRequestTimeout(),
+					MaxIdleConnsPerHost:   r.CustomPool.MaxIdleConnsPerHost,
+					DialContext:           (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext,
+					ResponseHeaderTimeout: r.getRequestTimeout(),
 				}
 
 				// Set Proxy
@@ -213,8 +213,8 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 			} else {
 				ctr, ok := cp.Transport.(*http.Transport)
 				if ok {
-					ctr.DialContext = (&net.Dialer{Timeout: rb.getConnectionTimeout()}).DialContext
-					ctr.ResponseHeaderTimeout = rb.getRequestTimeout()
+					ctr.DialContext = (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext
+					ctr.ResponseHeaderTimeout = r.getRequestTimeout()
 					tr = ctr
 				} else {
 					// If custom transport is not http.Transport, timeouts will not be overwritten.
@@ -223,65 +223,65 @@ func (rb *RequestBuilder) getClient(ctx context.Context) *http.Client {
 			}
 		}
 
-		rb.Client = &http.Client{
+		r.Client = &http.Client{
 			Transport: tr,
 		}
 
-		if rb.EnableTrace {
-			rb.Client = &http.Client{
-				Transport: otelhttp.NewTransport(rb.Client.Transport),
+		if r.EnableTrace {
+			r.Client = &http.Client{
+				Transport: otelhttp.NewTransport(r.Client.Transport),
 			}
 		}
 
-		if rb.OAuth != nil {
-			rb.Client = rb.OAuth.Client(context.WithValue(ctx, oauth2.HTTPClient, rb.Client))
+		if r.OAuth != nil {
+			r.Client = r.OAuth.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
 		}
 	})
 
-	if !rb.FollowRedirect {
-		rb.Client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
+	if !r.FollowRedirect {
+		r.Client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
 			return errors.New("avoided redirect attempt")
 		}
 	} else {
-		rb.Client.CheckRedirect = defaultCheckRedirectFunc
+		r.Client.CheckRedirect = defaultCheckRedirectFunc
 	}
 
-	if rb.Name == "" {
+	if r.Name == "" {
 		log.Debugf("No name provided for request builder, using hostname")
 		hostname, found := os.LookupEnv("HOSTNAME")
 		if found {
-			rb.Name = hostname
+			r.Name = hostname
 		} else {
-			rb.Name = "unknown"
+			r.Name = "unknown"
 		}
 	}
 
-	return rb.Client
+	return r.Client
 }
 
-func (rb *RequestBuilder) getRequestTimeout() time.Duration {
+func (r *Client) getRequestTimeout() time.Duration {
 	switch {
-	case rb.DisableTimeout:
+	case r.DisableTimeout:
 		return 0
-	case rb.Timeout > 0:
-		return rb.Timeout
+	case r.Timeout > 0:
+		return r.Timeout
 	default:
 		return DefaultTimeout
 	}
 }
 
-func (rb *RequestBuilder) getConnectionTimeout() time.Duration {
+func (r *Client) getConnectionTimeout() time.Duration {
 	switch {
-	case rb.DisableTimeout:
+	case r.DisableTimeout:
 		return 0
-	case rb.ConnectTimeout > 0:
-		return rb.ConnectTimeout
+	case r.ConnectTimeout > 0:
+		return r.ConnectTimeout
 	default:
 		return DefaultConnectTimeout
 	}
 }
 
-func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cacheURL string, headers ...http.Header) {
+func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL string, headers ...http.Header) {
 	// Default headers
 	req.Header.Set("Connection", "keep-alive")
 	req.Header.Set("Cache-Control", "no-cache")
@@ -292,14 +292,14 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 	}
 
 	// Basic Auth
-	if rb.BasicAuth != nil {
-		req.SetBasicAuth(rb.BasicAuth.UserName, rb.BasicAuth.Password)
+	if r.BasicAuth != nil {
+		req.SetBasicAuth(r.BasicAuth.UserName, r.BasicAuth.Password)
 	}
 
 	// User Agent
 	req.Header.Set("User-Agent", func() string {
-		if rb.UserAgent != "" {
-			return rb.UserAgent
+		if r.UserAgent != "" {
+			return r.UserAgent
 		}
 		return "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient"
 	}())
@@ -307,7 +307,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 	// Encoding
 	var cType string
 
-	switch rb.ContentType {
+	switch r.ContentType {
 	case JSON:
 		cType = "json"
 	case XML:

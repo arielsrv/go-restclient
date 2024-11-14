@@ -129,7 +129,7 @@ func TestGetTypedGenericUnmarshalJSON(t *testing.T) {
 func TestGetFillUpXML(t *testing.T) {
 	var u []User
 
-	rbXML := rest.RequestBuilder{
+	rbXML := rest.Client{
 		BaseURL:     server.URL,
 		ContentType: rest.XML,
 	}

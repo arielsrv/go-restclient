@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-var dfltBuilder = RequestBuilder{
+var dfltBuilder = Client{
 	mtx: sync.RWMutex{},
 }
 

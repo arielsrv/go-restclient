@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	httpClient := &rest.RequestBuilder{
+	httpClient := &rest.Client{
 		BaseURL:        "https://gorest.co.in/public/v2",
 		Timeout:        time.Millisecond * 2000,
 		ConnectTimeout: time.Millisecond * 5000,

@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
@@ -17,16 +19,12 @@ func main() {
 		ConnectTimeout: time.Millisecond * 5000,
 		ContentType:    rest.JSON,
 		Name:           "example-client",
-		// EnableTrace:    true,
-		// CustomPool:     nil,
-		// BasicAuth:      nil,
-		// Client:         nil,
-		// OAuth:          nil,
-		// BaseURL:        baseURL,
-		// UserAgent:      "",
-		// DisableCache:   false,
-		// DisableTimeout: false,
-		// FollowRedirect: false,
+		OAuth: &clientcredentials.Config{
+			ClientID:     "client_id",
+			ClientSecret: "client_secret",
+			TokenURL:     "https://account.demandware.com/dw/oauth2/access_token",
+			AuthStyle:    oauth2.AuthStyleInHeader,
+		},
 	}
 
 	var users []struct {

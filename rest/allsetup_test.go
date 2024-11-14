@@ -36,7 +36,7 @@ var userList = []string{
 	"Alice", "Bob", "Maria",
 }
 
-var rb = rest.RequestBuilder{
+var rb = rest.Client{
 	BaseURL: server.URL,
 }
 

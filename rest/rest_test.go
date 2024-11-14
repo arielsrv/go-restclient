@@ -51,7 +51,7 @@ func TestPost(t *testing.T) {
 }
 
 func TestPostXML(t *testing.T) {
-	rbXML := rest.RequestBuilder{
+	rbXML := rest.Client{
 		BaseURL:     server.URL,
 		ContentType: rest.XML,
 	}
@@ -64,7 +64,7 @@ func TestPostXML(t *testing.T) {
 }
 
 func TestPostForm(t *testing.T) {
-	fbForm := rest.RequestBuilder{
+	fbForm := rest.Client{
 		BaseURL:     server.URL,
 		ContentType: rest.FORM,
 	}
@@ -184,7 +184,7 @@ func TestHeaders(t *testing.T) {
 	h := make(http.Header)
 	h.Add("X-Test", "test")
 
-	builder := rest.RequestBuilder{
+	builder := rest.Client{
 		BaseURL: server.URL,
 	}
 
@@ -196,7 +196,7 @@ func TestHeaders(t *testing.T) {
 }
 
 func TestSetHeader(t *testing.T) {
-	builder := rest.RequestBuilder{
+	builder := rest.Client{
 		BaseURL: server.URL,
 	}
 
@@ -212,7 +212,7 @@ func TestSetHeader(t *testing.T) {
 
 func TestSetName(t *testing.T) {
 	t.Setenv("HOSTNAME", "localhost")
-	builder := rest.RequestBuilder{
+	builder := rest.Client{
 		BaseURL: server.URL,
 	}
 
@@ -241,7 +241,7 @@ func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
 		Proxy:               fmt.Sprintf("http://%s", host),
 	}
 
-	restClient := new(rest.RequestBuilder)
+	restClient := new(rest.Client)
 	restClient.ContentType = rest.JSON
 	restClient.DisableTimeout = true
 	restClient.CustomPool = &customPool
@@ -262,7 +262,7 @@ func TestRequestWithProxyAndFollowRedirect_Trace(t *testing.T) {
 		Proxy:               fmt.Sprintf("http://%s", host),
 	}
 
-	restClient := new(rest.RequestBuilder)
+	restClient := new(rest.Client)
 	restClient.ContentType = rest.JSON
 	restClient.DisableTimeout = true
 	restClient.CustomPool = &customPool
@@ -278,7 +278,7 @@ func TestRequestWithProxyAndFollowRedirect_Trace(t *testing.T) {
 }
 
 func TestRequestSendingClientMetrics(t *testing.T) {
-	restClient := new(rest.RequestBuilder)
+	restClient := new(rest.Client)
 
 	response := restClient.Get(server.URL + "/user")
 
@@ -288,7 +288,7 @@ func TestRequestSendingClientMetrics(t *testing.T) {
 }
 
 func TestResponseExceedsConnectTimeout(t *testing.T) {
-	restClient := rest.RequestBuilder{CustomPool: &rest.CustomPool{}}
+	restClient := rest.Client{CustomPool: &rest.CustomPool{}}
 	restClient.ConnectTimeout = 1 * time.Nanosecond
 	restClient.Timeout = 35 * time.Millisecond
 	restClient.ContentType = rest.JSON
@@ -309,7 +309,7 @@ func TestResponseExceedsConnectTimeout(t *testing.T) {
 }
 
 func TestResponseExceedsRequestTimeout(t *testing.T) {
-	restClient := rest.RequestBuilder{CustomPool: &rest.CustomPool{Transport: &http.Transport{}}}
+	restClient := rest.Client{CustomPool: &rest.CustomPool{Transport: &http.Transport{}}}
 	restClient.ConnectTimeout = 35 * time.Millisecond
 	restClient.Timeout = 9 * time.Millisecond
 	restClient.ContentType = rest.JSON
@@ -332,7 +332,7 @@ func TestResponseExceedsRequestTimeout(t *testing.T) {
 }
 
 func TestResponseExceedsRequestOAuth(t *testing.T) {
-	restClient := rest.RequestBuilder{
+	restClient := rest.Client{
 		CustomPool: &rest.CustomPool{Transport: &http.Transport{}},
 		OAuth: &clientcredentials.Config{
 			ClientID:     "a11d0149-687e-452e-9c94-783d489d4f72",

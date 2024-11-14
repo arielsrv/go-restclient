@@ -51,7 +51,7 @@
 //
 // Installation
 //
-//	go get github.com/go-loco/restful/rest
+//	go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient
 //
 // Importing
 //
@@ -133,7 +133,7 @@
 // * HTTP/2: automatic with Go 1.6
 // * Gzip: automatic support for gzip responses
 //
-// # RequestBuilder
+// # RESTClient
 //
 //	gives you the power to go beyond defaults.
 //
@@ -143,7 +143,7 @@
 //	headers := make(http.Header)
 //	headers.Add("myHeader", "myValue")
 //
-//	var rb = rest.RequestBuilder{
+//	var rb = rest.RESTClient{
 //	  Headers:             headers,
 //	  Timeout:             200 * time.Millisecond,
 //	  BaseURL:             "https://baseURL",
