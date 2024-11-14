@@ -7,7 +7,6 @@
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs
 - Fork-Join request pattern, for sending many requests concurrently, getting better client performance.
 - Response Caching, based on response headers (cache-control, last-modified, etag, expires)
-- Async request pattern.
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
 - Request Body can be `string`, `[]byte`, `struct` & `map`
 
@@ -41,19 +40,22 @@ import (
 )
 
 func main() {
-    baseURL := "https://gorest.co.in/public/v2"
-
-    headers := make(http.Header)
-    headers.Add("Accept", "application/json")
-    headers.Add("Content-Type", "application/json")
-
     httpClient := &rest.RequestBuilder{
+        BaseURL:        "https://gorest.co.in/public/v2",
         Timeout:        time.Millisecond * 1000,
         ConnectTimeout: time.Millisecond * 5000,
-        BaseURL:        baseURL,
-        // OAuth: 		...
-        // CustomPool:  ...
-        // EnableTrace:  ...
+        ContentType:    rest.JSON,
+        Name:           "example-client",
+        // EnableTrace:    true,
+        // CustomPool:     nil,
+        // BasicAuth:      nil,
+        // Client:         nil,
+        // OAuth:          nil,
+        // BaseURL:        baseURL,
+        // UserAgent:      "",
+        // DisableCache:   false,
+        // DisableTimeout: false,
+        // FollowRedirect: false,
     }
 
     var users []struct {
@@ -64,6 +66,10 @@ func main() {
         Status string `json:"status"`
     }
 
+    headers := make(http.Header)
+    headers.Add("Accept", "application/json")
+    headers.Add("Content-Type", "application/json")
+
     response := httpClient.GetWithContext(context.Background(), "/users", headers)
     if response.Err != nil {
         log.Fatal(response.Err)
@@ -73,18 +79,8 @@ func main() {
         log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
     }
 
-    // Typed fill up
-    result, err := rest.Deserialize[[]UserDTO](response)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    for i := range result {
-        log.Infof("User: %v", result[i])
-    }
-
     // Untyped fill up
-    err = response.FillUp(&users)
+    err := response.FillUp(&users)
     if err != nil {
         log.Fatal(err)
     }
@@ -94,16 +90,10 @@ func main() {
     }
 }
 
-type UserDTO struct {
-    Name   string `json:"name"`
-    Email  string `json:"email"`
-    Gender string `json:"gender"`
-    Status string `json:"status"`
-    ID     int    `json:"id"`
-}
 ```
 ## Metrics
 ![prometheus]
+![otel]
 
 Requisites
 - Make sure you have **prometheus collector endpoint** turned on in your application
