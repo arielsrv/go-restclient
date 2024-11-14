@@ -40,7 +40,7 @@ import (
 )
 
 func main() {
-    httpClient := &rest.RequestBuilder{
+    client := &rest.Client{
         BaseURL:        "https://gorest.co.in/public/v2",
         Timeout:        time.Millisecond * 1000,
         ConnectTimeout: time.Millisecond * 5000,
@@ -70,7 +70,7 @@ func main() {
     headers.Add("Accept", "application/json")
     headers.Add("Content-Type", "application/json")
 
-    response := httpClient.GetWithContext(context.Background(), "/users", headers)
+    response := client.GetWithContext(context.Background(), "/users", headers)
     if response.Err != nil {
         log.Fatal(response.Err)
     }
