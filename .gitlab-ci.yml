@@ -16,18 +16,6 @@ stages:
   - build
   - test
 
-code_navigation:
-  image: docker.io/golang:${GO_VERSION}
-  stage: build
-  allow_failure: true
-  script:
-    - .gitlab/code_navigation.sh
-  artifacts:
-    reports:
-      lsif: dump.lsif
-  only:
-    - branches
-
 compile:
   stage: build
   image: docker.io/golang:${GO_VERSION}
@@ -78,21 +66,5 @@ coverage-report:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
-  only:
-    - branches
-
-lint:
-  stage: test
-  image: golangci/golangci-lint:latest
-  variables:
-    output: gl-code-quality-report.json
-  script:
-    - .gitlab/test/lint.sh
-  artifacts:
-    reports:
-      codequality: gl-code-quality-report.json
-    paths:
-      - gl-code-quality-report.json
-  allow_failure: false
   only:
     - branches
