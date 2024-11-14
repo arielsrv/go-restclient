@@ -56,8 +56,8 @@ func (r *Response) Bytes() []byte {
 }
 
 // FillUp set the *fill* parameter with the corresponding JSON or XML response.
-// fill could be `struct` or `map[string]interface{}`.
-func (r *Response) FillUp(fill interface{}) error {
+// fill could be `struct` or `map[string]any`.
+func (r *Response) FillUp(fill any) error {
 	ctypeJSON := "application/json"
 	ctypeXML := "application/xml"
 
@@ -78,7 +78,7 @@ func (r *Response) FillUp(fill interface{}) error {
 }
 
 // TypedFillUp FillUp set the *fill* parameter with the corresponding JSON or XML response.
-// fill could be `struct` or `map[string]interface{}`.
+// fill could be `struct` or `map[string]any`.
 func TypedFillUp[TResult any](r *Response) (*TResult, error) {
 	target := new(TResult)
 	err := r.FillUp(&target)

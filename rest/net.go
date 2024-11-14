@@ -35,7 +35,7 @@ var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
 const HTTPDateFormat string = "Mon, 01 Jan 2006 15:04:05 GMT"
 
-func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL string, reqBody interface{}) (result *Response) {
+func (rb *RequestBuilder) doRequest(ctx context.Context, verb string, reqURL string, reqBody any) (result *Response) {
 	var cacheURL string
 	var cacheResp *Response
 
@@ -153,7 +153,7 @@ func checkMockup(reqURL string) (string, string, error) {
 	return reqURL, cacheURL, nil
 }
 
-func (rb *RequestBuilder) marshalReqBody(body interface{}) (io.Reader, error) {
+func (rb *RequestBuilder) marshalReqBody(body any) (io.Reader, error) {
 	if body != nil {
 		switch rb.ContentType {
 		case JSON:

@@ -26,7 +26,7 @@ func Get(url string) *Response {
 // Body could be any of the form: string, []byte, struct & map.
 //
 // Post uses the DefaultBuilder.
-func Post(url string, body interface{}) *Response {
+func Post(url string, body any) *Response {
 	return dfltBuilder.Post(url, body)
 }
 
@@ -39,7 +39,7 @@ func Post(url string, body interface{}) *Response {
 // Body could be any of the form: string, []byte, struct & map.
 //
 // Put uses the DefaultBuilder.
-func Put(url string, body interface{}) *Response {
+func Put(url string, body any) *Response {
 	return dfltBuilder.Put(url, body)
 }
 
@@ -52,7 +52,7 @@ func Put(url string, body interface{}) *Response {
 // Body could be any of the form: string, []byte, struct & map.
 //
 // Patch uses the DefaultBuilder.
-func Patch(url string, body interface{}) *Response {
+func Patch(url string, body any) *Response {
 	return dfltBuilder.Patch(url, body)
 }
 
@@ -106,7 +106,7 @@ func AsyncGet(url string, f func(*Response)) {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncPost uses the DefaultBuilder.
-func AsyncPost(url string, body interface{}, f func(*Response)) {
+func AsyncPost(url string, body any, f func(*Response)) {
 	dfltBuilder.AsyncPost(url, body, f)
 }
 
@@ -116,7 +116,7 @@ func AsyncPost(url string, body interface{}, f func(*Response)) {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncPut uses the DefaultBuilder.
-func AsyncPut(url string, body interface{}, f func(*Response)) {
+func AsyncPut(url string, body any, f func(*Response)) {
 	dfltBuilder.AsyncPut(url, body, f)
 }
 
@@ -126,7 +126,7 @@ func AsyncPut(url string, body interface{}, f func(*Response)) {
 // Whenever the Response is ready, the *f* function will be called back.
 //
 // AsyncPatch uses the DefaultBuilder.
-func AsyncPatch(url string, body interface{}, f func(*Response)) {
+func AsyncPatch(url string, body any, f func(*Response)) {
 	dfltBuilder.AsyncPatch(url, body, f)
 }
 

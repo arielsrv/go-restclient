@@ -11,17 +11,17 @@ import (
 
 type IConcurrent interface {
 	Get(url string) *FutureResponse
-	Post(url string, body interface{}) *FutureResponse
-	Patch(url string, body interface{}) *FutureResponse
-	Put(url string, body interface{}) *FutureResponse
+	Post(url string, body any) *FutureResponse
+	Patch(url string, body any) *FutureResponse
+	Put(url string, body any) *FutureResponse
 	Delete(url string) *FutureResponse
 	Head(url string) *FutureResponse
 	Options(url string) *FutureResponse
 
 	GetWithContext(ctx context.Context, url string) *FutureResponse
-	PostWithContext(ctx context.Context, url string, body interface{}) *FutureResponse
-	PatchWithContext(ctx context.Context, url string, body interface{}) *FutureResponse
-	PutWithContext(ctx context.Context, url string, body interface{}) *FutureResponse
+	PostWithContext(ctx context.Context, url string, body any) *FutureResponse
+	PatchWithContext(ctx context.Context, url string, body any) *FutureResponse
+	PutWithContext(ctx context.Context, url string, body any) *FutureResponse
 	DeleteWithContext(ctx context.Context, url string) *FutureResponse
 	HeadWithContext(ctx context.Context, url string) *FutureResponse
 	OptionsWithContext(ctx context.Context, url string) *FutureResponse
@@ -80,7 +80,7 @@ func (c *Concurrent) Get(url string) *FutureResponse {
 // 404(Not Found), or 409(Conflict) if resource already exist.
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (c *Concurrent) Post(url string, body interface{}) *FutureResponse {
+func (c *Concurrent) Post(url string, body any) *FutureResponse {
 	return c.PostWithContext(context.Background(), url, body)
 }
 
@@ -92,7 +92,7 @@ func (c *Concurrent) Post(url string, body interface{}) *FutureResponse {
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (c *Concurrent) Patch(url string, body interface{}) *FutureResponse {
+func (c *Concurrent) Patch(url string, body any) *FutureResponse {
 	return c.PatchWithContext(context.Background(), url, body)
 }
 
@@ -104,7 +104,7 @@ func (c *Concurrent) Patch(url string, body interface{}) *FutureResponse {
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (c *Concurrent) Put(url string, body interface{}) *FutureResponse {
+func (c *Concurrent) Put(url string, body any) *FutureResponse {
 	return c.PutWithContext(context.Background(), url, body)
 }
 
@@ -157,7 +157,7 @@ func (c *Concurrent) GetWithContext(ctx context.Context, url string) *FutureResp
 // 404(Not Found), or 409(Conflict) if resource already exist.
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (c *Concurrent) PostWithContext(ctx context.Context, url string, body interface{}) *FutureResponse {
+func (c *Concurrent) PostWithContext(ctx context.Context, url string, body any) *FutureResponse {
 	return c.doRequest(ctx, http.MethodPost, url, body)
 }
 
@@ -169,7 +169,7 @@ func (c *Concurrent) PostWithContext(ctx context.Context, url string, body inter
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (c *Concurrent) PatchWithContext(ctx context.Context, url string, body interface{}) *FutureResponse {
+func (c *Concurrent) PatchWithContext(ctx context.Context, url string, body any) *FutureResponse {
 	return c.doRequest(ctx, http.MethodPatch, url, body)
 }
 
@@ -181,7 +181,7 @@ func (c *Concurrent) PatchWithContext(ctx context.Context, url string, body inte
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (c *Concurrent) PutWithContext(ctx context.Context, url string, body interface{}) *FutureResponse {
+func (c *Concurrent) PutWithContext(ctx context.Context, url string, body any) *FutureResponse {
 	return c.doRequest(ctx, http.MethodPut, url, body)
 }
 
@@ -216,7 +216,7 @@ func (c *Concurrent) OptionsWithContext(ctx context.Context, url string) *Future
 	return c.doRequest(ctx, http.MethodOptions, url, nil)
 }
 
-func (c *Concurrent) doRequest(ctx context.Context, verb string, url string, reqBody interface{}) *FutureResponse {
+func (c *Concurrent) doRequest(ctx context.Context, verb string, url string, reqBody any) *FutureResponse {
 	fr := new(FutureResponse)
 
 	future := func() {

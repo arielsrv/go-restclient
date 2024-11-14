@@ -49,12 +49,12 @@ const (
 type IRequestBuilder interface {
 	Get(url string) *Response
 	GetWithContext(ctx context.Context, url string) *Response
-	Post(url string, body interface{}) *Response
-	PostWithContext(ctx context.Context, url string, body interface{}) *Response
-	PutWithContext(ctx context.Context, url string, body interface{}) *Response
-	Put(url string, body interface{}) *Response
-	Patch(url string, body interface{}) *Response
-	PatchWithContext(ctx context.Context, url string, body interface{}) *Response
+	Post(url string, body any) *Response
+	PostWithContext(ctx context.Context, url string, body any) *Response
+	PutWithContext(ctx context.Context, url string, body any) *Response
+	Put(url string, body any) *Response
+	Patch(url string, body any) *Response
+	PatchWithContext(ctx context.Context, url string, body any) *Response
 	Delete(url string) *Response
 	DeleteWithContext(ctx context.Context, url string) *Response
 	Head(url string) *Response
@@ -63,12 +63,12 @@ type IRequestBuilder interface {
 	OptionsWithContext(ctx context.Context, url string) *Response
 	AsyncGet(url string, f func(*Response))
 	AsyncGetWithContext(ctx context.Context, url string, f func(*Response))
-	AsyncPost(url string, body interface{}, f func(*Response))
-	AsyncPostWithContext(ctx context.Context, url string, body interface{}, f func(*Response))
-	AsyncPut(url string, body interface{}, f func(*Response))
-	AsyncPutWithContext(ctx context.Context, url string, body interface{}, f func(*Response))
-	AsyncPatch(url string, body interface{}, f func(*Response))
-	AsyncPatchWithContext(ctx context.Context, url string, body interface{}, f func(*Response))
+	AsyncPost(url string, body any, f func(*Response))
+	AsyncPostWithContext(ctx context.Context, url string, body any, f func(*Response))
+	AsyncPut(url string, body any, f func(*Response))
+	AsyncPutWithContext(ctx context.Context, url string, body any, f func(*Response))
+	AsyncPatch(url string, body any, f func(*Response))
+	AsyncPatchWithContext(ctx context.Context, url string, body any, f func(*Response))
 	AsyncDelete(url string, f func(*Response))
 	AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response))
 	AsyncHead(url string, f func(*Response))
@@ -184,7 +184,7 @@ func (rb *RequestBuilder) GetWithContext(ctx context.Context, url string) *Respo
 // 404(Not Found), or 409(Conflict) if resource already exist.
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) Post(url string, body interface{}) *Response {
+func (rb *RequestBuilder) Post(url string, body any) *Response {
 	return rb.PostWithContext(context.Background(), url, body)
 }
 
@@ -195,7 +195,7 @@ func (rb *RequestBuilder) Post(url string, body interface{}) *Response {
 // 404(Not Found), or 409(Conflict) if resource already exist.
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) PostWithContext(ctx context.Context, url string, body interface{}) *Response {
+func (rb *RequestBuilder) PostWithContext(ctx context.Context, url string, body any) *Response {
 	return rb.doRequest(ctx, http.MethodPost, url, body)
 }
 
@@ -206,7 +206,7 @@ func (rb *RequestBuilder) PostWithContext(ctx context.Context, url string, body 
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) Put(url string, body interface{}) *Response {
+func (rb *RequestBuilder) Put(url string, body any) *Response {
 	return rb.PutWithContext(context.Background(), url, body)
 }
 
@@ -217,7 +217,7 @@ func (rb *RequestBuilder) Put(url string, body interface{}) *Response {
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) PutWithContext(ctx context.Context, url string, body interface{}) *Response {
+func (rb *RequestBuilder) PutWithContext(ctx context.Context, url string, body any) *Response {
 	return rb.doRequest(ctx, http.MethodPut, url, body)
 }
 
@@ -228,7 +228,7 @@ func (rb *RequestBuilder) PutWithContext(ctx context.Context, url string, body i
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) Patch(url string, body interface{}) *Response {
+func (rb *RequestBuilder) Patch(url string, body any) *Response {
 	return rb.PatchWithContext(context.Background(), url, body)
 }
 
@@ -239,7 +239,7 @@ func (rb *RequestBuilder) Patch(url string, body interface{}) *Response {
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (rb *RequestBuilder) PatchWithContext(ctx context.Context, url string, body interface{}) *Response {
+func (rb *RequestBuilder) PatchWithContext(ctx context.Context, url string, body any) *Response {
 	return rb.doRequest(ctx, http.MethodPatch, url, body)
 }
 
@@ -319,7 +319,7 @@ func (rb *RequestBuilder) AsyncGetWithContext(ctx context.Context, url string, f
 // The go routine calling AsyncPost(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPost(url string, body interface{}, f func(*Response)) {
+func (rb *RequestBuilder) AsyncPost(url string, body any, f func(*Response)) {
 	rb.AsyncPostWithContext(context.Background(), url, body, f)
 }
 
@@ -327,7 +327,7 @@ func (rb *RequestBuilder) AsyncPost(url string, body interface{}, f func(*Respon
 // The go routine calling AsyncPost(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPostWithContext(ctx context.Context, url string, body interface{}, f func(*Response)) {
+func (rb *RequestBuilder) AsyncPostWithContext(ctx context.Context, url string, body any, f func(*Response)) {
 	go doAsyncRequest(rb.PostWithContext(ctx, url, body), f)
 }
 
@@ -335,7 +335,7 @@ func (rb *RequestBuilder) AsyncPostWithContext(ctx context.Context, url string, 
 // The go routine calling AsyncPut(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPut(url string, body interface{}, f func(*Response)) {
+func (rb *RequestBuilder) AsyncPut(url string, body any, f func(*Response)) {
 	rb.AsyncPutWithContext(context.Background(), url, body, f)
 }
 
@@ -343,7 +343,7 @@ func (rb *RequestBuilder) AsyncPut(url string, body interface{}, f func(*Respons
 // The go routine calling AsyncPut(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPutWithContext(ctx context.Context, url string, body interface{}, f func(*Response)) {
+func (rb *RequestBuilder) AsyncPutWithContext(ctx context.Context, url string, body any, f func(*Response)) {
 	go doAsyncRequest(rb.PutWithContext(ctx, url, body), f)
 }
 
@@ -351,7 +351,7 @@ func (rb *RequestBuilder) AsyncPutWithContext(ctx context.Context, url string, b
 // The go routine calling AsyncPatch(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPatch(url string, body interface{}, f func(*Response)) {
+func (rb *RequestBuilder) AsyncPatch(url string, body any, f func(*Response)) {
 	rb.AsyncPatchWithContext(context.Background(), url, body, f)
 }
 
@@ -359,7 +359,7 @@ func (rb *RequestBuilder) AsyncPatch(url string, body interface{}, f func(*Respo
 // The go routine calling AsyncPatch(), will not be blocked.
 //
 // Whenever the Response is ready, the *f* function will be called back.
-func (rb *RequestBuilder) AsyncPatchWithContext(ctx context.Context, url string, body interface{}, f func(*Response)) {
+func (rb *RequestBuilder) AsyncPatchWithContext(ctx context.Context, url string, body any, f func(*Response)) {
 	go doAsyncRequest(rb.PatchWithContext(ctx, url, body), f)
 }
 
