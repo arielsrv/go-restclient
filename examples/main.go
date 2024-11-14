@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -18,6 +19,7 @@ func main() {
 		BaseURL:        baseURL,
 		// OAuth: 		...
 		// CustomPool:  ...
+		// EnableTrace:  ...
 	}
 
 	var users []struct {
@@ -28,7 +30,7 @@ func main() {
 		Status string `json:"status"`
 	}
 
-	response := httpClient.Get("/users")
+	response := httpClient.GetWithContext(context.Background(), "/users")
 	if response.Err != nil {
 		log.Fatal(response.Err)
 	}
