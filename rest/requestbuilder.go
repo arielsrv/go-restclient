@@ -166,7 +166,7 @@ func (rb *RequestBuilder) SetHeader(key, value string) {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (rb *RequestBuilder) Get(url string) *Response {
-	return rb.doRequest(context.Background(), http.MethodGet, url, nil)
+	return rb.GetWithContext(context.Background(), url)
 }
 
 // GetWithContext issues a GET HTTP verb to the specified URL.
@@ -186,7 +186,7 @@ func (rb *RequestBuilder) GetWithContext(ctx context.Context, url string) *Respo
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (rb *RequestBuilder) Post(url string, body interface{}) *Response {
-	return rb.doRequest(context.Background(), http.MethodPost, url, body)
+	return rb.PostWithContext(context.Background(), url, body)
 }
 
 // PostWithContext issues a POST HTTP verb to the specified URL.
@@ -208,7 +208,7 @@ func (rb *RequestBuilder) PostWithContext(ctx context.Context, url string, body 
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (rb *RequestBuilder) Put(url string, body interface{}) *Response {
-	return rb.doRequest(context.Background(), http.MethodPut, url, body)
+	return rb.PutWithContext(context.Background(), url, body)
 }
 
 // PutWithContext issues a PUT HTTP verb to the specified URL.
@@ -230,7 +230,7 @@ func (rb *RequestBuilder) PutWithContext(ctx context.Context, url string, body i
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (rb *RequestBuilder) Patch(url string, body interface{}) *Response {
-	return rb.doRequest(context.Background(), http.MethodPatch, url, body)
+	return rb.PatchWithContext(context.Background(), url, body)
 }
 
 // PatchWithContext issues a PATCH HTTP verb to the specified URL.
@@ -250,7 +250,7 @@ func (rb *RequestBuilder) PatchWithContext(ctx context.Context, url string, body
 // Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request).
 func (rb *RequestBuilder) Delete(url string) *Response {
-	return rb.doRequest(context.Background(), http.MethodDelete, url, nil)
+	return rb.DeleteWithContext(context.Background(), url)
 }
 
 // DeleteWithContext issues a DELETE HTTP verb to the specified URL
@@ -268,7 +268,7 @@ func (rb *RequestBuilder) DeleteWithContext(ctx context.Context, url string) *Re
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (rb *RequestBuilder) Head(url string) *Response {
-	return rb.doRequest(context.Background(), http.MethodHead, url, nil)
+	return rb.HeadWithContext(context.Background(), url)
 }
 
 // HeadWithContext issues a HEAD HTTP verb to the specified URL
@@ -287,7 +287,7 @@ func (rb *RequestBuilder) HeadWithContext(ctx context.Context, url string) *Resp
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (rb *RequestBuilder) Options(url string) *Response {
-	return rb.doRequest(context.Background(), http.MethodOptions, url, nil)
+	return rb.OptionsWithContext(context.Background(), url)
 }
 
 // OptionsWithContext issues a OPTIONS HTTP verb to the specified URL
@@ -305,7 +305,7 @@ func (rb *RequestBuilder) OptionsWithContext(ctx context.Context, url string) *R
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncGet(url string, f func(*Response)) {
-	go doAsyncRequest(rb.Get(url), f)
+	rb.AsyncGetWithContext(context.Background(), url, f)
 }
 
 // AsyncGetWithContext is the *asynchronous* option for GET.
@@ -321,7 +321,7 @@ func (rb *RequestBuilder) AsyncGetWithContext(ctx context.Context, url string, f
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncPost(url string, body interface{}, f func(*Response)) {
-	go doAsyncRequest(rb.Post(url, body), f)
+	rb.AsyncPostWithContext(context.Background(), url, body, f)
 }
 
 // AsyncPostWithContext is the *asynchronous* option for POST.
@@ -337,7 +337,7 @@ func (rb *RequestBuilder) AsyncPostWithContext(ctx context.Context, url string, 
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncPut(url string, body interface{}, f func(*Response)) {
-	go doAsyncRequest(rb.Put(url, body), f)
+	rb.AsyncPutWithContext(context.Background(), url, body, f)
 }
 
 // AsyncPutWithContext is the *asynchronous* option for PUT.
@@ -353,7 +353,7 @@ func (rb *RequestBuilder) AsyncPutWithContext(ctx context.Context, url string, b
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncPatch(url string, body interface{}, f func(*Response)) {
-	go doAsyncRequest(rb.Patch(url, body), f)
+	rb.AsyncPatchWithContext(context.Background(), url, body, f)
 }
 
 // AsyncPatchWithContext is the *asynchronous* option for PATCH.
@@ -369,7 +369,7 @@ func (rb *RequestBuilder) AsyncPatchWithContext(ctx context.Context, url string,
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncDelete(url string, f func(*Response)) {
-	go doAsyncRequest(rb.Delete(url), f)
+	rb.AsyncDeleteWithContext(context.Background(), url, f)
 }
 
 // AsyncDeleteWithContext is the *asynchronous* option for DELETE.
@@ -385,7 +385,7 @@ func (rb *RequestBuilder) AsyncDeleteWithContext(ctx context.Context, url string
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncHead(url string, f func(*Response)) {
-	go doAsyncRequest(rb.Head(url), f)
+	rb.AsyncHeadWithContext(context.Background(), url, f)
 }
 
 // AsyncHeadWithContext is the *asynchronous* option for HEAD.
@@ -401,7 +401,7 @@ func (rb *RequestBuilder) AsyncHeadWithContext(ctx context.Context, url string, 
 //
 // Whenever the Response is ready, the *f* function will be called back.
 func (rb *RequestBuilder) AsyncOptions(url string, f func(*Response)) {
-	go doAsyncRequest(rb.Options(url), f)
+	rb.AsyncOptionsWithContext(context.Background(), url, f)
 }
 
 // AsyncOptionsWithContext is the *asynchronous* option for OPTIONS.
