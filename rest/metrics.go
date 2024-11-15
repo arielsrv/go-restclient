@@ -155,16 +155,12 @@ type PrometheusServiceMetricCollector struct {
 	Summary *prometheus.SummaryVec
 }
 
-func (p *PrometheusServiceMetricCollector) IncrementCounter(counterDto CounterDto) {
-	if len(counterDto.values) > 0 {
-		p.Counter.WithLabelValues(counterDto.BuildLabels()...).Add(counterDto.values[0])
-	} else {
-		p.Counter.WithLabelValues(counterDto.BuildLabels()...).Inc()
-	}
+func (r *PrometheusServiceMetricCollector) IncrementCounter(counterDto CounterDto) {
+	r.Counter.WithLabelValues(counterDto.BuildLabels()...).Inc()
 }
 
-func (p *PrometheusServiceMetricCollector) RecordExecutionTime(timerDto TimerDto) {
-	p.Summary.WithLabelValues(timerDto.BuildLabels()...).Observe(float64(timerDto.elapsedTime.Milliseconds()))
+func (r *PrometheusServiceMetricCollector) RecordExecutionTime(timerDto TimerDto) {
+	r.Summary.WithLabelValues(timerDto.BuildLabels()...).Observe(float64(timerDto.elapsedTime.Milliseconds()))
 }
 
 func NewPrometheusServiceMetricCollector() *PrometheusServiceMetricCollector {
