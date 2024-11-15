@@ -1,7 +1,8 @@
 package rest
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 	"time"
 )
 
@@ -38,16 +39,22 @@ func newSkipList() *skipList {
 	}
 }
 
+func flipCoin() bool {
+	n, err := rand.Int(rand.Reader, big.NewInt(2))
+	if err != nil {
+		return false
+	}
+
+	return n.Int64() == 1
+}
+
 // Insert a node to the Skip list.
 func (s *skipList) insert(key string, ttl time.Time) *skipListNode {
 	level := 0
 
-	// New random seed
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-
 	// Like flipping a coin up to the maximum height
 	// Level will have a values between 0 and 31
-	for level < maxHeight && rand.Intn(2) == 1 {
+	for level < maxHeight && flipCoin() {
 		level++
 
 		if level > s.height {
