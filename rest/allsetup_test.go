@@ -142,7 +142,7 @@ func usersCacheWithExpires(writer http.ResponseWriter, req *http.Request) {
 		expires := time.Now().Add(time.Duration(c) * time.Second)
 
 		writer.Header().Set("Content-Type", "application/json")
-		writer.Header().Set("Expires", expires.Format(rest.HTTPDateFormat))
+		writer.Header().Set("Expires", expires.Format(time.RFC1123))
 		writer.Write(b)
 	}
 }
@@ -168,7 +168,7 @@ func usersEtag(writer http.ResponseWriter, req *http.Request) {
 func usersLastModified(writer http.ResponseWriter, req *http.Request) {
 	// Get
 	if req.Method == http.MethodGet {
-		ifModifiedSince, err := time.Parse(rest.HTTPDateFormat, req.Header.Get("If-Modified-Since"))
+		ifModifiedSince, err := time.Parse(time.RFC1123, req.Header.Get("If-Modified-Since"))
 
 		if err == nil && ifModifiedSince.Sub(lastModifiedDate) == 0 {
 			writer.WriteHeader(http.StatusNotModified)
@@ -178,7 +178,7 @@ func usersLastModified(writer http.ResponseWriter, req *http.Request) {
 		b, _ := json.Marshal(users)
 
 		writer.Header().Set("Content-Type", "application/json")
-		writer.Header().Set("Last-Modified", lastModifiedDate.Format(rest.HTTPDateFormat))
+		writer.Header().Set("Last-Modified", lastModifiedDate.Format(time.RFC1123))
 		writer.Write(b)
 	}
 }

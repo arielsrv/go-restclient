@@ -32,8 +32,6 @@ var (
 
 var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
-const HTTPDateFormat string = "Mon, 01 Jan 2006 15:04:05 GMT"
-
 func (r *Client) newRequest(ctx context.Context, verb string, reqURL string, reqBody any, headers ...http.Header) (result *Response) {
 	var cacheURL string
 	var cacheResp *Response
@@ -328,7 +326,7 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 		case cacheResp.etag != "":
 			req.Header.Set("If-None-Match", cacheResp.etag)
 		case cacheResp.lastModified != nil:
-			req.Header.Set("If-Modified-Since", cacheResp.lastModified.Format(HTTPDateFormat))
+			req.Header.Set("If-Modified-Since", cacheResp.lastModified.Format(time.RFC1123))
 		}
 	}
 
@@ -364,7 +362,7 @@ func setTTL(resp *Response) (set bool) {
 
 	// Expires Header
 	// Date format from RFC-2616, Section 14.21
-	expires, err := time.Parse(HTTPDateFormat, resp.Header.Get("Expires"))
+	expires, err := time.Parse(time.RFC1123, resp.Header.Get("Expires"))
 	if err != nil {
 		return
 	}
@@ -378,7 +376,7 @@ func setTTL(resp *Response) (set bool) {
 }
 
 func setLastModified(resp *Response) bool {
-	lastModified, err := time.Parse(HTTPDateFormat, resp.Header.Get("Last-Modified"))
+	lastModified, err := time.Parse(time.RFC1123, resp.Header.Get("Last-Modified"))
 	if err != nil {
 		return false
 	}
