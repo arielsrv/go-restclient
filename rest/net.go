@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -168,7 +167,7 @@ func (r *Client) marshalReqBody(body any) (io.Reader, error) {
 			var ok bool
 			b, ok := body.([]byte)
 			if !ok {
-				return nil, fmt.Errorf("bytes: body is %T(%v) not a byte slice", body, body)
+				return nil, errors.New("body must be of type []byte or map[string]interface{}")
 			}
 			return bytes.NewBuffer(b), nil
 		}

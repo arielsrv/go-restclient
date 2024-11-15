@@ -59,6 +59,7 @@ func setup() {
 	tmux.HandleFunc("/user", allUsers)
 	tmux.HandleFunc("/xml/user", usersXML)
 	tmux.HandleFunc("/form/user", usersForm)
+	tmux.HandleFunc("/bytes/user", usersBytes)
 	tmux.HandleFunc("/cache/user", usersCache)
 	tmux.HandleFunc("/cache/expires/user", usersCacheWithExpires)
 	tmux.HandleFunc("/cache/etag/user", usersEtag)
@@ -256,6 +257,23 @@ func usersForm(writer http.ResponseWriter, req *http.Request) {
 		writer.Write(ub)
 
 		return
+	}
+}
+
+func usersBytes(writer http.ResponseWriter, req *http.Request) {
+	// Post
+	if req.Method == http.MethodPost {
+		req.Body = http.MaxBytesReader(writer, req.Body, 10<<20) // 10 MB
+
+		_, err := io.ReadAll(req.Body)
+		if err != nil {
+			http.Error(writer, "read file error", http.StatusBadRequest)
+			return
+		}
+		defer req.Body.Close()
+
+		writer.WriteHeader(http.StatusCreated)
+		writer.Write([]byte("success"))
 	}
 }
 
