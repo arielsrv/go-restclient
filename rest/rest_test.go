@@ -50,6 +50,13 @@ func TestPost(t *testing.T) {
 	}
 }
 
+func TestPost_Err(t *testing.T) {
+	resp := rest.Post(server.URL+"/user", make(chan any))
+	if resp.Err == nil {
+		t.Fatal("Error should not be nil")
+	}
+}
+
 func TestPostXML(t *testing.T) {
 	rbXML := rest.Client{
 		BaseURL:     server.URL,
