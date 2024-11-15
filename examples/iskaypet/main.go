@@ -1,0 +1,102 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"time"
+
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+)
+
+type SiteResponse struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	CountryID   string `json:"country_id,omitempty"`
+}
+
+type CountryResponse struct {
+	Id                 string `json:"id"`
+	Name               string `json:"name"`
+	Locale             string `json:"locale"`
+	CurrencyId         string `json:"currency_id"`
+	DecimalSeparator   string `json:"decimal_separator"`
+	ThousandsSeparator string `json:"thousands_separator"`
+	TimeZone           string `json:"time_zone"`
+	TimeZoneName       string `json:"time_zone_name"`
+}
+
+func main() {
+	ctx := context.Background()
+
+	client := &rest.Client{
+		BaseURL:        "https://sites-api.prod.dp.iskaypet.com",
+		Timeout:        time.Millisecond * 2000,
+		ConnectTimeout: time.Millisecond * 5000,
+		ContentType:    rest.JSON,
+		Name:           "sites-client",
+		EnableTrace:    true,
+		CustomPool: &rest.CustomPool{
+			MaxIdleConnsPerHost: 10,
+			Transport: &http.Transport{
+				IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
+				ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
+			},
+		},
+	}
+
+	response := client.GetWithContext(ctx, "/sites")
+	if response.Err != nil {
+		log.Fatal(response.Err)
+	}
+
+	if response.StatusCode != http.StatusOK {
+		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+	}
+
+	sitesResponse, err := rest.Deserialize[[]SiteResponse](response)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := range sitesResponse {
+		log.Infof("Site: %v", sitesResponse[i])
+
+		for k := range sitesResponse {
+			response = client.GetWithContext(ctx, fmt.Sprintf("/sites/%s", sitesResponse[k].ID))
+			if response.Err != nil {
+				log.Fatal(response.Err)
+			}
+
+			if response.StatusCode != http.StatusOK {
+				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+			}
+
+			siteResponse, err := rest.Deserialize[SiteResponse](response)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			log.Infof("Site Details: %v", siteResponse)
+
+			response = client.GetWithContext(ctx, fmt.Sprintf("/countries/%s", siteResponse.CountryID))
+			if response.Err != nil {
+				log.Fatal(response.Err)
+			}
+
+			if response.StatusCode != http.StatusOK {
+				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+			}
+
+			countryResponse, err := rest.Deserialize[CountryResponse](response)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			log.Infof("Country Details: %v", countryResponse)
+		}
+	}
+}
