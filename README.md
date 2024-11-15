@@ -4,11 +4,15 @@
 
 > This package provides a http client adapter with some features
 
-- GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs
+- GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs.
 - Fork-Join request pattern, for sending many requests concurrently, getting better client performance.
 - Response Caching, based on response headers (cache-control, last-modified, etag, expires)
+  - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however, this will consume more memory in your app until the validation time expires. 
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
 - Request Body can be `string`, `[]byte`, `struct` & `map`
+- File sending
+- Default and custom connection pool isolation.
+- Trace connection if available
 
 ## Table of contents
 
