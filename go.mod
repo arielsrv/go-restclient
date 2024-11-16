@@ -7,6 +7,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.17
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.57.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.57.0
 	go.opentelemetry.io/otel v1.32.0
@@ -47,7 +48,6 @@ require (
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16 // indirect
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect

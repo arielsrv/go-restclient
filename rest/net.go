@@ -88,38 +88,17 @@ func (r *Client) newRequest(ctx context.Context, verb string, url string, body a
 	start := time.Now()
 	response, err := httpClient.Do(request)
 
-	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", time.Since(start), metrics.Tags{
-		"application":   env.GetString("APP_NAME", "undefined"),
-		"environment":   env.GetString("ENV", "undefined"),
-		"client_name":   r.Name,
-		"event_type":    "http_connection",
-		"event_subtype": "response_time",
-		"service_type":  "http_client",
-	})
+	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", time.Since(start),
+		buildTags(r.Name, "http_connection", "response_time"))
 
 	if err != nil {
 		var netError net.Error
+		tag := "network"
 		if errors.As(err, &netError) && netError.Timeout() {
-			metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total", metrics.Tags{
-				"application":   env.GetString("APP_NAME", "undefined"),
-				"environment":   env.GetString("ENV", "undefined"),
-				"client_name":   r.Name,
-				"event_type":    "http_connection_error",
-				"event_subtype": "timeout",
-				"service_type":  "http_client",
-			})
-			result.Err = err
-			return result
+			tag = "timeout"
 		}
-
-		metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total", metrics.Tags{
-			"application":   env.GetString("APP_NAME", "undefined"),
-			"environment":   env.GetString("ENV", "undefined"),
-			"client_name":   r.Name,
-			"event_type":    "http_connection_error",
-			"event_subtype": "network",
-			"service_type":  "http_client",
-		})
+		metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
+			buildTags(r.Name, "http_connection_error", tag))
 		result.Err = err
 		return result
 	}
@@ -132,14 +111,8 @@ func (r *Client) newRequest(ctx context.Context, verb string, url string, body a
 		return result
 	}
 
-	metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total", metrics.Tags{
-		"application":   env.GetString("APP_NAME", "undefined"),
-		"environment":   env.GetString("ENV", "undefined"),
-		"client_name":   r.Name,
-		"event_type":    "http_status",
-		"event_subtype": strconv.Itoa(response.StatusCode),
-		"service_type":  "http_client",
-	})
+	metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
+		buildTags(r.Name, "http_status", strconv.Itoa(response.StatusCode)))
 
 	// If we get a 304, return response from cache
 	if response.StatusCode == http.StatusNotModified {
@@ -431,4 +404,15 @@ func setETag(resp *Response) bool {
 	resp.etag = resp.Header.Get("Etag")
 
 	return resp.etag != ""
+}
+
+func buildTags(clientName, eventType, eventSubType string) metrics.Tags {
+	return metrics.Tags{
+		"client_name":   clientName,
+		"event_type":    eventType,
+		"event_subtype": eventSubType,
+		"application":   env.GetString("APP_NAME", "undefined"),
+		"environment":   env.GetString("ENV", "undefined"),
+		"service_type":  "http_client",
+	}
 }
