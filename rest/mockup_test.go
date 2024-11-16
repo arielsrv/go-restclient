@@ -33,3 +33,29 @@ func TestMockup(t *testing.T) {
 		t.Fatal("Mockup Fail!")
 	}
 }
+
+func TestMockup_Err(t *testing.T) {
+	defer rest.StopMockupServer()
+	rest.StartMockupServer()
+
+	myURL := "http://mytest.com/foo?val1=1&val2=2#fragment"
+
+	myHeaders := make(http.Header)
+	myHeaders.Add("Hello", "world")
+
+	mock := rest.Mock{
+		URL:          myURL,
+		HTTPMethod:   http.MethodGet,
+		ReqHeaders:   myHeaders,
+		RespHTTPCode: http.StatusOK,
+		RespBody:     "foo",
+	}
+
+	err := rest.AddMockups(&mock)
+	require.NoError(t, err)
+
+	v := rest.Get(":/invalid/url")
+	if v.String() != "" {
+		t.Fatal("Mockup Error Should Return Error!")
+	}
+}
