@@ -46,23 +46,6 @@ const (
 	BYTES
 )
 
-type SyncHTTPClient interface {
-	Get(url string, headers ...http.Header) *Response
-	GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response
-	Post(url string, body any, headers ...http.Header) *Response
-	PostWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
-	PutWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
-	Put(url string, body any, headers ...http.Header) *Response
-	Patch(url string, body any, headers ...http.Header) *Response
-	PatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
-	Delete(url string, headers ...http.Header) *Response
-	DeleteWithContext(ctx context.Context, url string, headers ...http.Header) *Response
-	Head(url string, headers ...http.Header) *Response
-	HeadWithContext(ctx context.Context, url string, headers ...http.Header) *Response
-	Options(url string, headers ...http.Header) *Response
-	OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response
-}
-
 type AsyncHTTPClient interface {
 	AsyncGet(url string, f func(*Response), headers ...http.Header)
 	AsyncGetWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
@@ -81,8 +64,22 @@ type AsyncHTTPClient interface {
 }
 
 type HTTPClient interface {
-	SyncHTTPClient
 	AsyncHTTPClient
+
+	Get(url string, headers ...http.Header) *Response
+	GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	Post(url string, body any, headers ...http.Header) *Response
+	PostWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
+	PutWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
+	Put(url string, body any, headers ...http.Header) *Response
+	Patch(url string, body any, headers ...http.Header) *Response
+	PatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
+	Delete(url string, headers ...http.Header) *Response
+	DeleteWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	Head(url string, headers ...http.Header) *Response
+	HeadWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	Options(url string, headers ...http.Header) *Response
+	OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response
 }
 
 // Client  is the baseline for creating requests
