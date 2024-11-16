@@ -19,6 +19,3 @@ indent_style = tab
 [*.md]
 indent_size = 4
 trim_trailing_whitespace = false
-
-[Dockerfile]
-indent_size = 4
