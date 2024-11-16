@@ -49,17 +49,13 @@ import (
 func main() {
     // Create a new context with a timeout of 5 seconds
     // This will automatically cancel the request if it takes longer than 5 seconds to complete
-
     ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(5000))
     defer cancel()
 
-    // Get a default REST client (with default settings and interface)
-    var client rest.HTTPClient
-
     // Create a new REST client with custom settings
-    client = &rest.Client{
+    client := &rest.Client{
         BaseURL:        "https://gorest.co.in/public/v2",
-        Timeout:        time.Millisecond * 2000,
+        Timeout:        time.Millisecond * 1000,
         ConnectTimeout: time.Millisecond * 5000,
         ContentType:    rest.JSON,
         Name:           "example-client",
@@ -74,12 +70,11 @@ func main() {
         // FollowRedirect: false,
     }
 
-    // Set headers for the request
+    // Set headers for the request (optional)
     headers := make(http.Header)
-    headers.Add("Accept", "application/json")
-    headers.Add("Content-Type", "application/json")
+    headers.Add("My-Custom-Header", "My-Custom-Value")
 
-    // Make a GET request
+    // Make a GET request (context optional)
     response := client.GetWithContext(ctx, "/users", headers)
     if response.Err != nil {
         log.Fatal(response.Err)

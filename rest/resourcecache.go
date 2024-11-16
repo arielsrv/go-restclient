@@ -172,7 +172,7 @@ func (r *resourceTTLLruMap) setNX(key string, value *Response) {
 func (r *resourceTTLLruMap) remove(key string, resp *Response) {
 	delete(r.cache, key)                    // Delete from map
 	r.skipList.remove(resp.skipListElement) // Delete from skipList
-	r.lruChan <- &lruMsg{ // Delete from LruList
+	r.lruChan <- &lruMsg{                   // Delete from LruList
 		operation: del,
 		resp:      resp,
 	}

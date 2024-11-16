@@ -46,7 +46,7 @@ const (
 	BYTES
 )
 
-type HTTPClient interface {
+type SyncHTTPClient interface {
 	Get(url string, headers ...http.Header) *Response
 	GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response
 	Post(url string, body any, headers ...http.Header) *Response
@@ -61,6 +61,9 @@ type HTTPClient interface {
 	HeadWithContext(ctx context.Context, url string, headers ...http.Header) *Response
 	Options(url string, headers ...http.Header) *Response
 	OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+}
+
+type AsyncHTTPClient interface {
 	AsyncGet(url string, f func(*Response), headers ...http.Header)
 	AsyncGetWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
 	AsyncPost(url string, body any, f func(*Response), headers ...http.Header)
@@ -75,6 +78,11 @@ type HTTPClient interface {
 	AsyncHeadWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
 	AsyncOptions(url string, f func(*Response), headers ...http.Header)
 	AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
+}
+
+type HTTPClient interface {
+	SyncHTTPClient
+	AsyncHTTPClient
 }
 
 // Client  is the baseline for creating requests
