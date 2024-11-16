@@ -42,8 +42,7 @@ release:
     ###
     - echo Step Coverage Report
     - go test ./... -coverprofile=coverage.txt -covermode count
-    - go get github.com/boumenot/gocover-cobertura
-    - go install github.com/boumenot/gocover-cobertura
+    - go install github.com/boumenot/gocover-cobertura@latest
     - gocover-cobertura <coverage.txt >coverage.xml
     ###
     - echo Step Lint
