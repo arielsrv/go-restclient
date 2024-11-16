@@ -120,12 +120,6 @@ type Client struct {
 	// ContentType
 	ContentType ContentType
 
-	// Public for metrics
-	mtx sync.RWMutex
-
-	// clientMtx protects the clientMtxOnce
-	clientMtxOnce sync.Once
-
 	// Disable 	internal caching of Responses
 	DisableCache bool
 
@@ -137,6 +131,12 @@ type Client struct {
 
 	// Enable tracing
 	EnableTrace bool
+
+	// Trace logs HTTP requests and responses
+	rwMtx sync.RWMutex
+
+	// clientMtx protects the clientMtxOnce
+	clientMtxOnce sync.Once
 }
 
 // CustomPool defines a separate internal *transport* and connection pooling.

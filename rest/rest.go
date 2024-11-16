@@ -6,7 +6,7 @@ import (
 )
 
 var dfltBuilder = Client{
-	mtx: sync.RWMutex{},
+	rwMtx: sync.RWMutex{},
 }
 
 // Get issues a GET HTTP verb to the specified URL.
