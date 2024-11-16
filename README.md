@@ -5,9 +5,11 @@
 > This package provides a http client adapter with some features
 
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs.
-- Fork-Join request pattern, for sending many requests concurrently, getting better client performance.
+- Fork-Join request pattern, for sending many requests concurrently, getting better client
+  performance (deprecated).
 - Response Caching, based on response headers (cache-control, last-modified, etag, expires)
-  - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however, this will consume more memory in your app until the validation time expires. 
+    - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
+      this will consume more memory in your app until the validation time expires.
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
 - Request Body can be `string`, `[]byte`, `struct` & `map`
 - File sending
@@ -16,19 +18,20 @@
 
 ## Table of contents
 
-* [RESTClient](#rest-client)
-* [Metrics](#metrics)
+- [RESTClient](#rest-client)
+- [Metrics](#metrics)
 
 ## Rest Client
 
 # Installation
-
 
 ```shell
 go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 ```
 
 # ⚡️ Quickstart
+
+- [Examples](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/tree/main/examples?ref_type=heads)
 
 ```go
 package main
@@ -109,19 +112,24 @@ func main() {
 }
 
 ```
+
 ## Metrics
+
 ![prometheus]
 ![otel]
 
 Requisites
+
 - Make sure you have **prometheus collector endpoint** turned on in your application
 - **ENV** variable (dev|uat|pro|any)
 - **APP_NAME** variable (repository name)
 
-We do not have a unified dashboard, which can filter by environment, due to this, you have to enter the specific
+We do not have a unified dashboard, which can filter by environment, due to this, you have to enter
+the specific
 environment
 
 Dashboard
+
 - [dev](https://monitoring.dev.dp.iskaypet.com/d/6shkc-L4kk/http-clients?orgId=1)
 
 [prometheus]: images/metrics.png
