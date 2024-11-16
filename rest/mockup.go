@@ -168,11 +168,11 @@ func mockupHandler(writer http.ResponseWriter, req *http.Request) {
 			}
 
 			writer.WriteHeader(m.RespHTTPCode)
-			writer.Write([]byte(m.RespBody))
+			_, _ = writer.Write([]byte(m.RespBody))
 			return
 		}
 	}
 
 	writer.WriteHeader(http.StatusBadRequest)
-	writer.Write([]byte(MockNotFoundError))
+	_, _ = writer.Write([]byte(MockNotFoundError))
 }

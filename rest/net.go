@@ -21,6 +21,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector/metrics"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config/env"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
@@ -72,7 +73,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, url string, body a
 		ctx = httptrace.WithClientTrace(ctx, otelhttptrace.NewClientTrace(ctx))
 	}
 
-	client := r.getClient(ctx)
+	httpClient := r.onceHTTPClient(ctx)
 
 	request, err := http.NewRequestWithContext(ctx, verb, url, reader)
 	if err != nil {
@@ -84,45 +85,69 @@ func (r *Client) newRequest(ctx context.Context, verb string, url string, body a
 	r.setParams(request, cacheResp, cacheURL, headers...)
 
 	// Make the request
-	startTime := time.Now()
-	httpResp, err := client.Do(request)
+	start := time.Now()
+	response, err := httpClient.Do(request)
 
-	metrics.Collector.Prometheus().RecordExecutionTime("go_restclient_request_duration", time.Since(startTime), metrics.Tags{
-		"client_name": r.Name,
-		"method":      verb,
+	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", time.Since(start), metrics.Tags{
+		"application":   env.GetString("APP_NAME", "undefined"),
+		"environment":   env.GetString("ENV", "undefined"),
+		"client_name":   r.Name,
+		"event_type":    "http_connection",
+		"event_subtype": "response_time",
+		"service_type":  "http_client",
 	})
 
 	if err != nil {
 		var netError net.Error
 		if errors.As(err, &netError) && netError.Timeout() {
-			metrics.Collector.Prometheus().IncrementCounter("go_restclient_requests_errors", metrics.Tags{"client_name": r.Name, "type": "timeout"})
+			metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total", metrics.Tags{
+				"application":   env.GetString("APP_NAME", "undefined"),
+				"environment":   env.GetString("ENV", "undefined"),
+				"client_name":   r.Name,
+				"event_type":    "http_connection_error",
+				"event_subtype": "timeout",
+				"service_type":  "http_client",
+			})
 			result.Err = err
 			return result
 		}
 
-		metrics.Collector.Prometheus().IncrementCounter("go_restclient_requests_errors", metrics.Tags{"client_name": r.Name, "type": "network"})
+		metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total", metrics.Tags{
+			"application":   env.GetString("APP_NAME", "undefined"),
+			"environment":   env.GetString("ENV", "undefined"),
+			"client_name":   r.Name,
+			"event_type":    "http_connection_error",
+			"event_subtype": "network",
+			"service_type":  "http_client",
+		})
 		result.Err = err
 		return result
 	}
-	defer httpResp.Body.Close()
+	defer response.Body.Close()
 
 	// Read response
-	respBody, err := io.ReadAll(httpResp.Body)
+	respBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		result.Err = err
 		return result
 	}
 
-	metrics.Collector.Prometheus().
-		IncrementCounter("go_restclient_requests_total", metrics.Tags{"status_code": strconv.Itoa(httpResp.StatusCode)})
+	metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total", metrics.Tags{
+		"application":   env.GetString("APP_NAME", "undefined"),
+		"environment":   env.GetString("ENV", "undefined"),
+		"client_name":   r.Name,
+		"event_type":    "http_status",
+		"event_subtype": strconv.Itoa(response.StatusCode),
+		"service_type":  "http_client",
+	})
 
 	// If we get a 304, return response from cache
-	if httpResp.StatusCode == http.StatusNotModified {
+	if response.StatusCode == http.StatusNotModified {
 		result = cacheResp
 		return result
 	}
 
-	result.Response = httpResp
+	result.Response = response
 	result.byteBody = respBody
 
 	ttl := setTTL(result)
@@ -160,29 +185,32 @@ func checkMockup(reqURL string) (string, string, error) {
 }
 
 func (r *Client) marshalBody(body any) (io.Reader, error) {
-	if body != nil {
-		switch r.ContentType {
-		case JSON:
-			b, err := json.Marshal(body)
-			return bytes.NewBuffer(b), err
-		case XML:
-			b, err := xml.Marshal(body)
-			return bytes.NewBuffer(b), err
-		case FORM:
-			return strings.NewReader(body.(url.Values).Encode()), nil
-		case BYTES:
-			var ok bool
-			b, ok := body.([]byte)
-			if !ok {
-				return nil, errors.New("body must be of type []byte or map[string]interface{}")
-			}
-			return bytes.NewBuffer(b), nil
+	switch r.ContentType {
+	case JSON:
+		b, err := json.Marshal(body)
+		return bytes.NewBuffer(b), err
+	case XML:
+		b, err := xml.Marshal(body)
+		return bytes.NewBuffer(b), err
+	case FORM:
+		b, ok := body.(url.Values)
+		if !ok {
+			return nil, errors.New("body must be of type url.Values or map[string]interface{}")
 		}
+		return strings.NewReader(b.Encode()), nil
+	case BYTES:
+		var ok bool
+		b, ok := body.([]byte)
+		if !ok {
+			return nil, errors.New("body must be of type []byte or map[string]interface{}")
+		}
+		return bytes.NewBuffer(b), nil
 	}
-	return nil, nil
+
+	return nil, errors.New("invalid content type")
 }
 
-func (r *Client) getClient(ctx context.Context) *http.Client {
+func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 	// This will be executed only once
 	// per request builder
 	r.clientMtxOnce.Do(func() {
@@ -212,7 +240,9 @@ func (r *Client) getClient(ctx context.Context) *http.Client {
 				// Set Proxy
 				if cp.Proxy != "" {
 					if proxy, err := url.Parse(cp.Proxy); err == nil {
-						tr.(*http.Transport).Proxy = http.ProxyURL(proxy)
+						if transport, ok := tr.(*http.Transport); ok {
+							transport.Proxy = http.ProxyURL(proxy)
+						}
 					}
 				}
 				cp.Transport = tr
@@ -320,6 +350,8 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 		cType = "xml"
 	case FORM:
 		cType = "x-www-form-urlencoded"
+	case BYTES:
+		cType = "octet-stream"
 	}
 
 	if cType != "" {
@@ -339,6 +371,7 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 		}
 	}
 
+	// User headers
 	if len(headers) > 0 {
 		for _, h := range headers {
 			for k, v := range h {
@@ -348,7 +381,7 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 	}
 }
 
-func setTTL(resp *Response) (set bool) {
+func setTTL(resp *Response) bool {
 	now := time.Now()
 
 	// Cache-Control Header
@@ -357,31 +390,31 @@ func setTTL(resp *Response) (set bool) {
 	if len(cacheControl) > 1 {
 		ttl, err := strconv.Atoi(cacheControl[1])
 		if err != nil {
-			return
+			return false
 		}
 
 		if ttl > 0 {
 			t := now.Add(time.Duration(ttl) * time.Second)
 			resp.ttl = &t
-			set = true
+			return true
 		}
 
-		return
+		return false
 	}
 
 	// Expires Header
 	// Date format from RFC-2616, Section 14.21
 	expires, err := time.Parse(time.RFC1123, resp.Header.Get("Expires"))
 	if err != nil {
-		return
+		return false
 	}
 
 	if expires.Sub(now) > 0 {
 		resp.ttl = &expires
-		set = true
+		return true
 	}
 
-	return
+	return false
 }
 
 func setLastModified(resp *Response) bool {

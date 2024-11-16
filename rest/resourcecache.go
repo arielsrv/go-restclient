@@ -87,7 +87,9 @@ func (rCache *resourceTTLLruMap) lruOperations() {
 		case del:
 			rCache.lruList.Remove(msg.resp.listElement)
 		case last:
-			rCache.popChan <- rCache.lruList.Back().Value.(string)
+			if value, ok := rCache.lruList.Back().Value.(string); ok {
+				rCache.popChan <- value
+			}
 		}
 	}
 }

@@ -220,7 +220,7 @@ linters:
   disable-all: true
   enable:
     ## enabled by default
-    #- errcheck # checking for unchecked errors, these unchecked errors can be critical bugs in some cases
+    - errcheck # checking for unchecked errors, these unchecked errors can be critical bugs in some cases
     - gosimple # specializes in simplifying a code
     - govet # reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
     - ineffassign # detects when assignments to existing variables are not used
@@ -239,7 +239,7 @@ linters:
     - durationcheck # checks for two durations multiplied together
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
-    #- exhaustive # checks exhaustiveness of enum switch statements
+    - exhaustive # checks exhaustiveness of enum switch statements
     - fatcontext # detects nested contexts in loops
     - forbidigo # forbids identifiers
     #- funlen # tool for detection of long functions
@@ -256,7 +256,7 @@ linters:
     - gomoddirectives # manages the use of 'replace', 'retract', and 'excludes' directives in go.mod
     - gomodguard # allow and block lists linter for direct Go module dependencies. This is different from depguard where there are different block types for example version constraints and module recommendations
     - goprintffuncname # checks that printf-like functions are named with f at the end
-    #- gosec # inspects source code for security problems
+    - gosec # inspects source code for security problems
     - iface # checks the incorrect use of interfaces, helping developers avoid interface pollution
     - intrange # finds places where for loops could make use of an integer range
     #- lll # reports long lines
@@ -265,13 +265,13 @@ linters:
     - mirror # reports wrong mirror patterns of bytes/strings usage
     #- mnd # detects magic numbers
     - musttag # enforces field tags in (un)marshaled structs
-    #- nakedret # finds naked returns in functions greater than a specified function length
+    - nakedret # finds naked returns in functions greater than a specified function length
     #- nestif # reports deeply nested if statements
     - nilerr # finds the code that returns nil even if it checks that the error is not nil
-    #- nilnil # checks that there is no simultaneous return of nil error and an invalid value
+    - nilnil # checks that there is no simultaneous return of nil error and an invalid value
     - noctx # finds sending http request without context.Context
     - nolintlint # reports ill-formed or insufficient nolint directives
-    #- nonamedreturns # reports all named returns
+    - nonamedreturns # reports all named returns
     - nosprintfhostport # checks for misuse of Sprintf to construct a host with port in a URL
     - perfsprint # checks that fmt.Sprintf can be replaced with a faster alternative
     - predeclared # finds code that shadows one of Go's predeclared identifiers
