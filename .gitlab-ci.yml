@@ -11,16 +11,14 @@ default:
 
 .go-cache:
   variables:
-    GOPATH: $CI_PROJECT_DIR/.go
-    GOLANGCI_LINT_CACHE: $CI_PROJECT_DIR/.golangci-lint
+    GOMODCACHE: $CI_PROJECT_DIR/.gomodcache
   before_script:
-    - export PATH="${PATH}:${GOPATH}/bin"
     - if [ -d "$HOME" ]; then echo "machine gitlab.com login master_token password $CICD_TOKEN" > "$HOME/.netrc"; fi
-    - mkdir -p .go .golangci-lint
+    - mkdir -p ${GOMODCACHE}
+
   cache:
     paths:
-      - .go/pkg/mod/
-      - .golangci-lint/
+      - ${GOMODCACHE}/
 
 stages:
   - build
