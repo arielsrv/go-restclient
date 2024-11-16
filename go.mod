@@ -3,6 +3,7 @@ module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient
 go 1.23.3
 
 require (
+	github.com/go-resty/resty/v2 v2.16.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.9.0
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22
@@ -52,6 +53,7 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
+	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect

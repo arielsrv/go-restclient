@@ -128,3 +128,54 @@ Dashboard
 - [dev](https://monitoring.dev.dp.iskaypet.com/d/6shkc-L4kk/http-clients?orgId=1)
 
 [prometheus]: images/metrics.png
+
+## Benchmarks
+
+```go
+func BenchmarkGet(b *testing.B) {
+	client := &rest.Client{}
+
+	for i := 0; i < b.N; i++ {
+		resp := client.Get("https://gorest.co.in/public/v2/users")
+		if resp.Err != nil {
+			log.Info("f[" + strconv.Itoa(i) + "] Error")
+			continue
+		}
+		if resp.StatusCode != http.StatusOK {
+			log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
+		}
+	}
+}
+
+func BenchmarkResty_Get(b *testing.B) {
+	client := resty.New()
+	for i := 0; i < b.N; i++ {
+		resp, err := client.R().Get(fmt.Sprintf("https://gorest.co.in/public/v2/users"))
+		if err != nil {
+			log.Info("f[" + strconv.Itoa(i) + "] Error")
+			continue
+		}
+		if resp.StatusCode() != http.StatusOK {
+			log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
+		}
+	}
+}
+```
+
+### go-restclient
+    goos: darwin
+    goarch: arm64
+    pkg: gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest
+    cpu: Apple M1 Pro
+    BenchmarkGet 
+    BenchmarkGet-10    	       3	 405502875 ns/op
+    PASS
+
+### resty
+    goos: darwin
+    goarch: arm64
+    pkg: gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest
+    cpu: Apple M1 Pro
+    BenchmarkResty_Get
+    BenchmarkResty_Get-10    	       1	1099176917 ns/op
+    PASS
