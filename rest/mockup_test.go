@@ -34,7 +34,7 @@ func TestMockup(t *testing.T) {
 	}
 }
 
-func TestMockup_Err(t *testing.T) {
+func TestMockup_RequestErr(t *testing.T) {
 	defer rest.StopMockupServer()
 	rest.StartMockupServer()
 
@@ -58,4 +58,26 @@ func TestMockup_Err(t *testing.T) {
 	if v.String() != "" {
 		t.Fatal("Mockup Error Should Return Error!")
 	}
+}
+
+func TestMockup_MockErr(t *testing.T) {
+	defer rest.StopMockupServer()
+	rest.StartMockupServer()
+
+	myURL := ":/invalid/url"
+
+	myHeaders := make(http.Header)
+	myHeaders.Add("Hello", "world")
+
+	mock := rest.Mock{
+		URL:          myURL,
+		HTTPMethod:   http.MethodGet,
+		ReqHeaders:   myHeaders,
+		RespHTTPCode: http.StatusOK,
+		RespBody:     "foo",
+	}
+
+	err := rest.AddMockups(&mock)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "missing protocol scheme")
 }
