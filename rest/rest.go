@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-var dfltBuilder = Client{
+var dfltClient = Client{
 	rwMtx: sync.RWMutex{},
 }
 
@@ -17,7 +17,7 @@ var dfltBuilder = Client{
 //
 // Get uses the DefaultBuilder.
 func Get(url string) *Response {
-	return dfltBuilder.Get(url)
+	return dfltClient.Get(url)
 }
 
 // Post issues a POST HTTP verb to the specified URL.
@@ -30,7 +30,7 @@ func Get(url string) *Response {
 //
 // Post uses the DefaultBuilder.
 func Post(url string, body any) *Response {
-	return dfltBuilder.Post(url, body)
+	return dfltClient.Post(url, body)
 }
 
 // Put issues a PUT HTTP verb to the specified URL.
@@ -43,7 +43,7 @@ func Post(url string, body any) *Response {
 //
 // Put uses the DefaultBuilder.
 func Put(url string, body any) *Response {
-	return dfltBuilder.Put(url, body)
+	return dfltClient.Put(url, body)
 }
 
 // Patch issues a PATCH HTTP verb to the specified URL
@@ -56,7 +56,7 @@ func Put(url string, body any) *Response {
 //
 // Patch uses the DefaultBuilder.
 func Patch(url string, body any) *Response {
-	return dfltBuilder.Patch(url, body)
+	return dfltClient.Patch(url, body)
 }
 
 // Delete issues a DELETE HTTP verb to the specified URL
@@ -67,7 +67,7 @@ func Patch(url string, body any) *Response {
 //
 // Delete uses the DefaultBuilder.
 func Delete(url string) *Response {
-	return dfltBuilder.Delete(url)
+	return dfltClient.Delete(url)
 }
 
 // Head issues a HEAD HTTP verb to the specified URL
@@ -78,7 +78,7 @@ func Delete(url string) *Response {
 //
 // Head uses the DefaultBuilder.
 func Head(url string) *Response {
-	return dfltBuilder.Head(url)
+	return dfltClient.Head(url)
 }
 
 // Options issues a OPTIONS HTTP verb to the specified URL
@@ -90,7 +90,7 @@ func Head(url string) *Response {
 //
 // Options uses the DefaultBuilder.
 func Options(url string) *Response {
-	return dfltBuilder.Options(url)
+	return dfltClient.Options(url)
 }
 
 // AsyncGet is the *asynchronous* option for GET.
@@ -100,7 +100,7 @@ func Options(url string) *Response {
 //
 // AsyncGet uses the DefaultBuilder.
 func AsyncGet(url string, f func(*Response), headers ...http.Header) {
-	dfltBuilder.AsyncGet(url, f, headers...)
+	dfltClient.AsyncGet(url, f, headers...)
 }
 
 // AsyncPost is the *asynchronous* option for POST.
@@ -110,7 +110,7 @@ func AsyncGet(url string, f func(*Response), headers ...http.Header) {
 //
 // AsyncPost uses the DefaultBuilder.
 func AsyncPost(url string, body any, f func(*Response), headers ...http.Header) {
-	dfltBuilder.AsyncPost(url, body, f, headers...)
+	dfltClient.AsyncPost(url, body, f, headers...)
 }
 
 // AsyncPut is the *asynchronous* option for PUT.
@@ -120,7 +120,7 @@ func AsyncPost(url string, body any, f func(*Response), headers ...http.Header) 
 //
 // AsyncPut uses the DefaultBuilder.
 func AsyncPut(url string, body any, f func(*Response), headers ...http.Header) {
-	dfltBuilder.AsyncPut(url, body, f, headers...)
+	dfltClient.AsyncPut(url, body, f, headers...)
 }
 
 // AsyncPatch is the *asynchronous* option for PATCH.
@@ -130,7 +130,7 @@ func AsyncPut(url string, body any, f func(*Response), headers ...http.Header) {
 //
 // AsyncPatch uses the DefaultBuilder.
 func AsyncPatch(url string, body any, f func(*Response), headers ...http.Header) {
-	dfltBuilder.AsyncPatch(url, body, f, headers...)
+	dfltClient.AsyncPatch(url, body, f, headers...)
 }
 
 // AsyncDelete is the *asynchronous* option for DELETE.
@@ -140,7 +140,7 @@ func AsyncPatch(url string, body any, f func(*Response), headers ...http.Header)
 //
 // AsyncDelete uses the DefaultBuilder.
 func AsyncDelete(url string, f func(*Response), headers ...http.Header) {
-	dfltBuilder.AsyncDelete(url, f, headers...)
+	dfltClient.AsyncDelete(url, f, headers...)
 }
 
 // AsyncHead is the *asynchronous* option for HEAD.
@@ -150,7 +150,7 @@ func AsyncDelete(url string, f func(*Response), headers ...http.Header) {
 //
 // AsyncHead uses the DefaultBuilder.
 func AsyncHead(url string, f func(*Response), headers ...http.Header) {
-	dfltBuilder.AsyncHead(url, f, headers...)
+	dfltClient.AsyncHead(url, f, headers...)
 }
 
 // AsyncOptions is the *asynchronous* option for OPTIONS.
@@ -160,5 +160,5 @@ func AsyncHead(url string, f func(*Response), headers ...http.Header) {
 //
 // AsyncOptions uses the DefaultBuilder.
 func AsyncOptions(url string, f func(*Response), headers ...http.Header) {
-	dfltBuilder.AsyncOptions(url, f, headers...)
+	dfltClient.AsyncOptions(url, f, headers...)
 }
