@@ -57,7 +57,7 @@ type resourceTTLLruMap struct {
 	lruChan  chan *lruMsg // Channel for LRU messages
 	ttlChan  chan bool    // Channel for TTL messages
 	popChan  chan string
-	rwMutex  sync.RWMutex // Read Write Locking Mutex
+	rwMtx    sync.RWMutex // Read Write Locking Mutex
 }
 
 func init() {
@@ -68,50 +68,50 @@ func init() {
 		lruChan:  make(chan *lruMsg, 10000),
 		ttlChan:  make(chan bool, 1000),
 		popChan:  make(chan string),
-		rwMutex:  sync.RWMutex{},
+		rwMtx:    sync.RWMutex{},
 	}
 
 	go resourceCache.lruOperations()
 	go resourceCache.ttl()
 }
 
-func (rCache *resourceTTLLruMap) lruOperations() {
+func (r *resourceTTLLruMap) lruOperations() {
 	for {
-		msg := <-rCache.lruChan
+		msg := <-r.lruChan
 
 		switch msg.operation {
 		case move:
-			rCache.lruList.MoveToFront(msg.resp.listElement)
+			r.lruList.MoveToFront(msg.resp.listElement)
 		case push:
-			msg.resp.listElement = rCache.lruList.PushFront(msg.resp.Request.URL.String())
+			msg.resp.listElement = r.lruList.PushFront(msg.resp.Request.URL.String())
 		case del:
-			rCache.lruList.Remove(msg.resp.listElement)
+			r.lruList.Remove(msg.resp.listElement)
 		case last:
-			if value, ok := rCache.lruList.Back().Value.(string); ok {
-				rCache.popChan <- value
+			if value, ok := r.lruList.Back().Value.(string); ok {
+				r.popChan <- value
 			}
 		}
 	}
 }
 
-func (rCache *resourceTTLLruMap) get(key string) *Response {
+func (r *resourceTTLLruMap) get(key string) *Response {
 	// Read lock only
-	rCache.rwMutex.RLock()
-	resp := rCache.cache[key]
-	rCache.rwMutex.RUnlock()
+	r.rwMtx.RLock()
+	resp := r.cache[key]
+	r.rwMtx.RUnlock()
 
 	// If expired, remove it
 	if resp != nil && resp.ttl != nil && time.Until(*resp.ttl) <= 0 {
 		// Full lock
-		rCache.rwMutex.Lock()
-		defer rCache.rwMutex.Unlock()
+		r.rwMtx.Lock()
+		defer r.rwMtx.Unlock()
 
 		// JIC, get the freshest version
-		resp = rCache.cache[key]
+		resp = r.cache[key]
 
 		// Check again with the lock
 		if resp != nil && resp.ttl != nil && time.Until(*resp.ttl) <= 0 {
-			rCache.remove(key, resp)
+			r.remove(key, resp)
 			return nil // return. Do not send the move message
 		}
 	}
@@ -119,7 +119,7 @@ func (rCache *resourceTTLLruMap) get(key string) *Response {
 	if resp != nil {
 		// Buffered msg to LruList
 		// Move forward
-		rCache.lruChan <- &lruMsg{
+		r.lruChan <- &lruMsg{
 			operation: move,
 			resp:      resp,
 		}
@@ -129,26 +129,26 @@ func (rCache *resourceTTLLruMap) get(key string) *Response {
 }
 
 // Set if key not exist.
-func (rCache *resourceTTLLruMap) setNX(key string, value *Response) {
+func (r *resourceTTLLruMap) setNX(key string, value *Response) {
 	// Full Lock
-	rCache.rwMutex.Lock()
-	defer rCache.rwMutex.Unlock()
+	r.rwMtx.Lock()
+	defer r.rwMtx.Unlock()
 
-	v := rCache.cache[key]
+	v := r.cache[key]
 
 	if v == nil {
-		rCache.cache[key] = value
+		r.cache[key] = value
 
 		// PushFront in LruList
-		rCache.lruChan <- &lruMsg{
+		r.lruChan <- &lruMsg{
 			operation: push,
 			resp:      value,
 		}
 
 		// Set ttl if necessary
 		if value.ttl != nil {
-			value.skipListElement = rCache.skipList.insert(key, *value.ttl)
-			rCache.ttlChan <- true
+			value.skipListElement = r.skipList.insert(key, *value.ttl)
+			r.ttlChan <- true
 		}
 
 		// Add Response Size to Cache
@@ -156,23 +156,23 @@ func (rCache *resourceTTLLruMap) setNX(key string, value *Response) {
 		cacheSize += value.size()
 
 		for i := 0; ByteSize(cacheSize) >= MaxCacheSize && i < 10; i++ {
-			rCache.lruChan <- &lruMsg{
+			r.lruChan <- &lruMsg{
 				nil,
 				last,
 			}
 
-			k := <-rCache.popChan
-			r := rCache.cache[k]
+			k := <-r.popChan
+			response := r.cache[k]
 
-			rCache.remove(k, r)
+			r.remove(k, response)
 		}
 	}
 }
 
-func (rCache *resourceTTLLruMap) remove(key string, resp *Response) {
-	delete(rCache.cache, key)                    // Delete from map
-	rCache.skipList.remove(resp.skipListElement) // Delete from skipList
-	rCache.lruChan <- &lruMsg{                   // Delete from LruList
+func (r *resourceTTLLruMap) remove(key string, resp *Response) {
+	delete(r.cache, key)                    // Delete from map
+	r.skipList.remove(resp.skipListElement) // Delete from skipList
+	r.lruChan <- &lruMsg{ // Delete from LruList
 		operation: del,
 		resp:      resp,
 	}
@@ -182,26 +182,26 @@ func (rCache *resourceTTLLruMap) remove(key string, resp *Response) {
 	cacheSize -= resp.size()
 }
 
-func (rCache *resourceTTLLruMap) ttl() {
+func (r *resourceTTLLruMap) ttl() {
 	// Function to send a message when the timer expires
 	backToFuture := func() {
-		rCache.ttlChan <- true
+		r.ttlChan <- true
 	}
 
 	// A timer.
 	future := time.AfterFunc(24*time.Hour, backToFuture)
 
 	for {
-		<-rCache.ttlChan
+		<-r.ttlChan
 
 		// Full Lock
-		rCache.rwMutex.Lock()
+		r.rwMtx.Lock()
 
 		now := time.Now()
 
 		// Traverse the skiplist which is ordered by ttl.
 		// We do this by looping at level 0
-		for node := rCache.skipList.head.next[0]; node != nil; node = node.next[0] {
+		for node := r.skipList.head.next[0]; node != nil; node = node.next[0] {
 			timeLeft := node.ttl.Sub(now)
 
 			// If we still have time, check the timer and break
@@ -214,9 +214,9 @@ func (rCache *resourceTTLLruMap) ttl() {
 			}
 
 			// Remove from cache if time's up
-			rCache.remove(node.key, rCache.cache[node.key])
+			r.remove(node.key, r.cache[node.key])
 		}
 
-		rCache.rwMutex.Unlock()
+		r.rwMtx.Unlock()
 	}
 }
