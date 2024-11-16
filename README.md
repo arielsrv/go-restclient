@@ -166,7 +166,7 @@ func BenchmarkResty_Get(b *testing.B) {
     goos: darwin
     goarch: arm64
     pkg: gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest
-    cpu: Apple M1 Pro
+    cpu: Apple M3 Pro
     BenchmarkGet 
     BenchmarkGet-10    	       3	 405502875 ns/op
     PASS
@@ -175,7 +175,7 @@ func BenchmarkResty_Get(b *testing.B) {
     goos: darwin
     goarch: arm64
     pkg: gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest
-    cpu: Apple M1 Pro
+    cpu: Apple M3 Pro
     BenchmarkResty_Get
     BenchmarkResty_Get-10    	       1	1099176917 ns/op
     PASS
