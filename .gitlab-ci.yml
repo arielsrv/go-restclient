@@ -26,30 +26,29 @@ release:
   extends: .go-cache
   stage: build
   script:
-
-    # - Step Build
+    ###
+    - echo Step Build
     - go mod tidy
     - go build -v ./...
-
-    # - Step Lint
-    - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
-
-    # - Step Test report
+    ###
+    - echo Step Test report
     - go install gotest.tools/gotestsum@latest
     - gotestsum --junitfile report.xml --format testname
-
-    # - Step Coverage badge
+    ###
+    - echo Step Coverage badge
     - CGO_ENABLED=0 go test ./... -coverprofile=coverage-report.out
     - go tool cover -html=coverage-report.out -o coverage-report.html
     - go tool cover -func=coverage-report.out
-
-    # - Step Coverage Report
+    ###
+    - echo Step Coverage Report
     - go test ./... -coverprofile=coverage.txt -covermode count
     - go get github.com/boumenot/gocover-cobertura
     - go install github.com/boumenot/gocover-cobertura
     - gocover-cobertura <coverage.txt >coverage.xml
-
+    ###
+    - echo Step Lint
+    - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
   artifacts:
     when: always
     reports:
