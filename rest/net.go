@@ -88,17 +88,24 @@ func (r *Client) newRequest(ctx context.Context, verb string, url string, body a
 	start := time.Now()
 	response, err := httpClient.Do(request)
 
+	metrics.Collector.Prometheus().RecordExecutionTime("go_restclient_durations_seconds", time.Since(start), metrics.Tags{"client_name": r.Name})
+
+	// Deprecated
 	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", time.Since(start),
 		buildTags(r.Name, "http_connection", "response_time"))
 
 	if err != nil {
 		var netError net.Error
-		eventSubType := "network"
+		errorType := "network"
 		if errors.As(err, &netError) && netError.Timeout() {
-			eventSubType = "timeout"
+			errorType = "timeout"
 		}
+
+		metrics.Collector.Prometheus().IncrementCounter("go_restclient_request_error", metrics.Tags{"client_name": r.Name, "error_type": errorType})
+
+		// Deprecated
 		metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
-			buildTags(r.Name, "http_connection_error", eventSubType))
+			buildTags(r.Name, "http_connection_error", errorType))
 		result.Err = err
 		return result
 	}
@@ -111,6 +118,11 @@ func (r *Client) newRequest(ctx context.Context, verb string, url string, body a
 		return result
 	}
 
+	metrics.Collector.Prometheus().
+		IncrementCounter("go_restclient_requests_total",
+			metrics.Tags{"client_name": r.Name, "status_code": strconv.Itoa(response.StatusCode)})
+
+	// Deprecated
 	metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
 		buildTags(r.Name, "http_status", strconv.Itoa(response.StatusCode)))
 
