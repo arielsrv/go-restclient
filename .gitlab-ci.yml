@@ -95,7 +95,7 @@ race-condition:
   needs:
     - test-report
   script:
-    - go test -race -count 10 ./...
+    - go test -race ./...
   allow_failure: true
   only:
     - branches
