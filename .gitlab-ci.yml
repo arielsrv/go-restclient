@@ -22,14 +22,15 @@ default:
 stages:
   - build
 
+.build: &build |
+  echo -e "go mod tidy"
+  echo -e "go build ./..."
+
 release:
   extends: .go-cache
   stage: build
   script:
-    ###
-    - echo Step Build
-    - go mod tidy
-    - go build ./...
+    - *build
     ###
     - echo Step Test report
     - go install gotest.tools/gotestsum@latest
