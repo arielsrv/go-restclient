@@ -22,34 +22,34 @@ default:
 stages:
   - build
 
-compile:
+release:
   extends: .go-cache
   stage: build
   script:
+
+    # - Step Build
     - go mod tidy
     - go build -v ./...
-  allow_failure: false
-  only:
-    - branches
 
-test:
-  extends: .go-cache
-  stage: build
-  needs:
-    - compile
-  script:
-    # - Step 1
+    # - Step Lint
+    - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+
+    # - Step Test report
     - go install gotest.tools/gotestsum@latest
     - gotestsum --junitfile report.xml --format testname
-    # - Step 2
+
+    # - Step Coverage badge
     - CGO_ENABLED=0 go test ./... -coverprofile=coverage-report.out
     - go tool cover -html=coverage-report.out -o coverage-report.html
     - go tool cover -func=coverage-report.out
-    # - Step 3
+
+    # - Step Coverage Report
     - go test ./... -coverprofile=coverage.txt -covermode count
     - go get github.com/boumenot/gocover-cobertura
     - go install github.com/boumenot/gocover-cobertura
     - gocover-cobertura <coverage.txt >coverage.xml
+
   artifacts:
     when: always
     reports:
@@ -57,29 +57,11 @@ test:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
-    paths:
-      - coverage-report.html
-  coverage: "/\\(statements\\)\\s+\\d+.?\\d+%/"
-  allow_failure: false
-  only:
-    - branches
-
-linter:
-  extends: .go-cache
-  stage: build
-  needs:
-    - compile
-  variables:
-    version: latest
-    output: gl-code-quality-report.json
-  script:
-    - go install github.com/golangci/golangci-lint/cmd/golangci-lint@${version}
-    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
-  artifacts:
-    reports:
       codequality: gl-code-quality-report.json
     paths:
+      - coverage-report.html
       - gl-code-quality-report.json
-  allow_failure: true
+  coverage: "/\\(statements\\)\\s+\\d+.?\\d+%/"
+  allow_failure: false
   only:
     - branches
