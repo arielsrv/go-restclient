@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/pkg/errors"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector/metrics"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
@@ -30,18 +32,21 @@ var (
 	defaultCheckRedirectFunc func(req *http.Request, via []*http.Request) error
 )
 
-var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
+var (
+	maxAge        = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
+	dfltUserAgent = "go-restclient"
+)
 
-func (r *Client) newRequest(ctx context.Context, verb string, reqURL string, reqBody any, headers ...http.Header) (result *Response) {
+func (r *Client) newRequest(ctx context.Context, verb string, url string, body any, headers ...http.Header) *Response {
 	var cacheURL string
 	var cacheResp *Response
 
-	result = new(Response)
-	reqURL = r.BaseURL + reqURL
+	result := new(Response)
+	url = r.BaseURL + url
 
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
-		if cacheResp = resourceCache.get(reqURL); cacheResp != nil {
+		if cacheResp = resourceCache.get(url); cacheResp != nil {
 			cacheResp.cacheHit.Store(true)
 			if !cacheResp.revalidate {
 				return cacheResp
@@ -50,67 +55,71 @@ func (r *Client) newRequest(ctx context.Context, verb string, reqURL string, req
 	}
 
 	// Marshal request to JSON or XML
-	reader, err := r.marshalReqBody(reqBody)
+	reader, err := r.marshalBody(body)
 	if err != nil {
 		result.Err = err
-		return
+		return result
 	}
 
 	// Change URL to point to Mockup server
-	reqURL, cacheURL, err = checkMockup(reqURL)
+	url, cacheURL, err = checkMockup(url)
 	if err != nil {
 		result.Err = err
-		return
+		return result
 	}
 
-	parentCtx := ctx
 	if r.EnableTrace {
-		clientTrace := otelhttptrace.NewClientTrace(ctx)
-		parentCtx = httptrace.WithClientTrace(ctx, clientTrace)
+		ctx = httptrace.WithClientTrace(ctx, otelhttptrace.NewClientTrace(ctx))
 	}
 
-	client := r.getClient(parentCtx)
+	client := r.getClient(ctx)
 
-	request, err := http.NewRequestWithContext(parentCtx, verb, reqURL, reader)
+	request, err := http.NewRequestWithContext(ctx, verb, url, reader)
 	if err != nil {
 		result.Err = err
-		return
+		return result
 	}
 
 	// Set extra parameters
 	r.setParams(request, cacheResp, cacheURL, headers...)
 
-	startTime := time.Now()
 	// Make the request
+	startTime := time.Now()
 	httpResp, err := client.Do(request)
-	elapsedTime := time.Since(startTime)
 
-	HTTPCollector.RecordExecutionTime(r.Name, "http_connection", "response_time", elapsedTime)
+	metrics.Collector.Prometheus().RecordExecutionTime("go_restclient_request_duration", time.Since(startTime), metrics.Tags{
+		"client_name": r.Name,
+		"method":      verb,
+	})
 
 	if err != nil {
 		var netError net.Error
 		if errors.As(err, &netError) && netError.Timeout() {
-			HTTPCollector.IncrementCounter(r.Name, "http_connection_error", "timeout")
+			metrics.Collector.Prometheus().IncrementCounter("go_restclient_requests_errors", metrics.Tags{"client_name": r.Name, "type": "timeout"})
+			result.Err = err
+			return result
 		}
-		HTTPCollector.IncrementCounter(r.Name, "http_connection_error", "network")
+
+		metrics.Collector.Prometheus().IncrementCounter("go_restclient_requests_errors", metrics.Tags{"client_name": r.Name, "type": "network"})
 		result.Err = err
-		return
+		return result
 	}
+	defer httpResp.Body.Close()
 
 	// Read response
-	defer httpResp.Body.Close()
 	respBody, err := io.ReadAll(httpResp.Body)
 	if err != nil {
 		result.Err = err
-		return
+		return result
 	}
 
-	HTTPCollector.IncrementCounter(r.Name, "http_status", strconv.Itoa(httpResp.StatusCode))
+	metrics.Collector.Prometheus().
+		IncrementCounter("go_restclient_requests_total", metrics.Tags{"status_code": strconv.Itoa(httpResp.StatusCode)})
 
 	// If we get a 304, return response from cache
 	if httpResp.StatusCode == http.StatusNotModified {
 		result = cacheResp
-		return
+		return result
 	}
 
 	result.Response = httpResp
@@ -129,7 +138,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, reqURL string, req
 		resourceCache.setNX(cacheURL, result)
 	}
 
-	return
+	return result
 }
 
 func checkMockup(reqURL string) (string, string, error) {
@@ -150,7 +159,7 @@ func checkMockup(reqURL string) (string, string, error) {
 	return reqURL, cacheURL, nil
 }
 
-func (r *Client) marshalReqBody(body any) (io.Reader, error) {
+func (r *Client) marshalBody(body any) (io.Reader, error) {
 	if body != nil {
 		switch r.ContentType {
 		case JSON:
@@ -298,7 +307,7 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 		if r.UserAgent != "" {
 			return r.UserAgent
 		}
-		return "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient"
+		return fmt.Sprintf("%s/%s", r.Name, dfltUserAgent)
 	}())
 
 	// Encoding

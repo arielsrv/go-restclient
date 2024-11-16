@@ -23,6 +23,8 @@ github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/gorilla/mux v1.8.1 h1:TuBL49tXwgrFYWhqrNgrUNEY92u81SPhu7sTdzQEiWY=
+github.com/gorilla/mux v1.8.1/go.mod h1:AKf9I4AEqPTmMytcMc0KkNouC66V3BtZ4qD5fmWSiMQ=
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/klauspost/compress v1.17.9 h1:6KIumPrER1LHsvBVuDa0r5xaG0Es51mhhB9BQB2qeMA=
@@ -92,6 +94,8 @@ github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22 h1:2VGkC01H0ikWPAjixEFERqyM/sDMwxGJPzDfmlZm8Mg=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22/go.mod h1:wSRcQDeJ7V5iZpna6gbAMMthW+iqTxbfcDeVEcL1nas=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.17 h1:/Ct6E89tjWEJFUH0xgLm7wV7TNItC8Am55oMIKMdD0o=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.17/go.mod h1:ZjUZKooo1lB7hn+AKfDnkEpYZW/4/E3lKni9y8/qhss=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16 h1:FD1Rid6SVTsJumTvADOeBtVEHhfxSgTmiE5k0aDKu9U=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16/go.mod h1:qUJJhYcPYFN3bfVcAVuBO55ZpgjbzUaLPHIZmA/owWg=
 go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.57.0 h1:7F3XCD6WYzDkwbi8I8N+oYJWquPVScnRosKGgqjsR8c=
