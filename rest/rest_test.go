@@ -83,6 +83,19 @@ func TestPostForm(t *testing.T) {
 	}
 }
 
+func TestPostForm_Err(t *testing.T) {
+	fbForm := rest.Client{
+		BaseURL:     server.URL,
+		ContentType: rest.FORM,
+	}
+
+	resp := fbForm.Post("/form/user", &User{Name: "John Doe"})
+
+	if resp.Err == nil {
+		t.Fatal("Error should not be nil")
+	}
+}
+
 func TestPostBytes(t *testing.T) {
 	fbForm := rest.Client{
 		BaseURL:     server.URL,
