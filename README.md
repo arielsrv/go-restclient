@@ -20,6 +20,7 @@
 
 - [RESTClient](#rest-client)
 - [Metrics](#metrics)
+- [Benchmarks](#ben)
 
 ## Rest Client
 
