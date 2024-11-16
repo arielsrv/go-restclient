@@ -29,7 +29,7 @@ release:
     ###
     - echo Step Build
     - go mod tidy
-    - go build -v ./...
+    - go build ./...
     ###
     - echo Step Test report
     - go install gotest.tools/gotestsum@latest
