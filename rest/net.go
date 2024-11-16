@@ -93,12 +93,12 @@ func (r *Client) newRequest(ctx context.Context, verb string, url string, body a
 
 	if err != nil {
 		var netError net.Error
-		tag := "network"
+		eventSubType := "network"
 		if errors.As(err, &netError) && netError.Timeout() {
-			tag = "timeout"
+			eventSubType = "timeout"
 		}
 		metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
-			buildTags(r.Name, "http_connection_error", tag))
+			buildTags(r.Name, "http_connection_error", eventSubType))
 		result.Err = err
 		return result
 	}
