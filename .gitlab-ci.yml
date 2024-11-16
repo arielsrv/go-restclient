@@ -15,7 +15,6 @@ default:
   before_script:
     - if [ -d "$HOME" ]; then echo "machine gitlab.com login master_token password $CICD_TOKEN" > "$HOME/.netrc"; fi
     - mkdir -p ${GOMODCACHE}
-
   cache:
     paths:
       - ${GOMODCACHE}/

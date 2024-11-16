@@ -56,7 +56,7 @@ func main() {
     // Create a new REST client with custom settings
     client = &rest.Client{
         BaseURL:        "https://gorest.co.in/public/v2",
-        Timeout:        time.Millisecond * 1000,
+        Timeout:        time.Millisecond * 2000,
         ConnectTimeout: time.Millisecond * 5000,
         ContentType:    rest.JSON,
         Name:           "example-client",
