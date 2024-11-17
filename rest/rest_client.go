@@ -137,6 +137,92 @@ type Client struct {
 	clientMtxOnce sync.Once
 }
 
+type Option func(*Client)
+
+// NewClient creates a new Client with the given options.
+func NewClient(opts ...Option) *Client {
+	client := &Client{
+		Timeout:        30 * time.Second, // default timeout
+		ConnectTimeout: 10 * time.Second, // default connection timeout
+		ContentType:    JSON,
+		FollowRedirect: true,
+	}
+	for _, opt := range opts {
+		opt(client)
+	}
+	return client
+}
+
+// WithBaseURL sets the BaseURL of the Client.
+func WithBaseURL(baseURL string) Option {
+	return func(c *Client) {
+		c.BaseURL = baseURL
+	}
+}
+
+// WithName sets the name of the Client.
+func WithName(name string) Option {
+	return func(c *Client) {
+		c.Name = name
+	}
+}
+
+// WithUserAgent sets the UserAgent of the Client.
+func WithUserAgent(userAgent string) Option {
+	return func(c *Client) {
+		c.UserAgent = userAgent
+	}
+}
+
+// WithTimeout sets the timeout of the Client.
+func WithTimeout(timeout time.Duration) Option {
+	return func(c *Client) {
+		c.Timeout = timeout
+	}
+}
+
+// WithConnectTimeout sets the connection timeout of the Client.
+func WithConnectTimeout(connectTimeout time.Duration) Option {
+	return func(c *Client) {
+		c.ConnectTimeout = connectTimeout
+	}
+}
+
+// WithBasicAuth sets the BasicAuth credentials for the Client.
+func WithBasicAuth(basicAuth *BasicAuth) Option {
+	return func(c *Client) {
+		c.BasicAuth = basicAuth
+	}
+}
+
+// WithCustomPool sets the custom pool for the Client.
+func WithCustomPool(customPool *CustomPool) Option {
+	return func(c *Client) {
+		c.CustomPool = customPool
+	}
+}
+
+// WithOAuth sets the OAuth credentials for the Client.
+func WithOAuth(oauth *OAuth) Option {
+	return func(c *Client) {
+		c.OAuth = oauth
+	}
+}
+
+// WithDisableCache disables caching in the Client.
+func WithDisableCache() Option {
+	return func(c *Client) {
+		c.DisableCache = true
+	}
+}
+
+// WithFollowRedirect enables or disables following redirects.
+func WithFollowRedirect(enabled bool) Option {
+	return func(c *Client) {
+		c.FollowRedirect = enabled
+	}
+}
+
 type AuthStyle int
 
 const (
@@ -174,10 +260,10 @@ type CustomPool struct {
 	MaxIdleConnsPerHost int
 }
 
-// BasicAuth gives the possibility to set UserName and Password for a given
+// BasicAuth gives the possibility to set Username and Password for a given
 // RESTClient. Basic Auth is used by some APIs.
 type BasicAuth struct {
-	UserName string
+	Username string
 	Password string
 }
 

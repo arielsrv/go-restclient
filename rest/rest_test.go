@@ -394,3 +394,28 @@ func TestResponseExceedsRequestOAuth(t *testing.T) {
 	assert.NotNil(t, suResponse)
 	require.NoError(t, suResponse.Err)
 }
+
+func TestNewClient(t *testing.T) {
+	client := rest.NewClient(
+		rest.WithBaseURL(server.URL),
+		rest.WithDisableCache(),
+		rest.WithName("my-client"),
+		rest.WithFollowRedirect(true),
+		rest.WithTimeout(10*time.Second),
+		rest.WithConnectTimeout(10*time.Second),
+		rest.WithUserAgent("merluza"),
+		rest.WithBasicAuth(&rest.BasicAuth{
+			Username: "username",
+			Password: "password",
+		}),
+		rest.WithCustomPool(&rest.CustomPool{
+			MaxIdleConnsPerHost: 10,
+		}),
+		rest.WithOAuth(nil),
+	)
+
+	resp := client.Get("/users")
+
+	require.NoError(t, resp.Err)
+	assert.NotNil(t, resp)
+}

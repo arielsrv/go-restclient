@@ -328,7 +328,7 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 
 	// Basic Auth
 	if r.BasicAuth != nil {
-		req.SetBasicAuth(r.BasicAuth.UserName, r.BasicAuth.Password)
+		req.SetBasicAuth(r.BasicAuth.Username, r.BasicAuth.Password)
 	}
 
 	// User Agent
