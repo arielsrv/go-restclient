@@ -1,13 +1,13 @@
 package rest_test
 
 import (
-	"fmt"
-	"github.com/go-resty/resty/v2"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 	"net/http"
 	"strconv"
 	"testing"
+
+	"github.com/go-resty/resty/v2"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
 func BenchmarkGet(b *testing.B) {
@@ -28,7 +28,7 @@ func BenchmarkGet(b *testing.B) {
 func BenchmarkResty_Get(b *testing.B) {
 	client := resty.New()
 	for i := 0; i < b.N; i++ {
-		resp, err := client.R().Get(fmt.Sprintf("https://gorest.co.in/public/v2/users"))
+		resp, err := client.R().Get("https://gorest.co.in/public/v2/users")
 		if err != nil {
 			log.Info("f[" + strconv.Itoa(i) + "] Error")
 			continue

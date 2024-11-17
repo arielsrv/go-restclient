@@ -38,16 +38,16 @@ var (
 	dfltUserAgent = "go-restclient"
 )
 
-func (r *Client) newRequest(ctx context.Context, verb string, url string, body any, headers ...http.Header) *Response {
+func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, body any, headers ...http.Header) *Response {
 	var cacheURL string
 	var cacheResp *Response
 
 	result := new(Response)
-	url = r.BaseURL + url
+	apiURL = r.BaseURL + apiURL
 
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
-		if cacheResp = resourceCache.get(url); cacheResp != nil {
+		if cacheResp = resourceCache.get(apiURL); cacheResp != nil {
 			cacheResp.cacheHit.Store(true)
 			if !cacheResp.revalidate {
 				return cacheResp
@@ -55,15 +55,19 @@ func (r *Client) newRequest(ctx context.Context, verb string, url string, body a
 		}
 	}
 
-	// Marshal request to JSON or XML
-	reader, err := r.marshalBody(body)
-	if err != nil {
-		result.Err = err
-		return result
+	var bodyReader io.Reader
+	bodyReader = http.NoBody
+	if body != nil {
+		reader, err := r.createReader(body)
+		if err != nil {
+			result.Err = err
+			return result
+		}
+		bodyReader = reader
 	}
 
 	// Change URL to point to Mockup server
-	url, cacheURL, err = checkMockup(url)
+	apiURL, cacheURL, err := checkMockup(apiURL)
 	if err != nil {
 		result.Err = err
 		return result
@@ -75,7 +79,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, url string, body a
 
 	httpClient := r.onceHTTPClient(ctx)
 
-	request, err := http.NewRequestWithContext(ctx, verb, url, reader)
+	request, err := http.NewRequestWithContext(ctx, verb, apiURL, bodyReader)
 	if err != nil {
 		result.Err = err
 		return result
@@ -169,7 +173,7 @@ func checkMockup(reqURL string) (string, string, error) {
 	return reqURL, cacheURL, nil
 }
 
-func (r *Client) marshalBody(body any) (io.Reader, error) {
+func (r *Client) createReader(body any) (io.Reader, error) {
 	switch r.ContentType {
 	case JSON:
 		b, err := json.Marshal(body)
@@ -192,7 +196,7 @@ func (r *Client) marshalBody(body any) (io.Reader, error) {
 		return bytes.NewBuffer(b), nil
 	}
 
-	return nil, errors.New("invalid content type")
+	return nil, errors.New("unsupported content type")
 }
 
 func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
