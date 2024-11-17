@@ -30,24 +30,16 @@ type CountryResponse struct {
 }
 
 func main() {
-	ctx := context.Background()
-
 	client := &rest.Client{
 		BaseURL:        "https://sites-api.prod.dp.iskaypet.com",
-		Timeout:        time.Millisecond * 2000,
-		ConnectTimeout: time.Millisecond * 5000,
+		Timeout:        time.Millisecond * time.Duration(2000),
+		ConnectTimeout: time.Millisecond * time.Duration(5000),
 		ContentType:    rest.JSON,
 		Name:           "sites-client",
 		EnableTrace:    true,
-		CustomPool: &rest.CustomPool{
-			MaxIdleConnsPerHost: 10,
-			Transport: &http.Transport{
-				IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
-				ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
-			},
-		},
 	}
 
+	ctx := context.Background()
 	response := client.GetWithContext(ctx, "/sites")
 	if response.Err != nil {
 		log.Fatal(response.Err)
@@ -57,6 +49,9 @@ func main() {
 		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 	}
 
+	log.Infof("*** LRU cache hit: %v ***", response.CacheHit())
+
+	// Typed fill up
 	sitesResponse, err := rest.Deserialize[[]SiteResponse](response)
 	if err != nil {
 		log.Fatal(err)
@@ -75,9 +70,9 @@ func main() {
 				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 			}
 
-			siteResponse, err := rest.Deserialize[SiteResponse](response)
-			if err != nil {
-				log.Fatal(err)
+			siteResponse, sErr := rest.Deserialize[SiteResponse](response)
+			if sErr != nil {
+				log.Fatal(sErr)
 			}
 
 			log.Infof("Site Details: %v", siteResponse)
@@ -91,12 +86,24 @@ func main() {
 				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 			}
 
-			countryResponse, err := rest.Deserialize[CountryResponse](response)
-			if err != nil {
-				log.Fatal(err)
+			countryResponse, cErr := rest.Deserialize[CountryResponse](response)
+			if cErr != nil {
+				log.Fatal(cErr)
 			}
 
 			log.Infof("Country Details: %v", countryResponse)
 		}
 	}
+
+	// Cache-Control
+	response = client.GetWithContext(ctx, "/sites")
+	if response.Err != nil {
+		log.Fatal(response.Err)
+	}
+
+	if response.StatusCode != http.StatusOK {
+		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+	}
+
+	log.Infof("*** LRU cache hit: %v ***", response.CacheHit())
 }
