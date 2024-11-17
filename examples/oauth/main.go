@@ -19,11 +19,11 @@ import (
 
 func main() {
 	ocapiClient := &rest.Client{
-		BaseURL:        "https://www.kiwoko.com/s/-/dw/data/v22_6",
-		Timeout:        time.Millisecond * 1000,
-		ConnectTimeout: time.Millisecond * 5000,
-		ContentType:    rest.JSON,
-		Name:           "example-ocapiClient",
+		BaseURL:           "https://www.kiwoko.com/s/-/dw/data/v22_6",
+		Timeout:           time.Millisecond * 1000,
+		ConnectionTimeout: time.Millisecond * 5000,
+		ContentType:       rest.JSON,
+		Name:              "example-ocapiClient",
 		OAuth: &rest.OAuth{
 			ClientID:     "a11d0149-687e-452e-9c94-783d489d4f72",
 			ClientSecret: "Kiwoko@1234",
