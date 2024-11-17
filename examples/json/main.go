@@ -23,13 +23,26 @@ func main() {
 		ConnectTimeout: time.Millisecond * 5000,
 		ContentType:    rest.JSON,
 		Name:           "example-client",
+		// DisableCache:   false, // Last-Modified and ETag headers are enabled by default
+		// CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
+		// 	Transport: &http.Transport{
+		// 		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
+		// 		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
+		// 		MaxIdleConnsPerHost:   10,
+		// 	},
+		// },
+		// BasicAuth: &rest.BasicAuth{
+		// 	UserName: "your_username",
+		// 	Password: "your_password",
+		// },
+		// OAuth: &clientcredentials.Config{
+		// 	ClientID:     "your_client_id",
+		// 	ClientSecret: "your_client_secret",
+		// 	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
+		// 	AuthStyle:    oauth2.AuthStyleInHeader,
+		// },
 		// EnableTrace:    true,
-		// CustomPool:     &...,
-		// BasicAuth:      &...,
-		// Client:         &...,
-		// OAuth:          &...,
 		// UserAgent:      "<Your User Agent>",
-		// DisableCache:   false,
 		// DisableTimeout: false,
 		// FollowRedirect: false,
 	}
