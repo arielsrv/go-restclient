@@ -216,6 +216,13 @@ func WithDisableCache() Option {
 	}
 }
 
+// WithContentType sets the Content-Type of the Client.
+func WithContentType(contentType ContentType) Option {
+	return func(c *Client) {
+		c.ContentType = contentType
+	}
+}
+
 // WithFollowRedirect enables or disables following redirects.
 func WithFollowRedirect(enabled bool) Option {
 	return func(c *Client) {

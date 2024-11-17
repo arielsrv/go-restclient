@@ -411,6 +411,7 @@ func TestNewClient(t *testing.T) {
 		rest.WithCustomPool(&rest.CustomPool{
 			MaxIdleConnsPerHost: 10,
 		}),
+		rest.WithContentType(rest.JSON),
 		rest.WithOAuth(nil),
 	)
 
