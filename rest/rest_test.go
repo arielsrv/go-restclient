@@ -11,8 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
 )
 
 func TestGet(t *testing.T) {
@@ -380,11 +378,11 @@ func TestResponseExceedsRequestTimeout(t *testing.T) {
 func TestResponseExceedsRequestOAuth(t *testing.T) {
 	restClient := rest.Client{
 		CustomPool: &rest.CustomPool{Transport: &http.Transport{}},
-		OAuth: &clientcredentials.Config{
+		OAuth: &rest.OAuth{
 			ClientID:     "a11d0149-687e-452e-9c94-783d489d4f72",
 			ClientSecret: "client_secret",
 			TokenURL:     server.URL + "/auth/token",
-			AuthStyle:    oauth2.AuthStyleInHeader,
+			AuthStyle:    rest.AuthStyleInHeader,
 		},
 	}
 	restClient.ConnectTimeout = 1000 * time.Millisecond

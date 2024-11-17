@@ -25,6 +25,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 var (
@@ -259,7 +260,16 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 		}
 
 		if r.OAuth != nil {
-			r.Client = r.OAuth.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
+			oauth := &clientcredentials.Config{
+				ClientID:       r.OAuth.ClientID,
+				ClientSecret:   r.OAuth.ClientSecret,
+				TokenURL:       r.OAuth.TokenURL,
+				AuthStyle:      oauth2.AuthStyle(r.OAuth.AuthStyle),
+				Scopes:         r.OAuth.Scopes,
+				EndpointParams: r.OAuth.EndpointParams,
+			}
+
+			r.Client = oauth.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
 		}
 	})
 

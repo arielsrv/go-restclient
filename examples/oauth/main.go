@@ -6,11 +6,7 @@ import (
 	"time"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
-
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
-
 	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
 
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
@@ -28,11 +24,11 @@ func main() {
 		ConnectTimeout: time.Millisecond * 5000,
 		ContentType:    rest.JSON,
 		Name:           "example-ocapiClient",
-		OAuth: &clientcredentials.Config{
+		OAuth: &rest.OAuth{
 			ClientID:     "a11d0149-687e-452e-9c94-783d489d4f72",
 			ClientSecret: "Kiwoko@1234",
 			TokenURL:     "https://account.demandware.com/dw/oauth2/access_token",
-			AuthStyle:    oauth2.AuthStyleInHeader,
+			AuthStyle:    rest.AuthStyleInHeader,
 		},
 		EnableTrace: true,
 	}

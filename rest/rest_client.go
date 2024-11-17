@@ -3,6 +3,7 @@ package rest
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
@@ -97,7 +98,7 @@ type Client struct {
 	Client *http.Client
 
 	// OAuth Credentials
-	OAuth *clientcredentials.Config
+	OAuth *OAuth
 
 	// Base URL to be used for each Request. The final URL will be BaseURL + URL.
 	BaseURL string
@@ -134,6 +135,34 @@ type Client struct {
 
 	// clientMtx protects the clientMtxOnce
 	clientMtxOnce sync.Once
+}
+
+type AuthStyle int
+
+const (
+	// AuthStyleAutoDetect means to auto-detect which authentication
+	// style the provider wants by trying both ways and caching
+	// the successful way for the future.
+	AuthStyleAutoDetect AuthStyle = iota
+
+	// AuthStyleInParams sends the "client_id" and "client_secret"
+	// in the POST body as application/x-www-form-urlencoded parameters.
+	AuthStyleInParams
+
+	// AuthStyleInHeader sends the client_id and client_password
+	// using HTTP Basic Authorization. This is an optional style
+	// described in the OAuth2 RFC 6749 section 2.3.1.
+	AuthStyleInHeader
+)
+
+type OAuth struct {
+	*clientcredentials.Config
+	EndpointParams url.Values
+	ClientID       string
+	ClientSecret   string
+	TokenURL       string
+	Scopes         []string
+	AuthStyle      AuthStyle
 }
 
 // CustomPool defines a separate internal *transport* and connection pooling.
