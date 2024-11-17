@@ -36,7 +36,7 @@ func main() {
 
 	// Set headers for the request (optional)
 	headers := make(http.Header)
-	headers.Add("My-Custom-Header", "My-Ccoveragustom-Value")
+	headers.Add("My-Custom-Header", "My-Custom-Value")
 
 	// Make a GET request (context optional)
 	response := client.GetWithContext(ctx, "/users", headers)
