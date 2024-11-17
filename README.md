@@ -39,6 +39,7 @@ package main
 
 import (
     "context"
+    "fmt"
     "net/http"
     "time"
 
@@ -55,20 +56,33 @@ func main() {
 
     // Create a new REST client with custom settings
     client := &rest.Client{
-        BaseURL:        "https://gorest.co.in/public/v2",
-        Timeout:        time.Millisecond * 1000,
-        ConnectTimeout: time.Millisecond * 5000,
-        ContentType:    rest.JSON,
-        Name:           "example-client",
-        // EnableTrace:    true,
-        // CustomPool:     &...,
-        // BasicAuth:      &...,
-        // Client:         &...,
-        // OAuth:          &...,
-        // UserAgent:      "<Your User Agent>",
-        // DisableCache:   false,
-        // DisableTimeout: false,
-        // FollowRedirect: false,
+        Name:           "example-client",                       // required for logging and tracing
+        BaseURL:        "https://gorest.co.in/public/v2",       // optional parameters
+        ContentType:    rest.JSON,                              // rest.JSON by default
+        Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
+        ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
+        //DisableCache:   false,                            // Last-Modified and ETag headers are enabled by default
+        //CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
+        //	Transport: &http.Transport{
+        //		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
+        //		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
+        //		MaxIdleConnsPerHost:   10,
+        //	},
+        //},
+        //BasicAuth: &rest.BasicAuth{
+        //	UserName: "your_username",
+        //	Password: "your_password",
+        //},
+        //OAuth: &clientcredentials.Config{
+        //	ClientID:     "your_client_id",
+        //	ClientSecret: "your_client_secret",
+        //	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
+        //	AuthStyle:    oauth2.AuthStyleInHeader,
+        //},
+        //EnableTrace:    true,
+        //UserAgent:      "<Your User Agent>",
+        //DisableTimeout: false,
+        //FollowRedirect: false,
     }
 
     // Set headers for the request (optional)
@@ -83,16 +97,14 @@ func main() {
 
     // Check status code and handle errors accordingly or response.IsOk()
     if response.StatusCode != http.StatusOK {
-        log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+        log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
     }
 
     // Untyped fill up
     var users []struct {
-        ID     int    `json:"id"`
-        Name   string `json:"name"`
-        Email  string `json:"email"`
-        Gender string `json:"gender"`
-        Status string `json:"status"`
+        ID    int    `json:"id"`
+        Name  string `json:"name"`
+        Email string `json:"email"`
     }
 
     // Untyped fill up or typed with rest.Deserialize[struct | []struct](response)
@@ -103,10 +115,24 @@ func main() {
 
     // Print the users
     for i := range users {
-        log.Infof("User: %v", users[i])
+        fmt.Printf("User: %d, Name: %s, Email: %s\n", users[i].ID, users[i].Name, users[i].Email)
     }
 }
 
+```
+## Output
+
+```text
+User: 7527456, Name: Hiranmay Dhawan IV, Email: dhawan_hiranmay_iv@grant.test
+User: 7527454, Name: Daevika Khan, Email: khan_daevika@stark.example
+User: 7527452, Name: Msgr. Baalagopaal Dubashi, Email: msgr_baalagopaal_dubashi@beatty.test
+User: 7527451, Name: Tanirika Johar, Email: johar_tanirika@okeefe.example
+User: 7527450, Name: Gopaal Nehru, Email: nehru_gopaal@white-harris.test
+User: 7527449, Name: Bhagwanti Kapoor, Email: kapoor_bhagwanti@hahn.example
+User: 7527448, Name: Brahmanandam Reddy, Email: brahmanandam_reddy@corkery-cormier.example
+User: 7527447, Name: Bela Bhattathiri, Email: bhattathiri_bela@nicolas.example
+User: 7527446, Name: Poornima Tandon, Email: poornima_tandon@collier.test
+User: 7527445, Name: Dhyaneshwar Reddy, Email: dhyaneshwar_reddy@brown.test
 ```
 
 ## Metrics

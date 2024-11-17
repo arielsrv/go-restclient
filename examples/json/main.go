@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -18,11 +19,11 @@ func main() {
 
 	// Create a new REST client with custom settings
 	client := &rest.Client{
-		Name:           "example-client",                 // required for logging and tracing
-		BaseURL:        "https://gorest.co.in/public/v2", // optional parameters
-		ContentType:    rest.JSON,                        // rest.JSON by default
-		Timeout:        time.Millisecond * 1000,          // transmission timeout
-		ConnectTimeout: time.Millisecond * 5000,          // socket timeout
+		Name:           "example-client",                       // required for logging and tracing
+		BaseURL:        "https://gorest.co.in/public/v2",       // optional parameters
+		ContentType:    rest.JSON,                              // rest.JSON by default
+		Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
+		ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
 		//DisableCache:   false,                            // Last-Modified and ETag headers are enabled by default
 		//CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
 		//	Transport: &http.Transport{
@@ -64,11 +65,9 @@ func main() {
 
 	// Untyped fill up
 	var users []struct {
-		ID     int    `json:"id"`
-		Name   string `json:"name"`
-		Email  string `json:"email"`
-		Gender string `json:"gender"`
-		Status string `json:"status"`
+		ID    int    `json:"id"`
+		Name  string `json:"name"`
+		Email string `json:"email"`
 	}
 
 	// Untyped fill up or typed with rest.Deserialize[struct | []struct](response)
@@ -79,6 +78,6 @@ func main() {
 
 	// Print the users
 	for i := range users {
-		log.Infof("User: %v", users[i])
+		fmt.Printf("User: %d, Name: %s, Email: %s\n", users[i].ID, users[i].Name, users[i].Email)
 	}
 }
