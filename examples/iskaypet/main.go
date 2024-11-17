@@ -50,6 +50,7 @@ func main() {
 	}
 
 	log.Infof("*** LRU cache hit: %v ***", response.CacheHit())
+	log.Infof("Response headers: %v", response.Header.Get("Cache-Control"))
 
 	// Typed fill up
 	sitesResponse, err := rest.Deserialize[[]SiteResponse](response)
