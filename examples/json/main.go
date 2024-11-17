@@ -40,7 +40,7 @@ func main() {
 		//	ClientID:     "your_client_id",
 		//	ClientSecret: "your_client_secret",
 		//	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
-		//	AuthStyle:    oauth2.AuthStyleInHeader,
+		//	AuthStyle:    rest.AuthStyleInHeader,
 		//},
 		//EnableTrace:    true,
 		//UserAgent:      "<Your User Agent>",
