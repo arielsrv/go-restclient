@@ -159,34 +159,47 @@ Dashboard
 ## Benchmarks
 
 ```go
-func BenchmarkGet(b *testing.B) {
-client := &rest.Client{}
+package rest_test
 
-for i := 0; i < b.N; i++ {
-resp := client.Get("https://gorest.co.in/public/v2/users")
-if resp.Err != nil {
-log.Info("f[" + strconv.Itoa(i) + "] Error")
-continue
-}
-if resp.StatusCode != http.StatusOK {
-log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
-}
-}
+import (
+    "net/http"
+    "strconv"
+    "testing"
+
+    "github.com/go-resty/resty/v2"
+    "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+    "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+)
+
+func BenchmarkGet(b *testing.B) {
+    client := &rest.Client{}
+
+    for i := 0; i < b.N; i++ {
+        resp := client.Get("https://gorest.co.in/public/v2/users")
+        if resp.Err != nil {
+            log.Info("f[" + strconv.Itoa(i) + "] Error")
+            continue
+        }
+        if resp.StatusCode != http.StatusOK {
+            log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
+        }
+    }
 }
 
 func BenchmarkResty_Get(b *testing.B) {
-client := resty.New()
-for i := 0; i < b.N; i++ {
-resp, err := client.R().Get(fmt.Sprintf("https://gorest.co.in/public/v2/users"))
-if err != nil {
-log.Info("f[" + strconv.Itoa(i) + "] Error")
-continue
+    client := resty.New()
+    for i := 0; i < b.N; i++ {
+        resp, err := client.R().Get("https://gorest.co.in/public/v2/users")
+        if err != nil {
+            log.Info("f[" + strconv.Itoa(i) + "] Error")
+            continue
+        }
+        if resp.StatusCode() != http.StatusOK {
+            log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
+        }
+    }
 }
-if resp.StatusCode() != http.StatusOK {
-log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
-}
-}
-}
+
 ```
 
 ### resty
