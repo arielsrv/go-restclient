@@ -23,28 +23,28 @@ func main() {
 		ContentType:    rest.JSON,                        // rest.JSON by default
 		Timeout:        time.Millisecond * 1000,          // transmission timeout
 		ConnectTimeout: time.Millisecond * 5000,          // socket timeout
-		// DisableCache:   false, 						  // Last-Modified and ETag headers are enabled by default
-		// CustomPool: &rest.CustomPool{ 				  // for fine-tuning the connection pool
-		// 	Transport: &http.Transport{
-		// 		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
-		// 		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
-		// 		MaxIdleConnsPerHost:   10,
-		// 	},
-		// },
-		// BasicAuth: &rest.BasicAuth{
-		// 	UserName: "your_username",
-		// 	Password: "your_password",
-		// },
-		// OAuth: &clientcredentials.Config{
-		// 	ClientID:     "your_client_id",
-		// 	ClientSecret: "your_client_secret",
-		// 	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
-		// 	AuthStyle:    oauth2.AuthStyleInHeader,
-		// },
-		// EnableTrace:    true,
-		// UserAgent:      "<Your User Agent>",
-		// DisableTimeout: false,
-		// FollowRedirect: false,
+		//DisableCache:   false,                            // Last-Modified and ETag headers are enabled by default
+		//CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
+		//	Transport: &http.Transport{
+		//		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
+		//		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
+		//		MaxIdleConnsPerHost:   10,
+		//	},
+		//},
+		//BasicAuth: &rest.BasicAuth{
+		//	UserName: "your_username",
+		//	Password: "your_password",
+		//},
+		//OAuth: &clientcredentials.Config{
+		//	ClientID:     "your_client_id",
+		//	ClientSecret: "your_client_secret",
+		//	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
+		//	AuthStyle:    oauth2.AuthStyleInHeader,
+		//},
+		//EnableTrace:    true,
+		//UserAgent:      "<Your User Agent>",
+		//DisableTimeout: false,
+		//FollowRedirect: false,
 	}
 
 	// Set headers for the request (optional)
