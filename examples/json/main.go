@@ -46,7 +46,7 @@ func main() {
 
 	// Check status code and handle errors accordingly or response.IsOk()
 	if response.StatusCode != http.StatusOK {
-		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 	}
 
 	// Untyped fill up

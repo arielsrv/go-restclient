@@ -57,7 +57,7 @@ func main() {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 	}
 
 	var sitesResponse SitesResponse

@@ -54,7 +54,7 @@ func main() {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 	}
 
 	sitesResponse, err := rest.Deserialize[[]SiteResponse](response)
@@ -72,7 +72,7 @@ func main() {
 			}
 
 			if response.StatusCode != http.StatusOK {
-				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 			}
 
 			siteResponse, err := rest.Deserialize[SiteResponse](response)
@@ -88,7 +88,7 @@ func main() {
 			}
 
 			if response.StatusCode != http.StatusOK {
-				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 			}
 
 			countryResponse, err := rest.Deserialize[CountryResponse](response)

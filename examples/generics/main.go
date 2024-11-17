@@ -34,7 +34,7 @@ func main() {
 
 	// Check status code and handle errors accordingly or response.IsOk()
 	if !response.IsOk() {
-		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.Body)
+		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 	}
 
 	// Typed fill up
