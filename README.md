@@ -73,7 +73,7 @@ func main() {
         //	UserName: "your_username",
         //	Password: "your_password",
         //},
-        //OAuth: &clientcredentials.Config{
+        //OAuth: &rest.OAuth{
         //	ClientID:     "your_client_id",
         //	ClientSecret: "your_client_secret",
         //	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
