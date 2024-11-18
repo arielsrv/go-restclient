@@ -72,8 +72,7 @@ func main() {
 	}
 
 	// Untyped fill up or typed with rest.Deserialize[struct | []struct](response)
-	err := response.FillUp(&users)
-	if err != nil {
+	if err := response.FillUp(&users); err != nil {
 		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
 	}
