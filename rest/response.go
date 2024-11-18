@@ -57,19 +57,19 @@ func (r *Response) Bytes() []byte {
 // FillUp set the *fill* parameter with the corresponding JSON or XML response.
 // fill could be `struct` or `map[string]any`.
 func (r *Response) FillUp(fill any) error {
-	ctype := strings.ToLower(r.Header.Get("Content-Type"))
-	if ctype == "" {
-		ctype = http.DetectContentType(r.bytes)
+	contentType := strings.ToLower(r.Header.Get("Content-Type"))
+	if contentType == "" {
+		contentType = http.DetectContentType(r.bytes)
 	}
 
 	for key := range maps.Keys(unmarshallers) {
 		media := unmarshallers[key]
-		if strings.Contains(ctype, media.Name()) {
+		if strings.Contains(contentType, media.Name()) {
 			return media.Unmarshal(r.bytes, fill)
 		}
 	}
 
-	return fmt.Errorf("unsupported content type: %s", ctype)
+	return fmt.Errorf("unsupported content type: %s", contentType)
 }
 
 // TypedFillUp FillUp set the *fill* parameter with the corresponding JSON or XML response.
