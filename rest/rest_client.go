@@ -113,7 +113,7 @@ type Client struct {
 	Timeout time.Duration
 
 	// Connection timeout, it bounds the time spent obtaining a successful connection
-	ConnectionTimeout time.Duration
+	ConnectTimeout time.Duration
 
 	// ContentType
 	ContentType ContentType
@@ -142,10 +142,10 @@ type Option func(*Client)
 // NewClient creates a new Client with the given options.
 func NewClient(opts ...Option) *Client {
 	client := &Client{
-		Timeout:           30 * time.Second, // default timeout
-		ConnectionTimeout: 10 * time.Second, // default connection timeout
-		ContentType:       JSON,
-		FollowRedirect:    true,
+		Timeout:        30 * time.Second, // default timeout
+		ConnectTimeout: 10 * time.Second, // default connection timeout
+		ContentType:    JSON,
+		FollowRedirect: true,
 	}
 	for _, opt := range opts {
 		opt(client)
@@ -184,7 +184,7 @@ func WithTimeout(timeout time.Duration) Option {
 // WithConnectTimeout sets the connection timeout of the Client.
 func WithConnectTimeout(connectTimeout time.Duration) Option {
 	return func(c *Client) {
-		c.ConnectionTimeout = connectTimeout
+		c.ConnectTimeout = connectTimeout
 	}
 }
 

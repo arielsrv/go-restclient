@@ -333,7 +333,7 @@ func TestRequestSendingClientMetrics(t *testing.T) {
 
 func TestResponseExceedsConnectTimeout(t *testing.T) {
 	restClient := rest.Client{CustomPool: &rest.CustomPool{}}
-	restClient.ConnectionTimeout = 1 * time.Nanosecond
+	restClient.ConnectTimeout = 1 * time.Nanosecond
 	restClient.Timeout = 35 * time.Millisecond
 	restClient.ContentType = rest.JSON
 
@@ -354,7 +354,7 @@ func TestResponseExceedsConnectTimeout(t *testing.T) {
 
 func TestResponseExceedsRequestTimeout(t *testing.T) {
 	restClient := rest.Client{CustomPool: &rest.CustomPool{Transport: &http.Transport{}}}
-	restClient.ConnectionTimeout = 35 * time.Millisecond
+	restClient.ConnectTimeout = 35 * time.Millisecond
 	restClient.Timeout = 9 * time.Millisecond
 	restClient.ContentType = rest.JSON
 
@@ -385,7 +385,7 @@ func TestResponseExceedsRequestOAuth(t *testing.T) {
 			AuthStyle:    rest.AuthStyleInHeader,
 		},
 	}
-	restClient.ConnectionTimeout = 1000 * time.Millisecond
+	restClient.ConnectTimeout = 1000 * time.Millisecond
 	restClient.Timeout = 2000 * time.Millisecond
 	restClient.ContentType = rest.JSON
 

@@ -19,11 +19,11 @@ func main() {
 
 	// Create a new REST client with custom settings
 	client := &rest.Client{
-		Name:              "example-client",                       // required for logging and tracing
-		BaseURL:           "https://gorest.co.in/public/v2",       // optional parameters
-		ContentType:       rest.JSON,                              // rest.JSON by default
-		Timeout:           time.Millisecond * time.Duration(2000), // transmission timeout
-		ConnectionTimeout: time.Millisecond * time.Duration(5000), // socket timeout
+		Name:           "example-client",                       // required for logging and tracing
+		BaseURL:        "https://gorest.co.in/public/v2",       // optional parameters
+		ContentType:    rest.JSON,                              // rest.JSON by default
+		Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
+		ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
 		//WithDisableCache:   false,                            // Last-Modified and ETag headers are enabled by default
 		//CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
 		//	Transport: &http.Transport{

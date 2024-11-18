@@ -309,8 +309,8 @@ func (r *Client) getConnectionTimeout() time.Duration {
 	switch {
 	case r.DisableTimeout:
 		return 0
-	case r.ConnectionTimeout > 0:
-		return r.ConnectionTimeout
+	case r.ConnectTimeout > 0:
+		return r.ConnectTimeout
 	default:
 		return DefaultConnectTimeout
 	}

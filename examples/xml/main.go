@@ -12,10 +12,10 @@ import (
 
 func main() {
 	httpClient := &rest.Client{
-		BaseURL:           "https://gorest.co.in/public/v2",
-		Timeout:           time.Millisecond * 2000,
-		ConnectionTimeout: time.Millisecond * 5000,
-		ContentType:       rest.XML,
+		BaseURL:        "https://gorest.co.in/public/v2",
+		Timeout:        time.Millisecond * 2000,
+		ConnectTimeout: time.Millisecond * 5000,
+		ContentType:    rest.XML,
 	}
 
 	var usersResponse struct {

@@ -19,11 +19,11 @@ type UserResponse struct {
 func main() {
 	// Create a new REST client with custom settings
 	client := &rest.Client{
-		BaseURL:           "https://gorest.co.in/public/v2",
-		Timeout:           time.Millisecond * 1000,
-		ConnectionTimeout: time.Millisecond * 5000,
-		ContentType:       rest.JSON,
-		Name:              "example-client",
+		BaseURL:        "https://gorest.co.in/public/v2",
+		Timeout:        time.Millisecond * 1000,
+		ConnectTimeout: time.Millisecond * 5000,
+		ContentType:    rest.JSON,
+		Name:           "example-client",
 	}
 
 	// Make a GET request

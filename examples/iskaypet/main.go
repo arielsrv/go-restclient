@@ -31,12 +31,12 @@ type CountryResponse struct {
 
 func main() {
 	client := &rest.Client{
-		BaseURL:           "https://sites-api.prod.dp.iskaypet.com",
-		Timeout:           time.Millisecond * time.Duration(2000),
-		ConnectionTimeout: time.Millisecond * time.Duration(5000),
-		ContentType:       rest.JSON,
-		Name:              "sites-client",
-		EnableTrace:       true,
+		BaseURL:        "https://sites-api.prod.dp.iskaypet.com",
+		Timeout:        time.Millisecond * time.Duration(2000),
+		ConnectTimeout: time.Millisecond * time.Duration(5000),
+		ContentType:    rest.JSON,
+		Name:           "sites-client",
+		EnableTrace:    true,
 	}
 
 	ctx := context.Background()
