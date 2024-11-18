@@ -94,32 +94,6 @@ func TestPostForm_Err(t *testing.T) {
 	}
 }
 
-func TestPostBytes(t *testing.T) {
-	fbForm := rest.Client{
-		BaseURL:     server.URL,
-		ContentType: rest.BYTES,
-	}
-
-	resp := fbForm.Post("/bytes/user", []byte{})
-
-	if resp.StatusCode != http.StatusCreated {
-		t.Fatal("Status != OK (201)")
-	}
-}
-
-func TestPostBytes_Err(t *testing.T) {
-	fbForm := rest.Client{
-		BaseURL:     server.URL,
-		ContentType: rest.BYTES,
-	}
-
-	resp := fbForm.Post("/bytes/user", &User{Name: "Pichucha"})
-
-	if resp.Err == nil {
-		t.Fatal("Error should not be nil")
-	}
-}
-
 func TestPut(t *testing.T) {
 	resp := rest.Put(server.URL+"/user/3", &User{Name: "Pichucha"})
 

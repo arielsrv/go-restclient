@@ -24,9 +24,6 @@ const (
 
 	// FORM represents an FORM Content Type.
 	FORM
-
-	// BYTES represents a plain Content Type.
-	BYTES
 )
 
 var unmarshallers = map[ContentType]MediaUnmarshaler{
@@ -35,10 +32,9 @@ var unmarshallers = map[ContentType]MediaUnmarshaler{
 }
 
 var marshallers = map[ContentType]MediaMarshaler{
-	JSON:  &JSONMedia{},
-	XML:   &XMLMedia{},
-	FORM:  &FormMedia{},
-	BYTES: &BytesMedia{},
+	JSON: &JSONMedia{},
+	XML:  &XMLMedia{},
+	FORM: &FormMedia{},
 }
 
 type NamedMedia interface {
@@ -98,19 +94,4 @@ func (r FormMedia) Marshal(body any) (io.Reader, error) {
 
 func (r FormMedia) Name() string {
 	return "x-www-form-urlencoded"
-}
-
-type BytesMedia struct{}
-
-func (r BytesMedia) Marshal(body any) (io.Reader, error) {
-	b, ok := body.([]byte)
-	if !ok {
-		return nil, errors.New("body must be of type []byte or map[string]interface{}")
-	}
-
-	return bytes.NewBuffer(b), nil
-}
-
-func (r BytesMedia) Name() string {
-	return "octet-stream"
 }
