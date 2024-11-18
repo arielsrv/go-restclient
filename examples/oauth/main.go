@@ -18,12 +18,12 @@ import (
 )
 
 func main() {
-	ocapiClient := &rest.Client{
+	client := &rest.Client{
+		Name:           "ocapi-client",
 		BaseURL:        "https://www.kiwoko.com/s/-/dw/data/v22_6",
 		Timeout:        time.Millisecond * 1000,
 		ConnectTimeout: time.Millisecond * 5000,
 		ContentType:    rest.JSON,
-		Name:           "example-ocapiClient",
 		OAuth: &rest.OAuth{
 			ClientID:     "a11d0149-687e-452e-9c94-783d489d4f72",
 			ClientSecret: "Kiwoko@1234",
@@ -47,7 +47,7 @@ func main() {
 		Total int `json:"total"`
 	}
 
-	response := ocapiClient.GetWithContext(context.Background(), "/sites")
+	response := client.GetWithContext(context.Background(), "/sites")
 	if response.Err != nil {
 		log.Fatal(response.Err)
 	}
@@ -67,7 +67,8 @@ func main() {
 		log.Infof("Site: %s, Link: %s", siteResponse.Id, siteResponse.Link)
 	}
 
-	time.Sleep(time.Second * 10)
+	log.Info("Waiting for 10 seconds before exiting...  (Ctrl+C to stop)")
+	time.Sleep(time.Duration(10) * time.Second)
 }
 
 func init() {

@@ -31,12 +31,11 @@ type CountryResponse struct {
 
 func main() {
 	client := &rest.Client{
-		BaseURL:        "https://sites-api.prod.dp.iskaypet.com",
+		Name:           "sites-client",
+		BaseURL:        "https://api.prod.dp.iskaypet.com",
 		Timeout:        time.Millisecond * time.Duration(2000),
 		ConnectTimeout: time.Millisecond * time.Duration(5000),
 		ContentType:    rest.JSON,
-		Name:           "sites-client",
-		EnableTrace:    true,
 	}
 
 	ctx := context.Background()
@@ -49,8 +48,7 @@ func main() {
 		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
 	}
 
-	log.Infof("*** LRU cache hit: %v ***", response.CacheHit())
-	log.Infof("Response headers: %v", response.Header.Get("Cache-Control"))
+	log.Infof("Cache-Control: %v", response.Header.Get("Cache-Control"))
 
 	// Typed fill up
 	sitesResponse, err := rest.Deserialize[[]SiteResponse](response)
@@ -96,15 +94,16 @@ func main() {
 		}
 	}
 
-	// Cache-Control
+	// Cache-Control (hit)
 	response = client.GetWithContext(ctx, "/sites")
-	if response.Err != nil {
+	switch {
+	case response.Err != nil:
 		log.Fatal(response.Err)
-	}
-
-	if response.StatusCode != http.StatusOK {
+	case response.StatusCode != http.StatusOK:
 		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+	case !response.CacheHit():
+		log.Fatalf("*** LRU cache miss: %v ***", response.CacheHit())
 	}
 
-	log.Infof("*** LRU cache hit: %v ***", response.CacheHit())
+	log.Infof("Cache-Control: %v", response.Header.Get("Cache-Control"))
 }
