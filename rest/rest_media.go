@@ -33,12 +33,12 @@ var (
 )
 
 var (
-	marshallers = map[ContentType]MediaMarshaler{
+	mediaMarshaler = map[ContentType]MediaMarshaler{
 		JSON: jsonMedia,
 		XML:  xmlMedia,
 		FORM: formMedia,
 	}
-	unmarshallers = map[ContentType]MediaUnmarshaler{
+	mediaUnmarshaler = map[ContentType]MediaUnmarshaler{
 		JSON: jsonMedia,
 		XML:  xmlMedia,
 	}
@@ -105,12 +105,11 @@ type FormMedia struct {
 }
 
 func (r FormMedia) Marshal(body any) (io.Reader, error) {
-	values, ok := body.(url.Values)
-	if !ok {
-		return nil, errors.New("body must be of type url.Values")
+	if values, ok := body.(url.Values); ok {
+		return strings.NewReader(values.Encode()), nil
 	}
 
-	return strings.NewReader(values.Encode()), nil
+	return nil, errors.New("body must be of type url.Values")
 }
 
 func (r FormMedia) Name() string {

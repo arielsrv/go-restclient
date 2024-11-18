@@ -56,13 +56,13 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	var bodyReader io.Reader
 	bodyReader = http.NoBody
 	if body != nil {
-		content, found := marshallers[r.ContentType]
+		media, found := mediaMarshaler[r.ContentType]
 		if !found {
 			result.Err = fmt.Errorf("unsupported content type: %d", r.ContentType)
 			return result
 		}
 
-		reader, err := content.Marshal(body)
+		reader, err := media.Marshal(body)
 		if err != nil {
 			result.Err = err
 			return result
@@ -323,7 +323,7 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 	}())
 
 	// Encoding
-	content, found := marshallers[r.ContentType]
+	content, found := mediaMarshaler[r.ContentType]
 	if found {
 		req.Header.Set("Accept", content.Name())
 		if slices.Contains(contentVerbs, req.Method) {
