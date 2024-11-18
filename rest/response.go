@@ -145,11 +145,7 @@ func (r *Response) Debug() string {
 }
 
 func (r *Response) IsOk() bool {
-	if r.StatusCode >= 200 && r.StatusCode < 300 {
-		return true
-	}
-
-	return false
+	return r.StatusCode >= http.StatusOK && r.StatusCode < http.StatusBadRequest
 }
 
 func (r *Response) VerifyIsOkOrError() error {
@@ -158,7 +154,7 @@ func (r *Response) VerifyIsOkOrError() error {
 	}
 
 	if !r.IsOk() {
-		return fmt.Errorf("request failed with status code: %s", r.Status)
+		return fmt.Errorf("status code %d, body: %s", r.StatusCode, r.String())
 	}
 
 	return nil
