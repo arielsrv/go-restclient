@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -17,6 +18,15 @@ func TestGet(t *testing.T) {
 	resp := rest.Get(server.URL + "/user")
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200)")
+	}
+}
+
+func TestGet_Chan(t *testing.T) {
+	client := &rest.Client{}
+	
+	response := <-client.ChanGetWithContext(context.Background(), server.URL+"/user")
+	if response.Response.StatusCode != http.StatusOK {
+		t.Fatal("Status!= OK (200)")
 	}
 }
 

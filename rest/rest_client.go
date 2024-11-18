@@ -64,8 +64,26 @@ type AsyncHTTPClient interface {
 	AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
 }
 
+type AsyncChanHTTPClient interface {
+	ChanGet(url string, headers ...http.Header) <-chan *Response
+	ChanGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+	ChanPost(url string, body any, headers ...http.Header) <-chan *Response
+	ChanPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
+	ChanPut(url string, body any, headers ...http.Header) <-chan *Response
+	ChanPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
+	ChanPatch(url string, body any, headers ...http.Header) <-chan *Response
+	ChanPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
+	ChanDelete(url string, headers ...http.Header) <-chan *Response
+	ChanDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+	ChanHead(url string, headers ...http.Header) <-chan *Response
+	ChanHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+	ChanOptions(url string, headers ...http.Header) <-chan *Response
+	ChanOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+}
+
 type HTTPClient interface {
 	AsyncHTTPClient
+	AsyncChanHTTPClient
 
 	Get(url string, headers ...http.Header) *Response
 	GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response
@@ -135,6 +153,77 @@ type Client struct {
 
 	// clientMtx protects the clientMtxOnce
 	clientMtxOnce sync.Once
+}
+
+func (r *Client) doChanAsync(ctx context.Context, url string, verb string, headers ...http.Header) <-chan *Response {
+	rChan := make(chan *Response, 1)
+	go func() {
+		defer close(rChan)
+		select {
+		case <-ctx.Done():
+			rChan <- &Response{Err: ctx.Err()}
+		default:
+			rChan <- r.newRequest(ctx, verb, url, headers)
+		}
+	}()
+
+	return rChan
+}
+
+func (r *Client) ChanGet(url string, headers ...http.Header) <-chan *Response {
+	return r.ChanGetWithContext(context.Background(), url, headers...)
+}
+
+func (r *Client) ChanGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
+	return r.doChanAsync(ctx, url, http.MethodGet, headers...)
+}
+
+func (r *Client) ChanPost(url string, body any, headers ...http.Header) <-chan *Response {
+	return r.ChanPostWithContext(context.Background(), url, body, headers...)
+}
+
+func (r *Client) ChanPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
+	return r.doChanAsync(ctx, url, http.MethodPost, headers...)
+}
+
+func (r *Client) ChanPut(url string, body any, headers ...http.Header) <-chan *Response {
+	return r.ChanPutWithContext(context.Background(), url, body, headers...)
+}
+
+func (r *Client) ChanPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
+	return r.doChanAsync(ctx, url, http.MethodPut, headers...)
+}
+
+func (r *Client) ChanPatch(url string, body any, headers ...http.Header) <-chan *Response {
+	return r.ChanPatchWithContext(context.Background(), url, body, headers...)
+}
+
+func (r *Client) ChanPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
+	return r.doChanAsync(ctx, url, http.MethodPatch, headers...)
+}
+
+func (r *Client) ChanDelete(url string, headers ...http.Header) <-chan *Response {
+	return r.ChanDeleteWithContext(context.Background(), url, headers...)
+}
+
+func (r *Client) ChanDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
+	return r.doChanAsync(ctx, url, http.MethodDelete, headers...)
+}
+
+func (r *Client) ChanHead(url string, headers ...http.Header) <-chan *Response {
+	return r.ChanHeadWithContext(context.Background(), url, headers...)
+}
+
+func (r *Client) ChanHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
+	return r.doChanAsync(ctx, url, http.MethodHead, headers...)
+}
+
+func (r *Client) ChanOptions(url string, headers ...http.Header) <-chan *Response {
+	return r.ChanOptionsWithContext(context.Background(), url, headers...)
+}
+
+func (r *Client) ChanOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
+	return r.doChanAsync(ctx, url, http.MethodOptions, headers...)
 }
 
 type Option func(*Client)

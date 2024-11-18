@@ -723,6 +723,901 @@ func (_c *MockHTTPClient_AsyncPutWithContext_Call) RunAndReturn(run func(context
 	return _c
 }
 
+// ChanDelete provides a mock function with given fields: url, headers
+func (_m *MockHTTPClient) ChanDelete(url string, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, url)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanDelete")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(string, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(url, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanDelete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanDelete'
+type MockHTTPClient_ChanDelete_Call struct {
+	*mock.Call
+}
+
+// ChanDelete is a helper method to define mock.On call
+//   - url string
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanDelete(url interface{}, headers ...interface{}) *MockHTTPClient_ChanDelete_Call {
+	return &MockHTTPClient_ChanDelete_Call{Call: _e.mock.On("ChanDelete",
+		append([]interface{}{url}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanDelete_Call) Run(run func(url string, headers ...http.Header)) *MockHTTPClient_ChanDelete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanDelete_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanDelete_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanDelete_Call) RunAndReturn(run func(string, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanDelete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanDeleteWithContext provides a mock function with given fields: ctx, url, headers
+func (_m *MockHTTPClient) ChanDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, url)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanDeleteWithContext")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(ctx, url, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanDeleteWithContext_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanDeleteWithContext'
+type MockHTTPClient_ChanDeleteWithContext_Call struct {
+	*mock.Call
+}
+
+// ChanDeleteWithContext is a helper method to define mock.On call
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanDeleteWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockHTTPClient_ChanDeleteWithContext_Call {
+	return &MockHTTPClient_ChanDeleteWithContext_Call{Call: _e.mock.On("ChanDeleteWithContext",
+		append([]interface{}{ctx, url}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanDeleteWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockHTTPClient_ChanDeleteWithContext_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanDeleteWithContext_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanDeleteWithContext_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanDeleteWithContext_Call) RunAndReturn(run func(context.Context, string, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanDeleteWithContext_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanGet provides a mock function with given fields: url, headers
+func (_m *MockHTTPClient) ChanGet(url string, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, url)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanGet")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(string, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(url, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanGet_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanGet'
+type MockHTTPClient_ChanGet_Call struct {
+	*mock.Call
+}
+
+// ChanGet is a helper method to define mock.On call
+//   - url string
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanGet(url interface{}, headers ...interface{}) *MockHTTPClient_ChanGet_Call {
+	return &MockHTTPClient_ChanGet_Call{Call: _e.mock.On("ChanGet",
+		append([]interface{}{url}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanGet_Call) Run(run func(url string, headers ...http.Header)) *MockHTTPClient_ChanGet_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanGet_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanGet_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanGet_Call) RunAndReturn(run func(string, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanGet_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanGetWithContext provides a mock function with given fields: ctx, url, headers
+func (_m *MockHTTPClient) ChanGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, url)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanGetWithContext")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(ctx, url, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanGetWithContext_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanGetWithContext'
+type MockHTTPClient_ChanGetWithContext_Call struct {
+	*mock.Call
+}
+
+// ChanGetWithContext is a helper method to define mock.On call
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanGetWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockHTTPClient_ChanGetWithContext_Call {
+	return &MockHTTPClient_ChanGetWithContext_Call{Call: _e.mock.On("ChanGetWithContext",
+		append([]interface{}{ctx, url}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanGetWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockHTTPClient_ChanGetWithContext_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanGetWithContext_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanGetWithContext_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanGetWithContext_Call) RunAndReturn(run func(context.Context, string, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanGetWithContext_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanHead provides a mock function with given fields: url, headers
+func (_m *MockHTTPClient) ChanHead(url string, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, url)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanHead")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(string, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(url, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanHead_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanHead'
+type MockHTTPClient_ChanHead_Call struct {
+	*mock.Call
+}
+
+// ChanHead is a helper method to define mock.On call
+//   - url string
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanHead(url interface{}, headers ...interface{}) *MockHTTPClient_ChanHead_Call {
+	return &MockHTTPClient_ChanHead_Call{Call: _e.mock.On("ChanHead",
+		append([]interface{}{url}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanHead_Call) Run(run func(url string, headers ...http.Header)) *MockHTTPClient_ChanHead_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanHead_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanHead_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanHead_Call) RunAndReturn(run func(string, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanHead_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanHeadWithContext provides a mock function with given fields: ctx, url, headers
+func (_m *MockHTTPClient) ChanHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, url)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanHeadWithContext")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(ctx, url, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanHeadWithContext_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanHeadWithContext'
+type MockHTTPClient_ChanHeadWithContext_Call struct {
+	*mock.Call
+}
+
+// ChanHeadWithContext is a helper method to define mock.On call
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanHeadWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockHTTPClient_ChanHeadWithContext_Call {
+	return &MockHTTPClient_ChanHeadWithContext_Call{Call: _e.mock.On("ChanHeadWithContext",
+		append([]interface{}{ctx, url}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanHeadWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockHTTPClient_ChanHeadWithContext_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanHeadWithContext_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanHeadWithContext_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanHeadWithContext_Call) RunAndReturn(run func(context.Context, string, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanHeadWithContext_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanOptions provides a mock function with given fields: url, headers
+func (_m *MockHTTPClient) ChanOptions(url string, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, url)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanOptions")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(string, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(url, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanOptions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanOptions'
+type MockHTTPClient_ChanOptions_Call struct {
+	*mock.Call
+}
+
+// ChanOptions is a helper method to define mock.On call
+//   - url string
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanOptions(url interface{}, headers ...interface{}) *MockHTTPClient_ChanOptions_Call {
+	return &MockHTTPClient_ChanOptions_Call{Call: _e.mock.On("ChanOptions",
+		append([]interface{}{url}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanOptions_Call) Run(run func(url string, headers ...http.Header)) *MockHTTPClient_ChanOptions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanOptions_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanOptions_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanOptions_Call) RunAndReturn(run func(string, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanOptions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanOptionsWithContext provides a mock function with given fields: ctx, url, headers
+func (_m *MockHTTPClient) ChanOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, url)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanOptionsWithContext")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(ctx, url, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanOptionsWithContext_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanOptionsWithContext'
+type MockHTTPClient_ChanOptionsWithContext_Call struct {
+	*mock.Call
+}
+
+// ChanOptionsWithContext is a helper method to define mock.On call
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanOptionsWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockHTTPClient_ChanOptionsWithContext_Call {
+	return &MockHTTPClient_ChanOptionsWithContext_Call{Call: _e.mock.On("ChanOptionsWithContext",
+		append([]interface{}{ctx, url}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanOptionsWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockHTTPClient_ChanOptionsWithContext_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanOptionsWithContext_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanOptionsWithContext_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanOptionsWithContext_Call) RunAndReturn(run func(context.Context, string, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanOptionsWithContext_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanPatch provides a mock function with given fields: url, body, headers
+func (_m *MockHTTPClient) ChanPatch(url string, body any, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, url, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanPatch")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(string, any, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(url, body, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanPatch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanPatch'
+type MockHTTPClient_ChanPatch_Call struct {
+	*mock.Call
+}
+
+// ChanPatch is a helper method to define mock.On call
+//   - url string
+//   - body any
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanPatch(url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_ChanPatch_Call {
+	return &MockHTTPClient_ChanPatch_Call{Call: _e.mock.On("ChanPatch",
+		append([]interface{}{url, body}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanPatch_Call) Run(run func(url string, body any, headers ...http.Header)) *MockHTTPClient_ChanPatch_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(string), args[1].(any), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPatch_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanPatch_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPatch_Call) RunAndReturn(run func(string, any, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanPatch_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanPatchWithContext provides a mock function with given fields: ctx, url, body, headers
+func (_m *MockHTTPClient) ChanPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, url, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanPatchWithContext")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(context.Context, string, any, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(ctx, url, body, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanPatchWithContext_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanPatchWithContext'
+type MockHTTPClient_ChanPatchWithContext_Call struct {
+	*mock.Call
+}
+
+// ChanPatchWithContext is a helper method to define mock.On call
+//   - ctx context.Context
+//   - url string
+//   - body any
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanPatchWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_ChanPatchWithContext_Call {
+	return &MockHTTPClient_ChanPatchWithContext_Call{Call: _e.mock.On("ChanPatchWithContext",
+		append([]interface{}{ctx, url, body}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanPatchWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockHTTPClient_ChanPatchWithContext_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), args[2].(any), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPatchWithContext_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanPatchWithContext_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPatchWithContext_Call) RunAndReturn(run func(context.Context, string, any, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanPatchWithContext_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanPost provides a mock function with given fields: url, body, headers
+func (_m *MockHTTPClient) ChanPost(url string, body any, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, url, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanPost")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(string, any, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(url, body, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanPost_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanPost'
+type MockHTTPClient_ChanPost_Call struct {
+	*mock.Call
+}
+
+// ChanPost is a helper method to define mock.On call
+//   - url string
+//   - body any
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanPost(url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_ChanPost_Call {
+	return &MockHTTPClient_ChanPost_Call{Call: _e.mock.On("ChanPost",
+		append([]interface{}{url, body}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanPost_Call) Run(run func(url string, body any, headers ...http.Header)) *MockHTTPClient_ChanPost_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(string), args[1].(any), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPost_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanPost_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPost_Call) RunAndReturn(run func(string, any, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanPost_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanPostWithContext provides a mock function with given fields: ctx, url, body, headers
+func (_m *MockHTTPClient) ChanPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, url, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanPostWithContext")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(context.Context, string, any, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(ctx, url, body, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanPostWithContext_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanPostWithContext'
+type MockHTTPClient_ChanPostWithContext_Call struct {
+	*mock.Call
+}
+
+// ChanPostWithContext is a helper method to define mock.On call
+//   - ctx context.Context
+//   - url string
+//   - body any
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanPostWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_ChanPostWithContext_Call {
+	return &MockHTTPClient_ChanPostWithContext_Call{Call: _e.mock.On("ChanPostWithContext",
+		append([]interface{}{ctx, url, body}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanPostWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockHTTPClient_ChanPostWithContext_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), args[2].(any), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPostWithContext_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanPostWithContext_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPostWithContext_Call) RunAndReturn(run func(context.Context, string, any, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanPostWithContext_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanPut provides a mock function with given fields: url, body, headers
+func (_m *MockHTTPClient) ChanPut(url string, body any, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, url, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanPut")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(string, any, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(url, body, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanPut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanPut'
+type MockHTTPClient_ChanPut_Call struct {
+	*mock.Call
+}
+
+// ChanPut is a helper method to define mock.On call
+//   - url string
+//   - body any
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanPut(url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_ChanPut_Call {
+	return &MockHTTPClient_ChanPut_Call{Call: _e.mock.On("ChanPut",
+		append([]interface{}{url, body}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanPut_Call) Run(run func(url string, body any, headers ...http.Header)) *MockHTTPClient_ChanPut_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(string), args[1].(any), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPut_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanPut_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPut_Call) RunAndReturn(run func(string, any, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanPut_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChanPutWithContext provides a mock function with given fields: ctx, url, body, headers
+func (_m *MockHTTPClient) ChanPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *rest.Response {
+	_va := make([]interface{}, len(headers))
+	for _i := range headers {
+		_va[_i] = headers[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, url, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChanPutWithContext")
+	}
+
+	var r0 <-chan *rest.Response
+	if rf, ok := ret.Get(0).(func(context.Context, string, any, ...http.Header) <-chan *rest.Response); ok {
+		r0 = rf(ctx, url, body, headers...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *rest.Response)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_ChanPutWithContext_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChanPutWithContext'
+type MockHTTPClient_ChanPutWithContext_Call struct {
+	*mock.Call
+}
+
+// ChanPutWithContext is a helper method to define mock.On call
+//   - ctx context.Context
+//   - url string
+//   - body any
+//   - headers ...http.Header
+func (_e *MockHTTPClient_Expecter) ChanPutWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_ChanPutWithContext_Call {
+	return &MockHTTPClient_ChanPutWithContext_Call{Call: _e.mock.On("ChanPutWithContext",
+		append([]interface{}{ctx, url, body}, headers...)...)}
+}
+
+func (_c *MockHTTPClient_ChanPutWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockHTTPClient_ChanPutWithContext_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]http.Header, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(http.Header)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), args[2].(any), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPutWithContext_Call) Return(_a0 <-chan *rest.Response) *MockHTTPClient_ChanPutWithContext_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_ChanPutWithContext_Call) RunAndReturn(run func(context.Context, string, any, ...http.Header) <-chan *rest.Response) *MockHTTPClient_ChanPutWithContext_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Delete provides a mock function with given fields: url, headers
 func (_m *MockHTTPClient) Delete(url string, headers ...http.Header) *rest.Response {
 	_va := make([]interface{}, len(headers))
