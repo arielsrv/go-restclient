@@ -62,9 +62,10 @@ func (r *Response) FillUp(fill any) error {
 		ctype = http.DetectContentType(r.bytes)
 	}
 
-	for key := range maps.Keys(marshallers) {
-		if strings.Contains(ctype, marshallers[key].Name()) {
-			return marshallers[key].Unmarshal(r.bytes, fill)
+	for key := range maps.Keys(unmarshallers) {
+		media := unmarshallers[key]
+		if strings.Contains(ctype, media.Name()) {
+			return media.Unmarshal(r.bytes, fill)
 		}
 	}
 

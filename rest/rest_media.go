@@ -29,12 +29,12 @@ const (
 	BYTES
 )
 
-var marshallers = map[ContentType]MediaUnmarshaler{
+var unmarshallers = map[ContentType]MediaUnmarshaler{
 	JSON: &JSONMedia{},
 	XML:  &XMLMedia{},
 }
 
-var unmarshallers = map[ContentType]MediaMarshaler{
+var marshallers = map[ContentType]MediaMarshaler{
 	JSON:  &JSONMedia{},
 	XML:   &XMLMedia{},
 	FORM:  &FormMedia{},
