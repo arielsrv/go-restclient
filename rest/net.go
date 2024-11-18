@@ -1,10 +1,7 @@
 package rest
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"io"
 	"net"
@@ -15,7 +12,6 @@ import (
 	"regexp"
 	"slices"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -60,19 +56,19 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	var bodyReader io.Reader
 	bodyReader = http.NoBody
 	if body != nil {
-		reader, found := readers[r.ContentType]
+		media, found := unmarshallers[r.ContentType]
 		if !found {
 			result.Err = fmt.Errorf("unsupported content type: %d", r.ContentType)
 			return result
 		}
 
-		buffer, err := reader(body)
+		reader, err := media.Marshal(body)
 		if err != nil {
 			result.Err = err
 			return result
 		}
 
-		bodyReader = buffer
+		bodyReader = reader
 	}
 
 	// Change URL to point to Mockup server
@@ -185,32 +181,6 @@ func checkMockup(reqURL string) (string, string, error) {
 	}
 
 	return reqURL, cacheURL, nil
-}
-
-var readers = map[ContentType]func(body any) (io.Reader, error){
-	JSON: func(body any) (io.Reader, error) {
-		b, err := json.Marshal(body)
-		return bytes.NewBuffer(b), err
-	},
-	XML: func(body any) (io.Reader, error) {
-		b, err := xml.Marshal(body)
-		return bytes.NewBuffer(b), err
-	},
-	FORM: func(body any) (io.Reader, error) {
-		b, ok := body.(url.Values)
-		if !ok {
-			return nil, errors.New("body must be of type url.Values or map[string]interface{}")
-		}
-		return strings.NewReader(b.Encode()), nil
-	},
-	BYTES: func(body any) (io.Reader, error) {
-		var ok bool
-		b, ok := body.([]byte)
-		if !ok {
-			return nil, errors.New("body must be of type []byte or map[string]interface{}")
-		}
-		return bytes.NewBuffer(b), nil
-	},
 }
 
 func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
@@ -353,24 +323,12 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 	}())
 
 	// Encoding
-	var cType string
-
-	switch r.ContentType {
-	case JSON:
-		cType = "json"
-	case XML:
-		cType = "xml"
-	case FORM:
-		cType = "x-www-form-urlencoded"
-	case BYTES:
-		cType = "octet-stream"
-	}
-
-	if cType != "" {
-		req.Header.Set("Accept", "application/"+cType)
-
+	cType, found := unmarshallers[r.ContentType]
+	if found {
+		applicationContent := fmt.Sprintf("application/%s", cType.Name())
+		req.Header.Set("Accept", applicationContent)
 		if slices.Contains(contentVerbs, req.Method) {
-			req.Header.Set("Content-Type", "application/"+cType)
+			req.Header.Set("Content-Type", applicationContent)
 		}
 	}
 

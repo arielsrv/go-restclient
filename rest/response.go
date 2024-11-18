@@ -2,9 +2,8 @@ package rest
 
 import (
 	"container/list"
-	"encoding/json"
-	"encoding/xml"
 	"fmt"
+	"maps"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -58,23 +57,18 @@ func (r *Response) Bytes() []byte {
 // FillUp set the *fill* parameter with the corresponding JSON or XML response.
 // fill could be `struct` or `map[string]any`.
 func (r *Response) FillUp(fill any) error {
-	ctypeJSON := "application/json"
-	ctypeXML := "application/xml"
-
 	ctype := strings.ToLower(r.Header.Get("Content-Type"))
+	if ctype == "" {
+		ctype = http.DetectContentType(r.bytes)
+	}
 
-	for i := range 2 {
-		switch {
-		case strings.Contains(ctype, ctypeJSON):
-			return json.Unmarshal(r.bytes, fill)
-		case strings.Contains(ctype, ctypeXML):
-			return xml.Unmarshal(r.bytes, fill)
-		case i == 0:
-			ctype = http.DetectContentType(r.bytes)
+	for key := range maps.Keys(marshallers) {
+		if strings.Contains(ctype, marshallers[key].Name()) {
+			return marshallers[key].Unmarshal(r.bytes, fill)
 		}
 	}
 
-	return errors.New("response format neither JSON nor XML")
+	return fmt.Errorf("unsupported content type: %s", ctype)
 }
 
 // TypedFillUp FillUp set the *fill* parameter with the corresponding JSON or XML response.
@@ -109,6 +103,7 @@ func (r *Response) CacheHit() bool {
 	if hit, ok := r.cacheHit.Load().(bool); hit && ok {
 		return true
 	}
+
 	return false
 }
 

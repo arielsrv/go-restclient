@@ -17,34 +17,17 @@ var dfltTransport http.RoundTripper
 // Sync once to set default client and transport to default Request Builder.
 var dfltTransportOnce sync.Once
 
-// DefaultTimeout is the default timeout for all clients.
-// DefaultConnectTimeout is the time it takes to make a connection
-// Type: time.Duration.
-var DefaultTimeout = 500 * time.Millisecond
+var (
+	// DefaultTimeout is the default timeout for all clients.
+	DefaultTimeout = 500 * time.Millisecond
 
-var DefaultConnectTimeout = 1500 * time.Millisecond
+	// DefaultConnectTimeout is the time it takes to make a connection.
+	DefaultConnectTimeout = 1500 * time.Millisecond
 
-// DefaultMaxIdleConnsPerHost is the default maximum idle connections to have
-// per Host for all clients, that use *any* RESTClient that don't set
-// a CustomPool.
-var DefaultMaxIdleConnsPerHost = 2
-
-// ContentType represents the Content Type for the Body of HTTP Verbs like
-// POST, PUT, and PATCH.
-type ContentType int
-
-const (
-	// JSON represents a JSON Content Type.
-	JSON ContentType = iota
-
-	// XML represents an XML Content Type.
-	XML
-
-	// FORM represents an FORM Content Type.
-	FORM
-
-	// BYTES represents a plain Content Type.
-	BYTES
+	// DefaultMaxIdleConnsPerHost is the default maximum idle connections to have
+	// per Host for all clients, that use *any* RESTClient that don't set
+	// a CustomPool.
+	DefaultMaxIdleConnsPerHost = 2
 )
 
 type AsyncHTTPClient interface {

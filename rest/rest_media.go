@@ -1,0 +1,116 @@
+package rest
+
+import (
+	"bytes"
+	"encoding/json"
+	"encoding/xml"
+	"io"
+	"net/url"
+	"strings"
+
+	"github.com/pkg/errors"
+)
+
+// ContentType represents the Content Type for the Body of HTTP Verbs like
+// POST, PUT, and PATCH.
+type ContentType int
+
+const (
+	// JSON represents a JSON Content Type.
+	JSON ContentType = iota
+
+	// XML represents an XML Content Type.
+	XML
+
+	// FORM represents an FORM Content Type.
+	FORM
+
+	// BYTES represents a plain Content Type.
+	BYTES
+)
+
+var marshallers = map[ContentType]MediaUnmarshaler{
+	JSON: &JSONMedia{},
+	XML:  &XMLMedia{},
+}
+
+var unmarshallers = map[ContentType]MediaMarshaler{
+	JSON:  &JSONMedia{},
+	XML:   &XMLMedia{},
+	FORM:  &FormMedia{},
+	BYTES: &BytesMedia{},
+}
+
+type NamedMedia interface {
+	Name() string
+}
+
+type MediaMarshaler interface {
+	NamedMedia
+	Marshal(body any) (io.Reader, error)
+}
+
+type MediaUnmarshaler interface {
+	NamedMedia
+	Unmarshal(data []byte, v any) error
+}
+
+type JSONMedia struct{}
+
+func (r JSONMedia) Marshal(body any) (io.Reader, error) {
+	b, err := json.Marshal(body)
+	return bytes.NewBuffer(b), err
+}
+
+func (r JSONMedia) Unmarshal(data []byte, v any) error {
+	return json.Unmarshal(data, v)
+}
+
+func (r JSONMedia) Name() string {
+	return "json"
+}
+
+type XMLMedia struct{}
+
+func (r XMLMedia) Marshal(body any) (io.Reader, error) {
+	b, err := xml.Marshal(body)
+	return bytes.NewBuffer(b), err
+}
+
+func (r XMLMedia) Unmarshal(data []byte, v any) error {
+	return xml.Unmarshal(data, v)
+}
+
+func (r XMLMedia) Name() string {
+	return "xml"
+}
+
+type FormMedia struct{}
+
+func (r FormMedia) Marshal(body any) (io.Reader, error) {
+	b, ok := body.(url.Values)
+	if !ok {
+		return nil, errors.New("body must be of type url.Values or map[string]interface{}")
+	}
+
+	return strings.NewReader(b.Encode()), nil
+}
+
+func (r FormMedia) Name() string {
+	return "x-www-form-urlencoded"
+}
+
+type BytesMedia struct{}
+
+func (r BytesMedia) Marshal(body any) (io.Reader, error) {
+	b, ok := body.([]byte)
+	if !ok {
+		return nil, errors.New("body must be of type []byte or map[string]interface{}")
+	}
+
+	return bytes.NewBuffer(b), nil
+}
+
+func (r BytesMedia) Name() string {
+	return "octet-stream"
+}
