@@ -26,16 +26,23 @@ const (
 	FORM
 )
 
-var unmarshallers = map[ContentType]MediaUnmarshaler{
-	JSON: &JSONMedia{},
-	XML:  &XMLMedia{},
-}
+var (
+	jsonMedia = &JSONMedia{ContentType: "application/json"}
+	xmlMedia  = &XMLMedia{ContentType: "application/xml"}
+	formMedia = &FormMedia{ContentType: "application/x-www-form-urlencoded"}
+)
 
-var marshallers = map[ContentType]MediaMarshaler{
-	JSON: &JSONMedia{},
-	XML:  &XMLMedia{},
-	FORM: &FormMedia{},
-}
+var (
+	marshallers = map[ContentType]MediaMarshaler{
+		JSON: jsonMedia,
+		XML:  xmlMedia,
+		FORM: formMedia,
+	}
+	unmarshallers = map[ContentType]MediaUnmarshaler{
+		JSON: jsonMedia,
+		XML:  xmlMedia,
+	}
+)
 
 type NamedMedia interface {
 	Name() string
@@ -51,7 +58,9 @@ type MediaUnmarshaler interface {
 	Unmarshal(data []byte, v any) error
 }
 
-type JSONMedia struct{}
+type JSONMedia struct {
+	ContentType string
+}
 
 func (r JSONMedia) Marshal(body any) (io.Reader, error) {
 	b, err := json.Marshal(body)
@@ -63,10 +72,12 @@ func (r JSONMedia) Unmarshal(data []byte, v any) error {
 }
 
 func (r JSONMedia) Name() string {
-	return "json"
+	return r.ContentType
 }
 
-type XMLMedia struct{}
+type XMLMedia struct {
+	ContentType string
+}
 
 func (r XMLMedia) Marshal(body any) (io.Reader, error) {
 	b, err := xml.Marshal(body)
@@ -78,10 +89,12 @@ func (r XMLMedia) Unmarshal(data []byte, v any) error {
 }
 
 func (r XMLMedia) Name() string {
-	return "xml"
+	return r.ContentType
 }
 
-type FormMedia struct{}
+type FormMedia struct {
+	ContentType string
+}
 
 func (r FormMedia) Marshal(body any) (io.Reader, error) {
 	b, ok := body.(url.Values)
@@ -93,5 +106,5 @@ func (r FormMedia) Marshal(body any) (io.Reader, error) {
 }
 
 func (r FormMedia) Name() string {
-	return "x-www-form-urlencoded"
+	return r.ContentType
 }

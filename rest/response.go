@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 	"maps"
+	"mime"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -62,10 +63,14 @@ func (r *Response) FillUp(fill any) error {
 		contentType = http.DetectContentType(r.bytes)
 	}
 
-	for key := range maps.Keys(unmarshallers) {
-		media := unmarshallers[key]
-		if strings.Contains(contentType, media.Name()) {
-			return media.Unmarshal(r.bytes, fill)
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		return fmt.Errorf("invalid content type: %s", contentType)
+	}
+
+	for unmarshaller := range maps.Values(unmarshallers) {
+		if mediaType == unmarshaller.Name() {
+			return unmarshaller.Unmarshal(r.bytes, fill)
 		}
 	}
 

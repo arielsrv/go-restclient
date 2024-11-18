@@ -325,10 +325,9 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 	// Encoding
 	content, found := marshallers[r.ContentType]
 	if found {
-		applicationContent := fmt.Sprintf("application/%s", content.Name())
-		req.Header.Set("Accept", applicationContent)
+		req.Header.Set("Accept", content.Name())
 		if slices.Contains(contentVerbs, req.Method) {
-			req.Header.Set("Content-Type", applicationContent)
+			req.Header.Set("Content-Type", content.Name())
 		}
 	}
 
