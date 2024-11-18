@@ -60,12 +60,19 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	var bodyReader io.Reader
 	bodyReader = http.NoBody
 	if body != nil {
-		reader, err := r.createReader(body)
+		reader, found := readers[r.ContentType]
+		if !found {
+			result.Err = fmt.Errorf("unsupported content type: %d", r.ContentType)
+			return result
+		}
+
+		buffer, err := reader(body)
 		if err != nil {
 			result.Err = err
 			return result
 		}
-		bodyReader = reader
+
+		bodyReader = buffer
 	}
 
 	// Change URL to point to Mockup server
@@ -180,30 +187,30 @@ func checkMockup(reqURL string) (string, string, error) {
 	return reqURL, cacheURL, nil
 }
 
-func (r *Client) createReader(body any) (io.Reader, error) {
-	switch r.ContentType {
-	case JSON:
+var readers = map[ContentType]func(body any) (io.Reader, error){
+	JSON: func(body any) (io.Reader, error) {
 		b, err := json.Marshal(body)
 		return bytes.NewBuffer(b), err
-	case XML:
+	},
+	XML: func(body any) (io.Reader, error) {
 		b, err := xml.Marshal(body)
 		return bytes.NewBuffer(b), err
-	case FORM:
+	},
+	FORM: func(body any) (io.Reader, error) {
 		b, ok := body.(url.Values)
 		if !ok {
 			return nil, errors.New("body must be of type url.Values or map[string]interface{}")
 		}
 		return strings.NewReader(b.Encode()), nil
-	case BYTES:
+	},
+	BYTES: func(body any) (io.Reader, error) {
 		var ok bool
 		b, ok := body.([]byte)
 		if !ok {
 			return nil, errors.New("body must be of type []byte or map[string]interface{}")
 		}
 		return bytes.NewBuffer(b), nil
-	}
-
-	return nil, errors.New("unsupported content type")
+	},
 }
 
 func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
