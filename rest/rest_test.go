@@ -375,6 +375,16 @@ func TestResponseExceedsRequestTimeout(t *testing.T) {
 	require.Error(t, suResponse.VerifyIsOkOrError())
 }
 
+func TestResponse_InvalidContentType(t *testing.T) {
+	restClient := rest.Client{CustomPool: &rest.CustomPool{Transport: &http.Transport{}}}
+	restClient.ConnectTimeout = 35 * time.Millisecond
+	restClient.Timeout = 9 * time.Millisecond
+	restClient.ContentType = 4
+
+	resp := restClient.Post(server.URL+"/users", map[string]interface{}{})
+	require.Error(t, resp.VerifyIsOkOrError())
+}
+
 func TestResponseExceedsRequestOAuth(t *testing.T) {
 	restClient := rest.Client{
 		CustomPool: &rest.CustomPool{Transport: &http.Transport{}},
