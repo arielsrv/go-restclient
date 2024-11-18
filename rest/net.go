@@ -56,6 +56,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		}
 	}
 
+	// Prepare reader for the body
 	var bodyReader io.Reader
 	bodyReader = http.NoBody
 	if body != nil {
@@ -74,12 +75,15 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		return result
 	}
 
+	// Enable trace if enabled
 	if r.EnableTrace {
 		ctx = httptrace.WithClientTrace(ctx, otelhttptrace.NewClientTrace(ctx))
 	}
 
+	// Create a new HTTP client
 	httpClient := r.onceHTTPClient(ctx)
 
+	// Create a new HTTP request
 	request, err := http.NewRequestWithContext(ctx, verb, apiURL, bodyReader)
 	if err != nil {
 		result.Err = err
@@ -99,6 +103,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", time.Since(start),
 		buildTags(r.Name, "http_connection", "response_time"))
 
+	// Error handling
 	if err != nil {
 		var netError net.Error
 		errorType := "network"
@@ -117,7 +122,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	defer response.Body.Close()
 
 	// Read response
-	respBody, err := io.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		result.Err = err
 		return result
@@ -138,8 +143,9 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 
 	result.Response = response
-	result.byteBody = respBody
+	result.bytes = responseBody
 
+	// Cache headers
 	ttl := setTTL(result)
 	lastModified := setLastModified(result)
 	etag := setETag(result)
@@ -150,7 +156,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If Cache enable: Cache SENA
 	if !r.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
-		resourceCache.setNX(cacheURL, result)
+		resourceCache.setIfNotExists(cacheURL, result)
 	}
 
 	return result

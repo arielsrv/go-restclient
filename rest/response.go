@@ -25,14 +25,14 @@ type Response struct {
 	ttl             *time.Time
 	lastModified    *time.Time
 	etag            string
-	byteBody        []byte
+	bytes           []byte
 	revalidate      bool
 }
 
 func (r *Response) size() int64 {
 	size := int64(unsafe.Sizeof(*r))
 
-	size += int64(len(r.byteBody))
+	size += int64(len(r.bytes))
 	size += int64(unsafe.Sizeof(*r.listElement))
 	size += int64(unsafe.Sizeof(*r.skipListElement))
 	size += int64(unsafe.Sizeof(*r.ttl))
@@ -52,7 +52,7 @@ func (r *Response) String() string {
 
 // Bytes return the Response Body as bytes.
 func (r *Response) Bytes() []byte {
-	return r.byteBody
+	return r.bytes
 }
 
 // FillUp set the *fill* parameter with the corresponding JSON or XML response.
@@ -66,11 +66,11 @@ func (r *Response) FillUp(fill any) error {
 	for i := range 2 {
 		switch {
 		case strings.Contains(ctype, ctypeJSON):
-			return json.Unmarshal(r.byteBody, fill)
+			return json.Unmarshal(r.bytes, fill)
 		case strings.Contains(ctype, ctypeXML):
-			return xml.Unmarshal(r.byteBody, fill)
+			return xml.Unmarshal(r.bytes, fill)
 		case i == 0:
-			ctype = http.DetectContentType(r.byteBody)
+			ctype = http.DetectContentType(r.bytes)
 		}
 	}
 

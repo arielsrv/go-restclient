@@ -129,6 +129,11 @@ func (r *resourceTTLLruMap) get(key string) *Response {
 }
 
 // Set if key not exist.
+func (r *resourceTTLLruMap) setIfNotExists(key string, value *Response) {
+	r.setNX(key, value)
+}
+
+// Set if key Not eXist (SETNX).
 func (r *resourceTTLLruMap) setNX(key string, value *Response) {
 	// Full Lock
 	r.rwMtx.Lock()
