@@ -79,13 +79,13 @@ func (r *Response) FillUp(fill any) error {
 
 // TypedFillUp FillUp set the *fill* parameter with the corresponding JSON or XML response.
 // fill could be `struct` or `map[string]any`.
-func TypedFillUp[TResult any](r *Response) (*TResult, error) {
-	target := new(TResult)
-	err := r.FillUp(&target)
+func TypedFillUp[T any](r *Response) (*T, error) {
+	result, err := Deserialize[T](r)
 	if err != nil {
 		return nil, err
 	}
-	return target, nil
+
+	return &result, nil
 }
 
 // Deserialize fills the provided pointer with the JSON or XML response.
