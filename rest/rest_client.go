@@ -155,7 +155,7 @@ type Client struct {
 	clientMtxOnce sync.Once
 }
 
-func (r *Client) doChanAsync(ctx context.Context, url string, verb string, headers ...http.Header) <-chan *Response {
+func (r *Client) doChanAsync(ctx context.Context, url string, verb string, body any, headers ...http.Header) <-chan *Response {
 	rChan := make(chan *Response, 1)
 	go func() {
 		defer close(rChan)
@@ -163,7 +163,7 @@ func (r *Client) doChanAsync(ctx context.Context, url string, verb string, heade
 		case <-ctx.Done():
 			rChan <- &Response{Err: ctx.Err()}
 		default:
-			rChan <- r.newRequest(ctx, verb, url, headers)
+			rChan <- r.newRequest(ctx, verb, url, body, headers...)
 		}
 	}()
 
@@ -175,7 +175,7 @@ func (r *Client) ChanGet(url string, headers ...http.Header) <-chan *Response {
 }
 
 func (r *Client) ChanGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodGet, headers...)
+	return r.doChanAsync(ctx, url, http.MethodGet, nil, headers...)
 }
 
 func (r *Client) ChanPost(url string, body any, headers ...http.Header) <-chan *Response {
@@ -183,7 +183,7 @@ func (r *Client) ChanPost(url string, body any, headers ...http.Header) <-chan *
 }
 
 func (r *Client) ChanPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodPost, headers...)
+	return r.doChanAsync(ctx, url, http.MethodPost, body, headers...)
 }
 
 func (r *Client) ChanPut(url string, body any, headers ...http.Header) <-chan *Response {
@@ -191,7 +191,7 @@ func (r *Client) ChanPut(url string, body any, headers ...http.Header) <-chan *R
 }
 
 func (r *Client) ChanPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodPut, headers...)
+	return r.doChanAsync(ctx, url, http.MethodPut, body, headers...)
 }
 
 func (r *Client) ChanPatch(url string, body any, headers ...http.Header) <-chan *Response {
@@ -199,7 +199,7 @@ func (r *Client) ChanPatch(url string, body any, headers ...http.Header) <-chan 
 }
 
 func (r *Client) ChanPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodPatch, headers...)
+	return r.doChanAsync(ctx, url, http.MethodPatch, body, headers...)
 }
 
 func (r *Client) ChanDelete(url string, headers ...http.Header) <-chan *Response {
@@ -207,7 +207,7 @@ func (r *Client) ChanDelete(url string, headers ...http.Header) <-chan *Response
 }
 
 func (r *Client) ChanDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodDelete, headers...)
+	return r.doChanAsync(ctx, url, http.MethodDelete, nil, headers...)
 }
 
 func (r *Client) ChanHead(url string, headers ...http.Header) <-chan *Response {
@@ -215,7 +215,7 @@ func (r *Client) ChanHead(url string, headers ...http.Header) <-chan *Response {
 }
 
 func (r *Client) ChanHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodHead, headers...)
+	return r.doChanAsync(ctx, url, http.MethodHead, nil, headers...)
 }
 
 func (r *Client) ChanOptions(url string, headers ...http.Header) <-chan *Response {
@@ -223,7 +223,7 @@ func (r *Client) ChanOptions(url string, headers ...http.Header) <-chan *Respons
 }
 
 func (r *Client) ChanOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodOptions, headers...)
+	return r.doChanAsync(ctx, url, http.MethodOptions, nil, headers...)
 }
 
 type Option func(*Client)

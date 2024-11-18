@@ -21,12 +21,40 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestGet_Chan(t *testing.T) {
-	client := &rest.Client{}
-	
-	response := <-client.ChanGetWithContext(context.Background(), server.URL+"/user")
+func TestGet_ChanGet(t *testing.T) {
+	client := rest.NewClient()
+
+	response := <-client.ChanGet(server.URL + "/user")
 	if response.Response.StatusCode != http.StatusOK {
 		t.Fatal("Status!= OK (200)")
+	}
+}
+
+func TestGet_ChanGet_Cancel(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(1)*time.Millisecond)
+	cancel()
+
+	client := rest.NewClient()
+	response := <-client.ChanGetWithContext(ctx, server.URL+"/user")
+	assert.Nil(t, response.Response)
+	assert.Equal(t, context.Canceled, response.Err)
+}
+
+func TestGet_ChanHead(t *testing.T) {
+	client := rest.NewClient()
+
+	response := <-client.ChanHead(server.URL + "/user")
+	if response.Response.StatusCode != http.StatusOK {
+		t.Fatal("Status!= OK (200)")
+	}
+}
+
+func TestGet_ChanPost(t *testing.T) {
+	client := rest.NewClient()
+
+	resp := <-client.ChanPost(server.URL+"/user", &User{Name: "Maria"})
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatal("Status != OK (201)")
 	}
 }
 
@@ -138,8 +166,26 @@ func TestPut(t *testing.T) {
 	}
 }
 
+func TestPut_Chan(t *testing.T) {
+	client := rest.NewClient()
+	resp := <-client.ChanPut(server.URL+"/user/3", &User{Name: "Pichucha"})
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
+}
+
 func TestPatch(t *testing.T) {
 	resp := rest.Patch(server.URL+"/user/3", &User{Name: "Pichucha"})
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
+}
+
+func TestPatch_Chan(t *testing.T) {
+	client := rest.NewClient()
+	resp := <-client.ChanPatch(server.URL+"/user/3", &User{Name: "Pichucha"})
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")
@@ -154,8 +200,26 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestDelete_Chan(t *testing.T) {
+	client := rest.NewClient()
+	resp := <-client.ChanDelete(server.URL + "/user/4")
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
+}
+
 func TestOptions(t *testing.T) {
 	resp := rest.Options(server.URL + "/user")
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
+}
+
+func TestOptions_Chan(t *testing.T) {
+	client := rest.NewClient()
+	resp := <-client.ChanOptions(server.URL + "/user")
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")
