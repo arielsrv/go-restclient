@@ -195,3 +195,23 @@ func TestResponse_Unmarshal_Nil_List(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, user)
 }
+
+func TestFillUp_Err(t *testing.T) {
+	var user User
+	resp := new(rest.Response)
+	resp.Response = &http.Response{}
+	resp.Header = map[string][]string{"Content-Type": {"application/invalid"}}
+	err := resp.FillUp(&user)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "response format neither JSON nor XML")
+}
+
+func TestFillUp_TypedErr(t *testing.T) {
+	resp := new(rest.Response)
+	resp.Response = &http.Response{}
+	resp.Header = map[string][]string{"Content-Type": {"application/invalid"}}
+	user, err := rest.TypedFillUp[string](resp)
+	require.Error(t, err)
+	require.Nil(t, user)
+	require.Contains(t, err.Error(), "response format neither JSON nor XML")
+}
