@@ -57,6 +57,10 @@ func TestPost_XMLErr(t *testing.T) {
 	if resp.Err == nil {
 		t.Fatal("Error should not be nil")
 	}
+
+	if !strings.Contains(resp.Err.Error(), "unsupported type") {
+		t.Fatal("Error should contain 'invalid'")
+	}
 }
 
 func TestPost_Err(t *testing.T) {
