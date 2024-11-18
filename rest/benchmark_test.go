@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/go-resty/resty/v2"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
@@ -20,20 +19,6 @@ func BenchmarkGet(b *testing.B) {
 			continue
 		}
 		if resp.StatusCode != http.StatusOK {
-			log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
-		}
-	}
-}
-
-func BenchmarkResty_Get(b *testing.B) {
-	client := resty.New()
-	for i := 0; i < b.N; i++ {
-		resp, err := client.R().Get("https://gorest.co.in/public/v2/users")
-		if err != nil {
-			log.Info("f[" + strconv.Itoa(i) + "] Error")
-			continue
-		}
-		if resp.StatusCode() != http.StatusOK {
 			log.Info("f[" + strconv.Itoa(i) + "] Status != OK (200)")
 		}
 	}

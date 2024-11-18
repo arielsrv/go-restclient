@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"io"
 	"net/url"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 // ContentType represents the Content Type for the Body of HTTP Verbs like

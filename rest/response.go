@@ -2,6 +2,7 @@ package rest
 
 import (
 	"container/list"
+	"errors"
 	"fmt"
 	"maps"
 	"mime"
@@ -11,8 +12,6 @@ import (
 	"sync/atomic"
 	"time"
 	"unsafe"
-
-	"github.com/pkg/errors"
 )
 
 // Response ...
