@@ -64,7 +64,11 @@ type JSONMedia struct {
 
 func (r JSONMedia) Marshal(body any) (io.Reader, error) {
 	b, err := json.Marshal(body)
-	return bytes.NewBuffer(b), err
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes.NewBuffer(b), nil
 }
 
 func (r JSONMedia) Unmarshal(data []byte, v any) error {
@@ -81,7 +85,11 @@ type XMLMedia struct {
 
 func (r XMLMedia) Marshal(body any) (io.Reader, error) {
 	b, err := xml.Marshal(body)
-	return bytes.NewBuffer(b), err
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes.NewBuffer(b), nil
 }
 
 func (r XMLMedia) Unmarshal(data []byte, v any) error {
@@ -97,12 +105,12 @@ type FormMedia struct {
 }
 
 func (r FormMedia) Marshal(body any) (io.Reader, error) {
-	b, ok := body.(url.Values)
+	values, ok := body.(url.Values)
 	if !ok {
-		return nil, errors.New("body must be of type url.Values or map[string]interface{}")
+		return nil, errors.New("body must be of type url.Values")
 	}
 
-	return strings.NewReader(b.Encode()), nil
+	return strings.NewReader(values.Encode()), nil
 }
 
 func (r FormMedia) Name() string {

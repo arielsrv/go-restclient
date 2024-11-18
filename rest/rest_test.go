@@ -48,6 +48,17 @@ func TestPost(t *testing.T) {
 	}
 }
 
+func TestPost_XMLErr(t *testing.T) {
+	client := rest.Client{
+		ContentType: rest.XML,
+	}
+	resp := client.Post(server.URL+"/user", map[string]interface{}{})
+
+	if resp.Err == nil {
+		t.Fatal("Error should not be nil")
+	}
+}
+
 func TestPost_Err(t *testing.T) {
 	resp := rest.Post(server.URL+"/user", make(chan any))
 	if resp.Err == nil {
