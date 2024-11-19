@@ -34,9 +34,16 @@
 go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 ```
 
-# Quickstart
+# Examples
+- [json](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/tree/main/examples/json/basic?ref_type=heads)
+- [oauth](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/oauth/main.go?ref_type=heads)
+- [iskaypet](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/iskaypet/main.go?ref_type=heads)
+- [xml](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/xml/main.go?ref_type=heads) 
+- [bytes](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/bytes/main.go?ref_type=heads)
+- [form](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/tree/main/examples/form?ref_type=heads)
+- [redirect](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/redirect/main.go?ref_type=heads)
 
-- [Examples](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/tree/main/examples?ref_type=heads)
+# Quickstart
 
 ```go
 package main
