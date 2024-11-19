@@ -53,7 +53,7 @@ func (r SitesClient) GetSites(ctx context.Context) ([]SiteResponse, error) {
 func main() {
 	ctx := context.Background()
 
-	client := &rest.Client{
+	var client rest.HTTPClient = &rest.Client{
 		Name:        "sites-client",
 		BaseURL:     "https://api.prod.dp.iskaypet.com",
 		ContentType: rest.JSON,

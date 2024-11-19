@@ -37,7 +37,7 @@ go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 # Examples
 - [json](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/basic/main.go?ref_type=heads)
 - [oauth](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/oauth/main.go?ref_type=heads)
-- [ioc](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/ioc/main.go?ref_type=heads)
+- [ioc](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/ioc/main.go)
 - [caching](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/iskaypet/main.go?ref_type=heads)
 - [xml](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/xml/main.go?ref_type=heads) 
 - [bytes](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/bytes/main.go?ref_type=heads)
