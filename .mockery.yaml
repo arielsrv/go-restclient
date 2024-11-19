@@ -10,3 +10,4 @@ packages:
     config:
       recursive: True
 log-level: Warn
+issue-845-fix: True

@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -44,7 +45,7 @@ var (
 )
 
 type NamedMedia interface {
-	Name() string
+	DefaultHeaders() http.Header
 }
 
 type MediaMarshaler interface {
@@ -74,8 +75,11 @@ func (r JSONMedia) Unmarshal(data []byte, v any) error {
 	return json.Unmarshal(data, v)
 }
 
-func (r JSONMedia) Name() string {
-	return r.ContentType
+func (r JSONMedia) DefaultHeaders() http.Header {
+	return http.Header{
+		"Content-Type": []string{"application/json"},
+		"Accept":       []string{"application/json"},
+	}
 }
 
 type XMLMedia struct {
@@ -95,8 +99,11 @@ func (r XMLMedia) Unmarshal(data []byte, v any) error {
 	return xml.Unmarshal(data, v)
 }
 
-func (r XMLMedia) Name() string {
-	return r.ContentType
+func (r XMLMedia) DefaultHeaders() http.Header {
+	return http.Header{
+		"Content-Type": []string{"application/xml"},
+		"Accept":       []string{"application/xml, text/xml"},
+	}
 }
 
 type FormMedia struct {
@@ -111,6 +118,14 @@ func (r FormMedia) Marshal(body any) (io.Reader, error) {
 	return nil, errors.New("body must be of type url.Values")
 }
 
-func (r FormMedia) Name() string {
-	return r.ContentType
+func (r FormMedia) DefaultHeaders() http.Header {
+	return http.Header{
+		"Content-Type": []string{"application/json"},
+		"Accept": []string{
+			"application/json",
+			"application/xml",
+			"application/x-www-form-urlencoded",
+			"text/plain",
+		},
+	}
 }

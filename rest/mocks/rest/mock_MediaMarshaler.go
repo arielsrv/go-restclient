@@ -4,6 +4,7 @@ package mocks
 
 import (
 	io "io"
+	http "net/http"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -19,6 +20,53 @@ type MockMediaMarshaler_Expecter struct {
 
 func (_m *MockMediaMarshaler) EXPECT() *MockMediaMarshaler_Expecter {
 	return &MockMediaMarshaler_Expecter{mock: &_m.Mock}
+}
+
+// DefaultHeaders provides a mock function with given fields:
+func (_m *MockMediaMarshaler) DefaultHeaders() http.Header {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for DefaultHeaders")
+	}
+
+	var r0 http.Header
+	if rf, ok := ret.Get(0).(func() http.Header); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(http.Header)
+		}
+	}
+
+	return r0
+}
+
+// MockMediaMarshaler_DefaultHeaders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DefaultHeaders'
+type MockMediaMarshaler_DefaultHeaders_Call struct {
+	*mock.Call
+}
+
+// DefaultHeaders is a helper method to define mock.On call
+func (_e *MockMediaMarshaler_Expecter) DefaultHeaders() *MockMediaMarshaler_DefaultHeaders_Call {
+	return &MockMediaMarshaler_DefaultHeaders_Call{Call: _e.mock.On("DefaultHeaders")}
+}
+
+func (_c *MockMediaMarshaler_DefaultHeaders_Call) Run(run func()) *MockMediaMarshaler_DefaultHeaders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockMediaMarshaler_DefaultHeaders_Call) Return(_a0 http.Header) *MockMediaMarshaler_DefaultHeaders_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockMediaMarshaler_DefaultHeaders_Call) RunAndReturn(run func() http.Header) *MockMediaMarshaler_DefaultHeaders_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Marshal provides a mock function with given fields: body
@@ -75,51 +123,6 @@ func (_c *MockMediaMarshaler_Marshal_Call) Return(_a0 io.Reader, _a1 error) *Moc
 }
 
 func (_c *MockMediaMarshaler_Marshal_Call) RunAndReturn(run func(any) (io.Reader, error)) *MockMediaMarshaler_Marshal_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Name provides a mock function with given fields:
-func (_m *MockMediaMarshaler) Name() string {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Name")
-	}
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
-
-// MockMediaMarshaler_Name_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Name'
-type MockMediaMarshaler_Name_Call struct {
-	*mock.Call
-}
-
-// Name is a helper method to define mock.On call
-func (_e *MockMediaMarshaler_Expecter) Name() *MockMediaMarshaler_Name_Call {
-	return &MockMediaMarshaler_Name_Call{Call: _e.mock.On("Name")}
-}
-
-func (_c *MockMediaMarshaler_Name_Call) Run(run func()) *MockMediaMarshaler_Name_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockMediaMarshaler_Name_Call) Return(_a0 string) *MockMediaMarshaler_Name_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockMediaMarshaler_Name_Call) RunAndReturn(run func() string) *MockMediaMarshaler_Name_Call {
 	_c.Call.Return(run)
 	return _c
 }

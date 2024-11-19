@@ -325,9 +325,9 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 	// Encoding
 	content, found := mediaMarshaler[r.ContentType]
 	if found {
-		req.Header.Set("Accept", content.Name())
+		req.Header.Set("Accept", content.DefaultHeaders().Get("Accept"))
 		if slices.Contains(contentVerbs, req.Method) {
-			req.Header.Set("Content-Type", content.Name())
+			req.Header.Set("Content-Type", content.DefaultHeaders().Get("Content-Type"))
 		}
 	}
 

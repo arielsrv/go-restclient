@@ -68,7 +68,7 @@ func (r *Response) FillUp(fill any) error {
 	}
 
 	for unmarshaller := range maps.Values(mediaUnmarshaler) {
-		if mediaType == unmarshaller.Name() {
+		if mediaType == unmarshaller.DefaultHeaders().Get("Content-Type") {
 			return unmarshaller.Unmarshal(r.bytes, fill)
 		}
 	}
