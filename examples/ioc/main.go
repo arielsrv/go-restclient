@@ -9,6 +9,32 @@ import (
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
+func main() {
+	var (
+		httpClient  rest.HTTPClient
+		sitesClient ISitesClient
+	)
+
+	httpClient = &rest.Client{
+		Name:        "sitesResponse-httpClient",
+		BaseURL:     "https://api.prod.dp.iskaypet.com",
+		ContentType: rest.JSON,
+		Timeout:     time.Duration(5000) * time.Millisecond,
+	}
+
+	sitesClient = NewSitesClient(httpClient)
+
+	sitesResponse, err := sitesClient.GetSites(context.Background())
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	for i := range sitesResponse {
+		fmt.Printf("Site: %+v\n", sitesResponse[i])
+	}
+}
+
 type SiteResponse struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -19,21 +45,21 @@ type ISitesClient interface {
 }
 
 type SitesClient struct {
-	client rest.HTTPClient
+	httpClient rest.HTTPClient
 }
 
 func NewSitesClient(
-	client rest.HTTPClient,
+	httpClient rest.HTTPClient,
 ) *SitesClient {
 	return &SitesClient{
-		client: client,
+		httpClient: httpClient,
 	}
 }
 
 func (r SitesClient) GetSites(ctx context.Context) ([]SiteResponse, error) {
 	var sitesResponse []SiteResponse
 
-	response := r.client.GetWithContext(ctx, "/sites")
+	response := r.httpClient.GetWithContext(ctx, "/sites")
 	if response.Err != nil {
 		return nil, response.Err
 	}
@@ -48,27 +74,4 @@ func (r SitesClient) GetSites(ctx context.Context) ([]SiteResponse, error) {
 	}
 
 	return sitesResponse, nil
-}
-
-func main() {
-	ctx := context.Background()
-
-	var client rest.HTTPClient = &rest.Client{
-		Name:        "sites-client",
-		BaseURL:     "https://api.prod.dp.iskaypet.com",
-		ContentType: rest.JSON,
-		Timeout:     time.Duration(5000) * time.Millisecond,
-	}
-
-	var sitesClient ISitesClient = NewSitesClient(client)
-
-	sites, err := sitesClient.GetSites(ctx)
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		return
-	}
-
-	for i := range sites {
-		fmt.Printf("Site: %+v\n", sites[i])
-	}
 }
