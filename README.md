@@ -5,16 +5,20 @@
 > This package provides a http client adapter with some features
 
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs.
-- Fork-Join request pattern, for sending many requests concurrently, getting better client
-  performance (deprecated).
-- Response Caching, based on response headers (cache-control, last-modified, etag, expires)
+- Response Caching, based on response headers (`cache-control`, `last-modified`, `etag`, `expires`)
     - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
       this will consume more memory in your app until the validation time expires.
-- Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
+- Automatic marshal and unmarshal for JSON and XML Content-Type. Default `JSON`.
+    - Including HTTP `RFC7808` Problems
+- Content-Type can be `JSON`, `XML` & `FORM`
 - Request Body can be `string`, `[]byte`, `struct` & `map`
+- FORM sending
 - File sending
 - Default and custom connection pool isolation.
 - Trace connection if available
+- Deprecated. Fork-Join request pattern, for sending many requests concurrently, getting better client
+  performance. Use AsyncAPI instead.
+- RX Channels coming soon
 
 ## Table of contents
 
@@ -61,27 +65,27 @@ func main() {
         Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
         ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
         /*DisableCache:   false,                                  // Last-Modified and ETag headers are enabled by default
-        CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
-        	Transport: &http.Transport{
-        		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
-        		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
-        		MaxIdleConnsPerHost:   10,
-        	},
-        },
-        BasicAuth: &rest.BasicAuth{
-        	Username: "your_username",
-        	Password: "your_password",
-        },
-        OAuth: &rest.OAuth{
-        	ClientID:     "your_client_id",
-        	ClientSecret: "your_client_secret",
-        	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
-        	AuthStyle:    rest.AuthStyleInHeader,
-        },
-        EnableTrace:    true,
-        UserAgent:      "<Your User Agent>",
-        DisableTimeout: false,
-        FollowRedirect: false,*/
+          CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
+          	Transport: &http.Transport{
+          		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
+          		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
+          		MaxIdleConnsPerHost:   10,
+          	},
+          },
+          BasicAuth: &rest.BasicAuth{
+          	Username: "your_username",
+          	Password: "your_password",
+          },
+          OAuth: &rest.OAuth{
+          	ClientID:     "your_client_id",
+          	ClientSecret: "your_client_secret",
+          	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
+          	AuthStyle:    rest.AuthStyleInHeader,
+          },
+          EnableTrace:    true,
+          UserAgent:      "<Your User Agent>",
+          DisableTimeout: false,
+          FollowRedirect: false,*/
     }
 
     // Set headers for the request (optional)
@@ -121,6 +125,7 @@ func main() {
 }
 
 ```
+
 ## Output
 
 ```text

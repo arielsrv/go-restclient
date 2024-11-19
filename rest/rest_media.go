@@ -77,8 +77,13 @@ func (r JSONMedia) Unmarshal(data []byte, v any) error {
 
 func (r JSONMedia) DefaultHeaders() http.Header {
 	return http.Header{
-		"Content-Type": []string{"application/json"},
-		"Accept":       []string{"application/json"},
+		"Content-Type": []string{
+			"application/json",
+			"application/problem+json",
+		},
+		"Accept": []string{
+			"application/json",
+		},
 	}
 }
 
@@ -102,7 +107,11 @@ func (r XMLMedia) Unmarshal(data []byte, v any) error {
 func (r XMLMedia) DefaultHeaders() http.Header {
 	return http.Header{
 		"Content-Type": []string{"application/xml"},
-		"Accept":       []string{"application/xml, text/xml"},
+		"Accept": []string{
+			"application/xml",
+			"application/problem+xml",
+			"txt/xml",
+		},
 	}
 }
 

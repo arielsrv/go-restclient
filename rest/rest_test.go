@@ -20,6 +20,48 @@ func TestGet(t *testing.T) {
 	}
 }
 
+func TestGet_Problem(t *testing.T) {
+	resp := rest.Get(server.URL + "/problem")
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatal("Status != OK (200)")
+	}
+
+	var problemResponse rest.Rfc7808Problem
+	err := resp.FillUp(&problemResponse)
+	require.NoError(t, err)
+
+	assert.Equal(t, "https://httpstatuses.com/404", problemResponse.Type)
+	assert.Equal(t, "Not Found", problemResponse.Title)
+	assert.Equal(t, "The requested resource was not found.", problemResponse.Detail)
+	assert.Equal(t, "/problem", problemResponse.Instance)
+	assert.Equal(t, http.StatusNotFound, problemResponse.Status)
+}
+
+func TestGet_Problem_Auto(t *testing.T) {
+	resp := rest.Get(server.URL + "/problem")
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatal("Status != OK (200)")
+	}
+
+	require.NoError(t, resp.Err)
+	require.NotNil(t, resp.Problem)
+	assert.Equal(t, "https://httpstatuses.com/404", resp.Problem.Type)
+	assert.Equal(t, "Not Found", resp.Problem.Title)
+	assert.Equal(t, "The requested resource was not found.", resp.Problem.Detail)
+	assert.Equal(t, "/problem", resp.Problem.Instance)
+	assert.Equal(t, http.StatusNotFound, resp.Problem.Status)
+}
+
+func TestGet_Problem_Err(t *testing.T) {
+	resp := rest.Get(server.URL + "/problem_err")
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatal("Status != OK (200)")
+	}
+
+	require.NoError(t, resp.Err)
+	require.Nil(t, resp.Problem)
+}
+
 func TestSlowGet(t *testing.T) {
 	var f [100]*rest.Response
 

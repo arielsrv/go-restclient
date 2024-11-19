@@ -16,9 +16,10 @@ import (
 
 // Response ...
 type Response struct {
-	Err      error
-	cacheHit atomic.Value
 	*http.Response
+	Err             error
+	Problem         *Rfc7808Problem
+	cacheHit        atomic.Value
 	listElement     *list.Element
 	skipListElement *skipListNode
 	ttl             *time.Time
@@ -26,6 +27,15 @@ type Response struct {
 	etag            string
 	bytes           []byte
 	revalidate      bool
+}
+
+// Rfc7808Problem represents a JSON API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
+type Rfc7808Problem struct {
+	Type     string `json:"type,omitempty"     xml:"type,omitempty"`
+	Title    string `json:"title,omitempty"    xml:"title,omitempty"`
+	Detail   string `json:"detail,omitempty"   xml:"detail,omitempty"`
+	Instance string `json:"instance,omitempty" xml:"instance,omitempty"`
+	Status   int    `json:"status,omitempty"   xml:"status,omitempty"`
 }
 
 func (r *Response) size() int64 {
@@ -68,12 +78,16 @@ func (r *Response) FillUp(fill any) error {
 	}
 
 	for unmarshaller := range maps.Values(mediaUnmarshaler) {
-		if mediaType == unmarshaller.DefaultHeaders().Get("Content-Type") {
-			return unmarshaller.Unmarshal(r.bytes, fill)
+		values := unmarshaller.DefaultHeaders().Values("Content-Type")
+		for i := range values {
+			value := values[i]
+			if mediaType == value {
+				return unmarshaller.Unmarshal(r.bytes, fill)
+			}
 		}
 	}
 
-	return fmt.Errorf("unsupported content type: %s", contentType)
+	return fmt.Errorf("unmarshal fail, unsupported content type: %s", contentType)
 }
 
 // TypedFillUp FillUp set the *fill* parameter with the corresponding JSON or XML response.

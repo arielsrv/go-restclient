@@ -12,8 +12,8 @@ tasks:
     desc: Use golangci-lint (.golangci.yml).
     cmds:
       - golangci-lint run --fix
-      - go run mvdan.cc/gofumpt@latest -w -l .
-      - go run github.com/dkorunic/betteralign/cmd/betteralign@latest -test_files -generated_files -apply ./...
+      - gofumpt -w -l .
+      - betteralign -test_files -generated_files -apply ./...
   lint:report:
     desc: Linter report
     cmds:

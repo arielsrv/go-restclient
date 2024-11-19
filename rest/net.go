@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
@@ -58,7 +59,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	if body != nil {
 		media, found := mediaMarshaler[r.ContentType]
 		if !found {
-			result.Err = fmt.Errorf("unsupported content type: %d", r.ContentType)
+			result.Err = fmt.Errorf("marshal fail, unsupported content type: %d", r.ContentType)
 			return result
 		}
 
@@ -147,6 +148,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	result.Response = response
 	result.bytes = responseBody
+	setProblem(result)
 
 	// Cache headers
 	ttl := setTTL(result)
@@ -159,10 +161,20 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If Cache enable: Cache SENA
 	if !r.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
-		resourceCache.setIfNotExists(cacheURL, result)
+		resourceCache.setNX(cacheURL, result)
 	}
 
 	return result
+}
+
+func setProblem(result *Response) {
+	contentType := result.Header.Get("Content-Type")
+	if strings.Contains(contentType, "problem") {
+		err := result.FillUp(&result.Problem)
+		if err != nil {
+			return
+		}
+	}
 }
 
 func checkMockup(reqURL string) (string, string, error) {
