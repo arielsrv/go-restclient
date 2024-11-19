@@ -57,9 +57,12 @@ func NewSitesClient(
 }
 
 func (r SitesClient) GetSites(ctx context.Context) ([]SiteResponse, error) {
-	var sitesResponse []SiteResponse
+	apiURL := "/sites"
 
-	response := r.httpClient.GetWithContext(ctx, "/sites")
+	headers := make(http.Header)
+	headers.Set("x-api-key", "your-api-key")
+
+	response := r.httpClient.GetWithContext(ctx, apiURL, headers)
 	if response.Err != nil {
 		return nil, response.Err
 	}
@@ -68,6 +71,7 @@ func (r SitesClient) GetSites(ctx context.Context) ([]SiteResponse, error) {
 		return nil, fmt.Errorf("status: %d, body: %s", response.StatusCode, response.String())
 	}
 
+	var sitesResponse []SiteResponse
 	err := response.FillUp(&sitesResponse)
 	if err != nil {
 		return nil, err
