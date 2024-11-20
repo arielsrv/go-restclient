@@ -26,7 +26,7 @@ func TestGet_Problem(t *testing.T) {
 		t.Fatal("Status != OK (200)")
 	}
 
-	var problemResponse rest.RFC7808Problem
+	var problemResponse rest.RFC7807Problem
 	err := resp.FillUp(&problemResponse)
 	require.NoError(t, err)
 

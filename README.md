@@ -9,7 +9,7 @@
     - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
       this will consume more memory in your app until the validation time expires.
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default `JSON`.
-    - Including HTTP `RFC7808` Problems
+    - Including HTTP `RFC7807` [Problems](https://datatracker.ietf.org/doc/html/rfc7807)
 - Content-Type can be `JSON`, `XML` & `FORM`
 - Request Body can be `string`, `[]byte`, `struct` & `map`
 - FORM sending
