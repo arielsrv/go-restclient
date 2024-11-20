@@ -24,13 +24,13 @@ func main() {
 		Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
 		ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
 		DefaultHeaders: map[string][]string{
-			"X-Default-Custom-Header": {"My-Default-Custom-Value"}, // Add custom headers to the request
+			"X-Static-Header": {"My-Static-Value"}, // Add custom headers to the request
 		},
 	}
 
 	// Set headers for the request (optional)
 	headers := make(http.Header)
-	headers.Add("My-Custom-Header", "My-Custom-Value")
+	headers.Add("My-Dynamic-Header", "My-Dynamic-Value")
 
 	// Make a GET request (context optional)
 	response := client.GetWithContext(ctx, "/users", headers)

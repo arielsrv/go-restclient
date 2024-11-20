@@ -83,6 +83,12 @@ type Client struct {
 	// OAuth Credentials
 	OAuth *OAuth
 
+	// Default headers for all requests
+	DefaultHeaders http.Header
+
+	// Headers to be included in all requests
+	defaultHeaders sync.Map
+
 	// Base URL to be used for each Request. The final URL will be BaseURL + URL.
 	BaseURL string
 
@@ -101,6 +107,12 @@ type Client struct {
 	// ContentType
 	ContentType ContentType
 
+	// Trace logs HTTP requests and responses
+	rwMtx sync.RWMutex
+
+	// clientMtx protects the clientMtxOnce
+	clientMtxOnce sync.Once
+
 	// Disable 	internal caching of Responses
 	DisableCache bool
 
@@ -112,18 +124,6 @@ type Client struct {
 
 	// Enable tracing
 	EnableTrace bool
-
-	// Trace logs HTTP requests and responses
-	rwMtx sync.RWMutex
-
-	// clientMtx protects the clientMtxOnce
-	clientMtxOnce sync.Once
-
-	// Default headers for all requests
-	DefaultHeaders http.Header
-
-	// Headers to be included in all requests
-	defaultHeaders sync.Map
 }
 
 type Option func(*Client)

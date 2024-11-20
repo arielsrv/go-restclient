@@ -356,8 +356,17 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 		}
 	}
 
-	r.defaultHeaders.Range(func(key, value any) bool {
-		req.Header[key.(string)] = value.([]string)
+	r.defaultHeaders.Range(func(k, v any) bool {
+		key, ok := k.(string)
+		if !ok {
+			return false
+		}
+		value, ok := v.([]string)
+		if !ok {
+			return false
+		}
+
+		req.Header[key] = value
 		return true
 	})
 
