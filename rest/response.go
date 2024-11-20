@@ -2,6 +2,7 @@ package rest
 
 import (
 	"container/list"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"maps"
@@ -18,7 +19,7 @@ import (
 type Response struct {
 	*http.Response
 	Err             error
-	Problem         *Rfc7808Problem
+	Problem         *RFC7808Problem
 	cacheHit        atomic.Value
 	listElement     *list.Element
 	skipListElement *skipListNode
@@ -29,13 +30,15 @@ type Response struct {
 	revalidate      bool
 }
 
-// Rfc7808Problem represents a JSON API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
-type Rfc7808Problem struct {
-	Type     string `json:"type,omitempty"     xml:"type,omitempty"`
-	Title    string `json:"title,omitempty"    xml:"title,omitempty"`
-	Detail   string `json:"detail,omitempty"   xml:"detail,omitempty"`
-	Instance string `json:"instance,omitempty" xml:"instance,omitempty"`
-	Status   int    `json:"status,omitempty"   xml:"status,omitempty"`
+// RFC7808Problem represents a JSON API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
+type RFC7808Problem struct {
+	XMLName  xml.Name `json:"-"                  xml:"problem,omitempty"`
+	XMLNS    xml.Name `json:"-"                  xml:"xmlns,attr,omitempty"`
+	Type     string   `json:"type,omitempty"     xml:"type,omitempty"`
+	Title    string   `json:"title,omitempty"    xml:"title,omitempty"`
+	Detail   string   `json:"detail,omitempty"   xml:"detail,omitempty"`
+	Instance string   `json:"instance,omitempty" xml:"instance,omitempty"`
+	Status   int      `json:"status,omitempty"   xml:"status,omitempty"`
 }
 
 func (r *Response) size() int64 {
