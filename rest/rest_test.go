@@ -257,28 +257,16 @@ func TestAsyncOptions(t *testing.T) {
 
 func TestHeaders(t *testing.T) {
 	h := make(http.Header)
-	h.Add("X-Test", "test")
+	h.Add("X-Params-Test", "test")
 
-	builder := rest.Client{
+	client := rest.Client{
 		BaseURL: server.URL,
+		DefaultHeaders: map[string][]string{
+			"X-Default-Test": {"test"},
+		},
 	}
 
-	r := builder.Get("/header", h)
-
-	if r.StatusCode != http.StatusOK {
-		t.Fatal("Status != OK (200)")
-	}
-}
-
-func TestSetHeader(t *testing.T) {
-	builder := rest.Client{
-		BaseURL: server.URL,
-	}
-
-	h := make(http.Header)
-	h.Add("My-Header", "My-Value")
-
-	r := builder.Get("/header", h)
+	r := client.Get("/header", h)
 
 	if r.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200)")
@@ -311,18 +299,17 @@ func TestWrongURL(t *testing.T) {
 /*Increase percentage of net.go coverage. */
 func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
 	host := "saraza"
-	customPool := rest.CustomPool{
+
+	client := new(rest.Client)
+	client.ContentType = rest.JSON
+	client.DisableTimeout = true
+	client.CustomPool = &rest.CustomPool{
 		MaxIdleConnsPerHost: 100,
 		Proxy:               fmt.Sprintf("http://%s", host),
 	}
+	client.FollowRedirect = true
 
-	restClient := new(rest.Client)
-	restClient.ContentType = rest.JSON
-	restClient.DisableTimeout = true
-	restClient.CustomPool = &customPool
-	restClient.FollowRedirect = true
-
-	response := restClient.Get(server.URL + "/user")
+	response := client.Get(server.URL + "/user")
 	expected := fmt.Sprintf("Get \"%s/user\": proxyconnect tcp: dial tcp: lookup %s", server.URL, host)
 
 	if !strings.Contains(response.Err.Error(), expected) {

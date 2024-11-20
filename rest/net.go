@@ -266,6 +266,10 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 
 			r.Client = oauth.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
 		}
+
+		for k, v := range r.DefaultHeaders {
+			r.defaultHeaders.Store(k, v)
+		}
 	})
 
 	if !r.FollowRedirect {
@@ -352,12 +356,14 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 		}
 	}
 
-	// User headers
-	if len(headers) > 0 {
-		for _, h := range headers {
-			for k, v := range h {
-				req.Header[k] = v
-			}
+	r.defaultHeaders.Range(func(key, value any) bool {
+		req.Header[key.(string)] = value.([]string)
+		return true
+	})
+
+	for _, h := range headers {
+		for k, v := range h {
+			req.Header[k] = v
 		}
 	}
 }

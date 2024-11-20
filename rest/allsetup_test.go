@@ -84,7 +84,9 @@ func withHeader(writer http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if h := req.Header.Get("My-Header"); h == "My-Value" {
+		h1 := req.Header.Get("X-Params-Test")
+		h2 := req.Header.Get("X-Default-Test")
+		if h1 == "test" && h2 == "test" {
 			return
 		}
 	}

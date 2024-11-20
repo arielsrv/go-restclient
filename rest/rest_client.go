@@ -118,6 +118,12 @@ type Client struct {
 
 	// clientMtx protects the clientMtxOnce
 	clientMtxOnce sync.Once
+
+	// Default headers for all requests
+	DefaultHeaders http.Header
+
+	// Headers to be included in all requests
+	defaultHeaders sync.Map
 }
 
 type Option func(*Client)
