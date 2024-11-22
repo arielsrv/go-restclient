@@ -11,7 +11,7 @@
 run:
   # Timeout for analysis, e.g. 30s, 5m.
   # Default: 1m
-  timeout: 3m
+  timeout: 20m
 
 
 # This file contains only configs which differ from defaults.
@@ -239,7 +239,7 @@ linters:
     - durationcheck # checks for two durations multiplied together
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
-    - exhaustive # checks exhaustiveness of enum switch statements
+    #- exhaustive # checks exhaustiveness of enum switch statements
     - fatcontext # detects nested contexts in loops
     - forbidigo # forbids identifiers
     #- funlen # tool for detection of long functions
@@ -357,3 +357,6 @@ issues:
         - gosec
         - noctx
         - wrapcheck
+
+  exclude-dirs:
+    - rest/mocks

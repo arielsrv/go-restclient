@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
@@ -30,7 +28,7 @@ func main() {
 	client.AsyncGetWithContext(ctx, "/users", func(response *rest.Response) {
 		select {
 		case <-ctx.Done():
-			rChan <- &rest.Response{Err: errors.Wrap(ctx.Err(), "global cancelled")} // Only to show the context cancellation error, don't handle it in a real-world scenario
+			rChan <- &rest.Response{Err: ctx.Err()} // Only to show the context cancellation error, don't handle it in a real-world scenario
 		default:
 			rChan <- response
 		}

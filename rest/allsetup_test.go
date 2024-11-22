@@ -68,6 +68,8 @@ func setup() {
 	tmux.HandleFunc("/slow/user", slowUsers)
 	tmux.HandleFunc("/auth", auth)
 	tmux.HandleFunc("/auth/token", authToken)
+	tmux.HandleFunc("/problem", problem)
+	tmux.HandleFunc("/problem_err", problemErr)
 
 	// One user
 	tmux.HandleFunc("/user/", oneUser)
@@ -82,7 +84,9 @@ func withHeader(writer http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if h := req.Header.Get("My-Header"); h == "My-Value" {
+		h1 := req.Header.Get("X-Params-Test")
+		h2 := req.Header.Get("X-Default-Test")
+		if h1 == "test" && h2 == "test" {
 			return
 		}
 	}
@@ -355,4 +359,29 @@ func allUsers(writer http.ResponseWriter, req *http.Request) {
 		writer.Write(b)
 		return
 	}
+}
+
+func problem(writer http.ResponseWriter, req *http.Request) {
+	problemResponse := &rest.RFC7807Problem{
+		Type:     "https://httpstatuses.com/404",
+		Title:    "Not Found",
+		Detail:   "The requested resource was not found.",
+		Status:   404,
+		Instance: req.URL.String(),
+	}
+	b, _ := json.Marshal(problemResponse)
+
+	writer.Header().Set("Content-Type", "application/problem+json")
+	writer.Header().Set("Cache-Control", "no-cache")
+	writer.WriteHeader(problemResponse.Status)
+	writer.Write(b)
+}
+
+func problemErr(writer http.ResponseWriter, _ *http.Request) {
+	b, _ := xml.Marshal(`<invalid-request>`)
+
+	writer.Header().Set("Content-Type", "application/problem+json")
+	writer.Header().Set("Cache-Control", "no-cache")
+	writer.WriteHeader(http.StatusNotFound)
+	writer.Write(b)
 }

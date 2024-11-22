@@ -1,10 +1,8 @@
 package rest
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -18,7 +16,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector/metrics"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config/env"
@@ -60,11 +57,18 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	var bodyReader io.Reader
 	bodyReader = http.NoBody
 	if body != nil {
-		reader, err := r.createReader(body)
+		media, found := mediaMarshaler[r.ContentType]
+		if !found {
+			result.Err = fmt.Errorf("marshal fail, unsupported content type: %d", r.ContentType)
+			return result
+		}
+
+		reader, err := media.Marshal(body)
 		if err != nil {
 			result.Err = err
 			return result
 		}
+
 		bodyReader = reader
 	}
 
@@ -144,6 +148,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	result.Response = response
 	result.bytes = responseBody
+	setProblem(result)
 
 	// Cache headers
 	ttl := setTTL(result)
@@ -156,10 +161,20 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If Cache enable: Cache SENA
 	if !r.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
-		resourceCache.setIfNotExists(cacheURL, result)
+		resourceCache.setNX(cacheURL, result)
 	}
 
 	return result
+}
+
+func setProblem(result *Response) {
+	contentType := result.Header.Get("Content-Type")
+	if strings.Contains(contentType, "problem") {
+		err := result.FillUp(&result.Problem)
+		if err != nil {
+			return
+		}
+	}
 }
 
 func checkMockup(reqURL string) (string, string, error) {
@@ -178,32 +193,6 @@ func checkMockup(reqURL string) (string, string, error) {
 	}
 
 	return reqURL, cacheURL, nil
-}
-
-func (r *Client) createReader(body any) (io.Reader, error) {
-	switch r.ContentType {
-	case JSON:
-		b, err := json.Marshal(body)
-		return bytes.NewBuffer(b), err
-	case XML:
-		b, err := xml.Marshal(body)
-		return bytes.NewBuffer(b), err
-	case FORM:
-		b, ok := body.(url.Values)
-		if !ok {
-			return nil, errors.New("body must be of type url.Values or map[string]interface{}")
-		}
-		return strings.NewReader(b.Encode()), nil
-	case BYTES:
-		var ok bool
-		b, ok := body.([]byte)
-		if !ok {
-			return nil, errors.New("body must be of type []byte or map[string]interface{}")
-		}
-		return bytes.NewBuffer(b), nil
-	}
-
-	return nil, errors.New("unsupported content type")
 }
 
 func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
@@ -277,6 +266,10 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 
 			r.Client = oauth.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
 		}
+
+		for k, v := range r.DefaultHeaders {
+			r.defaultHeaders.Store(k, v)
+		}
 	})
 
 	if !r.FollowRedirect {
@@ -346,24 +339,11 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 	}())
 
 	// Encoding
-	var cType string
-
-	switch r.ContentType {
-	case JSON:
-		cType = "json"
-	case XML:
-		cType = "xml"
-	case FORM:
-		cType = "x-www-form-urlencoded"
-	case BYTES:
-		cType = "octet-stream"
-	}
-
-	if cType != "" {
-		req.Header.Set("Accept", "application/"+cType)
-
+	content, found := mediaMarshaler[r.ContentType]
+	if found {
+		req.Header.Set("Accept", content.DefaultHeaders().Get("Accept"))
 		if slices.Contains(contentVerbs, req.Method) {
-			req.Header.Set("Content-Type", "application/"+cType)
+			req.Header.Set("Content-Type", content.DefaultHeaders().Get("Content-Type"))
 		}
 	}
 
@@ -376,12 +356,22 @@ func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL stri
 		}
 	}
 
-	// User headers
-	if len(headers) > 0 {
-		for _, h := range headers {
-			for k, v := range h {
-				req.Header[k] = v
-			}
+	r.defaultHeaders.Range(func(key, value any) bool {
+		k, ok := key.(string)
+		if !ok {
+			return false
+		}
+		v, ok := value.([]string)
+		if !ok {
+			return false
+		}
+		req.Header[k] = v
+		return true
+	})
+
+	for _, h := range headers {
+		for k, v := range h {
+			req.Header[k] = v
 		}
 	}
 }

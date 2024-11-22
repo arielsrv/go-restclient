@@ -5,16 +5,20 @@
 > This package provides a http client adapter with some features
 
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs.
-- Fork-Join request pattern, for sending many requests concurrently, getting better client
-  performance (deprecated).
-- Response Caching, based on response headers (cache-control, last-modified, etag, expires)
+- Response Caching, based on response headers (`cache-control`, `last-modified`, `etag`, `expires`)
     - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
       this will consume more memory in your app until the validation time expires.
-- Automatic marshal and unmarshal for JSON and XML Content-Type. Default JSON.
+- Automatic marshal and unmarshal for JSON and XML Content-Type. Default `JSON`.
+    - Including HTTP `RFC7807` [Problems](https://datatracker.ietf.org/doc/html/rfc7807)
+- Content-Type can be `JSON`, `XML` & `FORM`
 - Request Body can be `string`, `[]byte`, `struct` & `map`
+- FORM sending
 - File sending
 - Default and custom connection pool isolation.
 - Trace connection if available
+- Deprecated. Fork-Join request pattern, for sending many requests concurrently, getting better client
+  performance. Use AsyncAPI instead.
+- RX Channels coming soon
 
 ## Table of contents
 
@@ -30,9 +34,17 @@
 go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 ```
 
-# ⚡️ Quickstart
+# Examples
+- [json](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/basic/main.go?ref_type=heads)
+- [oauth](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/oauth/main.go?ref_type=heads)
+- [ioc](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/ioc/main.go)
+- [caching](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/iskaypet/main.go?ref_type=heads)
+- [xml](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/xml/main.go?ref_type=heads) 
+- [bytes](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/bytes/main.go?ref_type=heads)
+- [form](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/form/main.go?ref_type=heads)
+- [redirect](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/redirect/main.go?ref_type=heads)
 
-- [Examples](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/tree/main/examples?ref_type=heads)
+# Quickstart
 
 ```go
 package main
@@ -41,9 +53,8 @@ import (
     "context"
     "fmt"
     "net/http"
+    "os"
     "time"
-
-    "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 
     "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
@@ -61,28 +72,28 @@ func main() {
         ContentType:    rest.JSON,                              // rest.JSON by default
         Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
         ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
-        //DisableCache:   false,                            // Last-Modified and ETag headers are enabled by default
-        //CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
-        //	Transport: &http.Transport{
-        //		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
-        //		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
-        //		MaxIdleConnsPerHost:   10,
-        //	},
-        //},
-        //BasicAuth: &rest.BasicAuth{
-        //	UserName: "your_username",
-        //	Password: "your_password",
-        //},
-        //OAuth: &rest.OAuth{
-        //	ClientID:     "your_client_id",
-        //	ClientSecret: "your_client_secret",
-        //	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
-        //	AuthStyle:    oauth2.AuthStyleInHeader,
-        //},
-        //EnableTrace:    true,
-        //UserAgent:      "<Your User Agent>",
-        //DisableTimeout: false,
-        //FollowRedirect: false,
+        /*DisableCache:   false,                                  // Last-Modified and ETag headers are enabled by default
+          CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
+          	Transport: &http.Transport{
+          		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
+          		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
+          		MaxIdleConnsPerHost:   10,
+          	},
+          },
+          BasicAuth: &rest.BasicAuth{
+          	Username: "your_username",
+          	Password: "your_password",
+          },
+          OAuth: &rest.OAuth{
+          	ClientID:     "your_client_id",
+          	ClientSecret: "your_client_secret",
+          	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
+          	AuthStyle:    rest.AuthStyleInHeader,
+          },
+          EnableTrace:    true,
+          UserAgent:      "<Your User Agent>",
+          DisableTimeout: false,
+          FollowRedirect: false,*/
     }
 
     // Set headers for the request (optional)
@@ -92,12 +103,14 @@ func main() {
     // Make a GET request (context optional)
     response := client.GetWithContext(ctx, "/users", headers)
     if response.Err != nil {
-        log.Fatal(response.Err)
+        fmt.Printf("Error: %v\n", response.Err)
+        os.Exit(1)
     }
 
     // Check status code and handle errors accordingly or response.IsOk()
     if response.StatusCode != http.StatusOK {
-        log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+        fmt.Printf("Status: %d, Body: %s", response.StatusCode, response.String())
+        os.Exit(1)
     }
 
     // Untyped fill up
@@ -108,9 +121,9 @@ func main() {
     }
 
     // Untyped fill up or typed with rest.Deserialize[struct | []struct](response)
-    err := response.FillUp(&users)
-    if err != nil {
-        log.Fatal(err)
+    if err := response.FillUp(&users); err != nil {
+        fmt.Printf("Error: %v\n", err)
+        os.Exit(1)
     }
 
     // Print the users
@@ -120,6 +133,7 @@ func main() {
 }
 
 ```
+
 ## Output
 
 ```text

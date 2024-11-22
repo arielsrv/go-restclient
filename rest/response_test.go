@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -169,6 +170,21 @@ func TestResponse_Unmarshal_Error(t *testing.T) {
 	require.False(t, response.IsOk())
 }
 
+func TestResponse_Unmarshal_Error_Utf(t *testing.T) {
+	response := &rest.Response{
+		Response: &http.Response{
+			Header: map[string][]string{
+				"Content-Type": {"application/json; utf-8"},
+			},
+		},
+	}
+
+	var user User
+	require.Error(t, response.FillUp(user))
+	require.Error(t, response.VerifyIsOkOrError())
+	require.False(t, response.IsOk())
+}
+
 func TestResponse_Unmarshal_Error_Type(t *testing.T) {
 	response := &rest.Response{
 		Response: &http.Response{
@@ -203,7 +219,7 @@ func TestFillUp_Err(t *testing.T) {
 	resp.Header = map[string][]string{"Content-Type": {"application/invalid"}}
 	err := resp.FillUp(&user)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "response format neither JSON nor XML")
+	require.Contains(t, err.Error(), "unsupported content type: application/invalid")
 }
 
 func TestFillUp_TypedErr(t *testing.T) {
@@ -213,5 +229,16 @@ func TestFillUp_TypedErr(t *testing.T) {
 	user, err := rest.TypedFillUp[string](resp)
 	require.Error(t, err)
 	require.Nil(t, user)
-	require.Contains(t, err.Error(), "response format neither JSON nor XML")
+	require.Contains(t, err.Error(), "unsupported content type: application/invalid")
+}
+
+func TestFillUp_Detection(t *testing.T) {
+	resp := new(rest.Response)
+	resp.Response = &http.Response{
+		Body: io.NopCloser(strings.NewReader(`{"text": "plain"}`)),
+	}
+	user, err := rest.TypedFillUp[string](resp)
+	require.Error(t, err)
+	require.Nil(t, user)
+	require.Contains(t, err.Error(), "unsupported content type: text/plain")
 }

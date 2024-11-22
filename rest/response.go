@@ -2,24 +2,25 @@ package rest
 
 import (
 	"container/list"
-	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
+	"maps"
+	"mime"
 	"net/http"
 	"net/http/httputil"
 	"strings"
 	"sync/atomic"
 	"time"
 	"unsafe"
-
-	"github.com/pkg/errors"
 )
 
 // Response ...
 type Response struct {
-	Err      error
-	cacheHit atomic.Value
 	*http.Response
+	Err             error
+	Problem         *RFC7807Problem
+	cacheHit        atomic.Value
 	listElement     *list.Element
 	skipListElement *skipListNode
 	ttl             *time.Time
@@ -27,6 +28,17 @@ type Response struct {
 	etag            string
 	bytes           []byte
 	revalidate      bool
+}
+
+// RFC7807Problem represents a JSON API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
+type RFC7807Problem struct {
+	XMLName  xml.Name `json:"-"                  xml:"problem,omitempty"`
+	XMLNS    xml.Name `json:"-"                  xml:"xmlns,attr,omitempty"`
+	Type     string   `json:"type,omitempty"     xml:"type,omitempty"`
+	Title    string   `json:"title,omitempty"    xml:"title,omitempty"`
+	Detail   string   `json:"detail,omitempty"   xml:"detail,omitempty"`
+	Instance string   `json:"instance,omitempty" xml:"instance,omitempty"`
+	Status   int      `json:"status,omitempty"   xml:"status,omitempty"`
 }
 
 func (r *Response) size() int64 {
@@ -58,23 +70,27 @@ func (r *Response) Bytes() []byte {
 // FillUp set the *fill* parameter with the corresponding JSON or XML response.
 // fill could be `struct` or `map[string]any`.
 func (r *Response) FillUp(fill any) error {
-	ctypeJSON := "application/json"
-	ctypeXML := "application/xml"
+	contentType := strings.ToLower(r.Header.Get("Content-Type"))
+	if contentType == "" {
+		contentType = http.DetectContentType(r.bytes)
+	}
 
-	ctype := strings.ToLower(r.Header.Get("Content-Type"))
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		return fmt.Errorf("invalid content type: %s", contentType)
+	}
 
-	for i := range 2 {
-		switch {
-		case strings.Contains(ctype, ctypeJSON):
-			return json.Unmarshal(r.bytes, fill)
-		case strings.Contains(ctype, ctypeXML):
-			return xml.Unmarshal(r.bytes, fill)
-		case i == 0:
-			ctype = http.DetectContentType(r.bytes)
+	for unmarshaller := range maps.Values(mediaUnmarshaler) {
+		values := unmarshaller.DefaultHeaders().Values("Content-Type")
+		for i := range values {
+			value := values[i]
+			if mediaType == value {
+				return unmarshaller.Unmarshal(r.bytes, fill)
+			}
 		}
 	}
 
-	return errors.New("response format neither JSON nor XML")
+	return fmt.Errorf("unmarshal fail, unsupported content type: %s", contentType)
 }
 
 // TypedFillUp FillUp set the *fill* parameter with the corresponding JSON or XML response.
@@ -109,6 +125,7 @@ func (r *Response) CacheHit() bool {
 	if hit, ok := r.cacheHit.Load().(bool); hit && ok {
 		return true
 	}
+
 	return false
 }
 
@@ -145,11 +162,7 @@ func (r *Response) Debug() string {
 }
 
 func (r *Response) IsOk() bool {
-	if r.StatusCode >= 200 && r.StatusCode < 300 {
-		return true
-	}
-
-	return false
+	return r.StatusCode >= http.StatusOK && r.StatusCode < http.StatusBadRequest
 }
 
 func (r *Response) VerifyIsOkOrError() error {
@@ -158,7 +171,7 @@ func (r *Response) VerifyIsOkOrError() error {
 	}
 
 	if !r.IsOk() {
-		return fmt.Errorf("request failed with status code: %s", r.Status)
+		return fmt.Errorf("status code %d, body: %s", r.StatusCode, r.String())
 	}
 
 	return nil

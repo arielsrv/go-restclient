@@ -21,43 +21,6 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestGet_ChanGet(t *testing.T) {
-	client := rest.NewClient()
-
-	response := <-client.ChanGet(server.URL + "/user")
-	if response.Response.StatusCode != http.StatusOK {
-		t.Fatal("Status!= OK (200)")
-	}
-}
-
-func TestGet_ChanGet_Cancel(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(1)*time.Millisecond)
-	cancel()
-
-	client := rest.NewClient()
-	response := <-client.ChanGetWithContext(ctx, server.URL+"/user")
-	assert.Nil(t, response.Response)
-	assert.Equal(t, context.Canceled, response.Err)
-}
-
-func TestGet_ChanHead(t *testing.T) {
-	client := rest.NewClient()
-
-	response := <-client.ChanHead(server.URL + "/user")
-	if response.Response.StatusCode != http.StatusOK {
-		t.Fatal("Status!= OK (200)")
-	}
-}
-
-func TestGet_ChanPost(t *testing.T) {
-	client := rest.NewClient()
-
-	resp := <-client.ChanPost(server.URL+"/user", &User{Name: "Maria"})
-	if resp.StatusCode != http.StatusCreated {
-		t.Fatal("Status != OK (201)")
-	}
-}
-
 func TestSlowGet(t *testing.T) {
 	var f [100]*rest.Response
 
@@ -83,6 +46,21 @@ func TestPost(t *testing.T) {
 
 	if resp.StatusCode != http.StatusCreated {
 		t.Fatal("Status != OK (201)")
+	}
+}
+
+func TestPost_XMLErr(t *testing.T) {
+	client := rest.Client{
+		ContentType: rest.XML,
+	}
+	resp := client.Post(server.URL+"/user", map[string]interface{}{})
+
+	if resp.Err == nil {
+		t.Fatal("Error should not be nil")
+	}
+
+	if !strings.Contains(resp.Err.Error(), "unsupported type") {
+		t.Fatal("Error should contain 'invalid'")
 	}
 }
 
@@ -126,32 +104,6 @@ func TestPostForm_Err(t *testing.T) {
 	}
 
 	resp := fbForm.Post("/form/user", &User{Name: "John Doe"})
-
-	if resp.Err == nil {
-		t.Fatal("Error should not be nil")
-	}
-}
-
-func TestPostBytes(t *testing.T) {
-	fbForm := rest.Client{
-		BaseURL:     server.URL,
-		ContentType: rest.BYTES,
-	}
-
-	resp := fbForm.Post("/bytes/user", []byte{})
-
-	if resp.StatusCode != http.StatusCreated {
-		t.Fatal("Status != OK (201)")
-	}
-}
-
-func TestPostBytes_Err(t *testing.T) {
-	fbForm := rest.Client{
-		BaseURL:     server.URL,
-		ContentType: rest.BYTES,
-	}
-
-	resp := fbForm.Post("/bytes/user", &User{Name: "Pichucha"})
 
 	if resp.Err == nil {
 		t.Fatal("Error should not be nil")
@@ -300,28 +252,16 @@ func TestAsyncOptions(t *testing.T) {
 
 func TestHeaders(t *testing.T) {
 	h := make(http.Header)
-	h.Add("X-Test", "test")
+	h.Add("X-Params-Test", "test")
 
-	builder := rest.Client{
+	client := rest.Client{
 		BaseURL: server.URL,
+		DefaultHeaders: map[string][]string{
+			"X-Default-Test": {"test"},
+		},
 	}
 
-	r := builder.Get("/header", h)
-
-	if r.StatusCode != http.StatusOK {
-		t.Fatal("Status != OK (200)")
-	}
-}
-
-func TestSetHeader(t *testing.T) {
-	builder := rest.Client{
-		BaseURL: server.URL,
-	}
-
-	h := make(http.Header)
-	h.Add("My-Header", "My-Value")
-
-	r := builder.Get("/header", h)
+	r := client.Get("/header", h)
 
 	if r.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200)")
@@ -354,18 +294,17 @@ func TestWrongURL(t *testing.T) {
 /*Increase percentage of net.go coverage. */
 func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
 	host := "saraza"
-	customPool := rest.CustomPool{
+
+	client := new(rest.Client)
+	client.ContentType = rest.JSON
+	client.DisableTimeout = true
+	client.CustomPool = &rest.CustomPool{
 		MaxIdleConnsPerHost: 100,
 		Proxy:               fmt.Sprintf("http://%s", host),
 	}
+	client.FollowRedirect = true
 
-	restClient := new(rest.Client)
-	restClient.ContentType = rest.JSON
-	restClient.DisableTimeout = true
-	restClient.CustomPool = &customPool
-	restClient.FollowRedirect = true
-
-	response := restClient.Get(server.URL + "/user")
+	response := client.Get(server.URL + "/user")
 	expected := fmt.Sprintf("Get \"%s/user\": proxyconnect tcp: dial tcp: lookup %s", server.URL, host)
 
 	if !strings.Contains(response.Err.Error(), expected) {
