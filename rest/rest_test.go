@@ -32,14 +32,14 @@ func TestClient_GetChan(t *testing.T) {
 }
 
 func TestClient_GetChan_CtxCancel(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
 	client := rest.Client{}
 	rChan := make(chan *rest.Response, 1)
 	cancel()
 	client.GetChanWithContext(ctx, server.URL+"/user", rChan)
 	resp := <-rChan
 
-	require.Error(t, resp.Err)
+	require.Error(t, resp.Err, "expected context cancellation error")
 }
 
 func TestClient_PostChan(t *testing.T) {
