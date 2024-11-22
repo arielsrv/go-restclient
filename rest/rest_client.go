@@ -538,10 +538,16 @@ func doAsyncRequest(r *Response, f func(*Response)) {
 
 // doChanAsync creates a new request and sends it asynchronously.
 func (r *Client) doChanAsync(ctx context.Context, url string, verb string, body any, rChan chan<- *Response, headers ...http.Header) {
-	rChan <- r.newRequest(ctx, verb, url, body, headers...)
+	select {
+	case rChan <- r.newRequest(ctx, verb, url, body, headers...):
+	case <-ctx.Done():
+		rChan <- &Response{
+			Err: ctx.Err(),
+		}
+	}
 }
 
-// ChanGet sends an asynchronous GET request to the specified URL.
+// GetChan sends an asynchronous GET request to the specified URL.
 //
 // Parameters:
 //   - url: The URL to send the GET request to.
@@ -554,7 +560,7 @@ func (r *Client) GetChan(url string, rChan chan<- *Response, headers ...http.Hea
 	r.GetChanWithContext(context.Background(), url, rChan, headers...)
 }
 
-// ChanGetWithContext sends an asynchronous GET request to the specified URL with context.
+// GetChanWithContext sends an asynchronous GET request to the specified URL with context.
 //
 // Parameters:
 //   - ctx: The context for the request.
@@ -568,7 +574,7 @@ func (r *Client) GetChanWithContext(ctx context.Context, url string, rChan chan<
 	r.doChanAsync(ctx, url, http.MethodGet, nil, rChan, headers...)
 }
 
-// ChanPost sends an asynchronous POST request to the specified URL.
+// PostChan sends an asynchronous POST request to the specified URL.
 //
 // Parameters:
 //   - url: The URL to send the POST request to.
@@ -582,7 +588,7 @@ func (r *Client) PostChan(url string, body any, rChan chan<- *Response, headers 
 	r.PostChanWithContext(context.Background(), url, body, rChan, headers...)
 }
 
-// ChanPostWithContext sends an asynchronous POST request to the specified URL with context.
+// PostChanWithContext sends an asynchronous POST request to the specified URL with context.
 //
 // Parameters:
 //   - ctx: The context for the request.
@@ -597,7 +603,7 @@ func (r *Client) PostChanWithContext(ctx context.Context, url string, body any, 
 	r.doChanAsync(ctx, url, http.MethodPost, body, rChan, headers...)
 }
 
-// ChanPut sends an asynchronous PUT request to the specified URL.
+// PutChan sends an asynchronous PUT request to the specified URL.
 //
 // Parameters:
 //   - url: The URL to send the PUT request to.
@@ -611,7 +617,7 @@ func (r *Client) PutChan(url string, body any, rChan chan<- *Response, headers .
 	r.PutChanWithContext(context.Background(), url, body, rChan, headers...)
 }
 
-// ChanPutWithContext sends an asynchronous PUT request to the specified URL with context.
+// PutChanWithContext sends an asynchronous PUT request to the specified URL with context.
 //
 // Parameters:
 //   - ctx: The context for the request.
@@ -626,7 +632,7 @@ func (r *Client) PutChanWithContext(ctx context.Context, url string, body any, r
 	r.doChanAsync(ctx, url, http.MethodPut, body, rChan, headers...)
 }
 
-// ChanPatch sends an asynchronous PATCH request to the specified URL.
+// PatchChan sends an asynchronous PATCH request to the specified URL.
 //
 // Parameters:
 //   - url: The URL to send the PATCH request to.
@@ -640,7 +646,7 @@ func (r *Client) PatchChan(url string, body any, rChan chan<- *Response, headers
 	r.PatchChanWithContext(context.Background(), url, body, rChan, headers...)
 }
 
-// ChanPatchWithContext sends an asynchronous PATCH request to the specified URL with context.
+// PatchChanWithContext sends an asynchronous PATCH request to the specified URL with context.
 //
 // Parameters:
 //   - ctx: The context for the request.
@@ -655,7 +661,7 @@ func (r *Client) PatchChanWithContext(ctx context.Context, url string, body any,
 	r.doChanAsync(ctx, url, http.MethodPatch, body, rChan, headers...)
 }
 
-// ChanDelete sends an asynchronous DELETE request to the specified URL.
+// DeleteChan sends an asynchronous DELETE request to the specified URL.
 //
 // Parameters:
 //   - url: The URL to send the DELETE request to.
@@ -668,7 +674,7 @@ func (r *Client) DeleteChan(url string, rChan chan<- *Response, headers ...http.
 	r.DeleteChanWithContext(context.Background(), url, rChan, headers...)
 }
 
-// ChanDeleteWithContext sends an asynchronous DELETE request to the specified URL with context.
+// DeleteChanWithContext sends an asynchronous DELETE request to the specified URL with context.
 //
 // Parameters:
 //   - ctx: The context for the request.
@@ -682,7 +688,7 @@ func (r *Client) DeleteChanWithContext(ctx context.Context, url string, rChan ch
 	r.doChanAsync(ctx, url, http.MethodDelete, nil, rChan, headers...)
 }
 
-// ChanHead sends an asynchronous HEAD request to the specified URL.
+// HeadChan sends an asynchronous HEAD request to the specified URL.
 //
 // Parameters:
 //   - url: The URL to send the HEAD request to.
@@ -695,7 +701,7 @@ func (r *Client) HeadChan(url string, rChan chan<- *Response, headers ...http.He
 	r.HeadChanWithContext(context.Background(), url, rChan, headers...)
 }
 
-// ChanHeadWithContext sends an asynchronous HEAD request to the specified URL with context.
+// HeadChanWithContext sends an asynchronous HEAD request to the specified URL with context.
 //
 // Parameters:
 //   - ctx: The context for the request.
@@ -709,7 +715,7 @@ func (r *Client) HeadChanWithContext(ctx context.Context, url string, rChan chan
 	r.doChanAsync(ctx, url, http.MethodHead, nil, rChan, headers...)
 }
 
-// ChanOptions sends an asynchronous OPTIONS request to the specified URL.
+// OptionsChan sends an asynchronous OPTIONS request to the specified URL.
 //
 // Parameters:
 //   - url: The URL to send the OPTIONS request to.
@@ -722,7 +728,7 @@ func (r *Client) OptionsChan(url string, rChan chan<- *Response, headers ...http
 	r.OptionsChanWithContext(context.Background(), url, rChan, headers...)
 }
 
-// ChanOptionsWithContext sends an asynchronous OPTIONS request to the specified URL with context.
+// OptionsChanWithContext sends an asynchronous OPTIONS request to the specified URL with context.
 //
 // Parameters:
 //   - ctx: The context for the request.

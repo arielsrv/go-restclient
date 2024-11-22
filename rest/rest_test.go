@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -17,6 +18,47 @@ func TestGet(t *testing.T) {
 	resp := rest.Get(server.URL + "/user")
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200)")
+	}
+}
+
+func TestClient_GetChan(t *testing.T) {
+	client := rest.Client{}
+	rChan := make(chan *rest.Response, 1)
+	client.GetChan(server.URL+"/user", rChan)
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+}
+
+func TestClient_GetChan_CtxCancel(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	client := rest.Client{}
+	rChan := make(chan *rest.Response, 1)
+	cancel()
+	client.GetChanWithContext(ctx, server.URL+"/user", rChan)
+	resp := <-rChan
+
+	require.Error(t, resp.Err)
+}
+
+func TestClient_PostChan(t *testing.T) {
+	client := rest.Client{}
+	rChan := make(chan *rest.Response, 1)
+	client.PostChan(server.URL+"/user", &User{Name: "John"}, rChan)
+	resp := <-rChan
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatal("Status != Created (201)")
+	}
+}
+
+func TestClient_HeadChan(t *testing.T) {
+	client := rest.Client{}
+	rChan := make(chan *rest.Response, 1)
+	client.HeadChan(server.URL+"/user", rChan)
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != Created (200)")
 	}
 }
 
