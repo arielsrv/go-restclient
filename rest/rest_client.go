@@ -29,24 +29,6 @@ var (
 	DefaultMaxIdleConnsPerHost = 2
 )
 
-// ContentType represents the Content Type for the Body of HTTP Verbs like
-// POST, PUT, and PATCH.
-type ContentType int
-
-const (
-	// JSON represents a JSON Content Type.
-	JSON ContentType = iota
-
-	// XML represents an XML Content Type.
-	XML
-
-	// FORM represents an FORM Content Type.
-	FORM
-
-	// BYTES represents a plain Content Type.
-	BYTES
-)
-
 type AsyncHTTPClient interface {
 	AsyncGet(url string, f func(*Response), headers ...http.Header)
 	AsyncGetWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)

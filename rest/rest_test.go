@@ -1,7 +1,6 @@
 package rest_test
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/url"
