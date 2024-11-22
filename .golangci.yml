@@ -11,7 +11,7 @@
 run:
   # Timeout for analysis, e.g. 30s, 5m.
   # Default: 1m
-  timeout: 3m
+  timeout: 20m
 
 
 # This file contains only configs which differ from defaults.
@@ -357,3 +357,6 @@ issues:
         - gosec
         - noctx
         - wrapcheck
+
+  exclude-dirs:
+    - rest/mocks
