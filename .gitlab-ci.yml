@@ -28,6 +28,7 @@ bundle:
   script:
     ###
     - echo Step Build
+    - go mod tidy
     - go build -v ./...
     ###
     - echo Step Test report
