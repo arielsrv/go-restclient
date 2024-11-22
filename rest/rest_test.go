@@ -119,7 +119,11 @@ func TestPut(t *testing.T) {
 
 func TestPut_Chan(t *testing.T) {
 	client := rest.NewClient()
-	resp := <-client.ChanPut(server.URL+"/user/3", &User{Name: "Pichucha"})
+	rChan := make(chan *rest.Response, 1)
+	go func() {
+		client.PutChan(server.URL+"/user/3", &User{Name: "Pichucha"}, rChan)
+	}()
+	resp := <-rChan
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")
@@ -136,7 +140,12 @@ func TestPatch(t *testing.T) {
 
 func TestPatch_Chan(t *testing.T) {
 	client := rest.NewClient()
-	resp := <-client.ChanPatch(server.URL+"/user/3", &User{Name: "Pichucha"})
+	rChan := make(chan *rest.Response, 1)
+
+	go func() {
+		client.PatchChan(server.URL+"/user/3", &User{Name: "Pichucha"}, rChan)
+	}()
+	resp := <-rChan
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")
@@ -153,7 +162,11 @@ func TestDelete(t *testing.T) {
 
 func TestDelete_Chan(t *testing.T) {
 	client := rest.NewClient()
-	resp := <-client.ChanDelete(server.URL + "/user/4")
+	rChan := make(chan *rest.Response, 1)
+	go func() {
+		client.DeleteChan(server.URL+"/user/4", rChan)
+	}()
+	resp := <-rChan
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")
@@ -170,7 +183,12 @@ func TestOptions(t *testing.T) {
 
 func TestOptions_Chan(t *testing.T) {
 	client := rest.NewClient()
-	resp := <-client.ChanOptions(server.URL + "/user")
+	rChan := make(chan *rest.Response, 1)
+
+	go func() {
+		client.OptionsChan(server.URL+"/user", rChan)
+	}()
+	resp := <-rChan
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")

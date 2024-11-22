@@ -46,26 +46,26 @@ type AsyncHTTPClient interface {
 	AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
 }
 
-type AsyncChanHTTPClient interface {
-	ChanGet(url string, headers ...http.Header) <-chan *Response
-	ChanGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
-	ChanPost(url string, body any, headers ...http.Header) <-chan *Response
-	ChanPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
-	ChanPut(url string, body any, headers ...http.Header) <-chan *Response
-	ChanPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
-	ChanPatch(url string, body any, headers ...http.Header) <-chan *Response
-	ChanPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
-	ChanDelete(url string, headers ...http.Header) <-chan *Response
-	ChanDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
-	ChanHead(url string, headers ...http.Header) <-chan *Response
-	ChanHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
-	ChanOptions(url string, headers ...http.Header) <-chan *Response
-	ChanOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+type ChanHTTPClient interface {
+	GetChan(url string, rChan chan<- *Response, headers ...http.Header)
+	GetChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header)
+	PostChan(url string, body any, rChan chan<- *Response, headers ...http.Header)
+	PostChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header)
+	PutChan(url string, body any, rChan chan<- *Response, headers ...http.Header)
+	PutChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header)
+	PatchChan(url string, body any, rChan chan<- *Response, headers ...http.Header)
+	PatchChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header)
+	DeleteChan(url string, rChan chan<- *Response, headers ...http.Header)
+	DeleteChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header)
+	HeadChan(url string, rChan chan<- *Response, headers ...http.Header)
+	HeadChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header)
+	OptionsChan(url string, rChan chan<- *Response, headers ...http.Header)
+	OptionsChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header)
 }
 
 type HTTPClient interface {
 	AsyncHTTPClient
-	AsyncChanHTTPClient
+	ChanHTTPClient
 
 	Get(url string, headers ...http.Header) *Response
 	GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response
@@ -537,19 +537,8 @@ func doAsyncRequest(r *Response, f func(*Response)) {
 }
 
 // doChanAsync creates a new request and sends it asynchronously.
-func (r *Client) doChanAsync(ctx context.Context, url string, verb string, body any, headers ...http.Header) <-chan *Response {
-	rChan := make(chan *Response, 1)
-	go func() {
-		defer close(rChan)
-		select {
-		case <-ctx.Done():
-			rChan <- &Response{Err: ctx.Err()}
-		default:
-			rChan <- r.newRequest(ctx, verb, url, body, headers...)
-		}
-	}()
-
-	return rChan
+func (r *Client) doChanAsync(ctx context.Context, url string, verb string, body any, rChan chan<- *Response, headers ...http.Header) {
+	rChan <- r.newRequest(ctx, verb, url, body, headers...)
 }
 
 // ChanGet sends an asynchronous GET request to the specified URL.
@@ -561,8 +550,8 @@ func (r *Client) doChanAsync(ctx context.Context, url string, verb string, body 
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanGet(url string, headers ...http.Header) <-chan *Response {
-	return r.ChanGetWithContext(context.Background(), url, headers...)
+func (r *Client) GetChan(url string, rChan chan<- *Response, headers ...http.Header) {
+	r.GetChanWithContext(context.Background(), url, rChan, headers...)
 }
 
 // ChanGetWithContext sends an asynchronous GET request to the specified URL with context.
@@ -575,8 +564,8 @@ func (r *Client) ChanGet(url string, headers ...http.Header) <-chan *Response {
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodGet, nil, headers...)
+func (r *Client) GetChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
+	r.doChanAsync(ctx, url, http.MethodGet, nil, rChan, headers...)
 }
 
 // ChanPost sends an asynchronous POST request to the specified URL.
@@ -589,8 +578,8 @@ func (r *Client) ChanGetWithContext(ctx context.Context, url string, headers ...
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanPost(url string, body any, headers ...http.Header) <-chan *Response {
-	return r.ChanPostWithContext(context.Background(), url, body, headers...)
+func (r *Client) PostChan(url string, body any, rChan chan<- *Response, headers ...http.Header) {
+	r.PostChanWithContext(context.Background(), url, body, rChan, headers...)
 }
 
 // ChanPostWithContext sends an asynchronous POST request to the specified URL with context.
@@ -604,8 +593,8 @@ func (r *Client) ChanPost(url string, body any, headers ...http.Header) <-chan *
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodPost, body, headers...)
+func (r *Client) PostChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header) {
+	r.doChanAsync(ctx, url, http.MethodPost, body, rChan, headers...)
 }
 
 // ChanPut sends an asynchronous PUT request to the specified URL.
@@ -618,8 +607,8 @@ func (r *Client) ChanPostWithContext(ctx context.Context, url string, body any, 
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanPut(url string, body any, headers ...http.Header) <-chan *Response {
-	return r.ChanPutWithContext(context.Background(), url, body, headers...)
+func (r *Client) PutChan(url string, body any, rChan chan<- *Response, headers ...http.Header) {
+	r.PutChanWithContext(context.Background(), url, body, rChan, headers...)
 }
 
 // ChanPutWithContext sends an asynchronous PUT request to the specified URL with context.
@@ -633,8 +622,8 @@ func (r *Client) ChanPut(url string, body any, headers ...http.Header) <-chan *R
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodPut, body, headers...)
+func (r *Client) PutChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header) {
+	r.doChanAsync(ctx, url, http.MethodPut, body, rChan, headers...)
 }
 
 // ChanPatch sends an asynchronous PATCH request to the specified URL.
@@ -647,8 +636,8 @@ func (r *Client) ChanPutWithContext(ctx context.Context, url string, body any, h
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanPatch(url string, body any, headers ...http.Header) <-chan *Response {
-	return r.ChanPatchWithContext(context.Background(), url, body, headers...)
+func (r *Client) PatchChan(url string, body any, rChan chan<- *Response, headers ...http.Header) {
+	r.PatchChanWithContext(context.Background(), url, body, rChan, headers...)
 }
 
 // ChanPatchWithContext sends an asynchronous PATCH request to the specified URL with context.
@@ -662,8 +651,8 @@ func (r *Client) ChanPatch(url string, body any, headers ...http.Header) <-chan 
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodPatch, body, headers...)
+func (r *Client) PatchChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header) {
+	r.doChanAsync(ctx, url, http.MethodPatch, body, rChan, headers...)
 }
 
 // ChanDelete sends an asynchronous DELETE request to the specified URL.
@@ -675,8 +664,8 @@ func (r *Client) ChanPatchWithContext(ctx context.Context, url string, body any,
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanDelete(url string, headers ...http.Header) <-chan *Response {
-	return r.ChanDeleteWithContext(context.Background(), url, headers...)
+func (r *Client) DeleteChan(url string, rChan chan<- *Response, headers ...http.Header) {
+	r.DeleteChanWithContext(context.Background(), url, rChan, headers...)
 }
 
 // ChanDeleteWithContext sends an asynchronous DELETE request to the specified URL with context.
@@ -689,8 +678,8 @@ func (r *Client) ChanDelete(url string, headers ...http.Header) <-chan *Response
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodDelete, nil, headers...)
+func (r *Client) DeleteChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
+	r.doChanAsync(ctx, url, http.MethodDelete, nil, rChan, headers...)
 }
 
 // ChanHead sends an asynchronous HEAD request to the specified URL.
@@ -702,8 +691,8 @@ func (r *Client) ChanDeleteWithContext(ctx context.Context, url string, headers 
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanHead(url string, headers ...http.Header) <-chan *Response {
-	return r.ChanHeadWithContext(context.Background(), url, headers...)
+func (r *Client) HeadChan(url string, rChan chan<- *Response, headers ...http.Header) {
+	r.HeadChanWithContext(context.Background(), url, rChan, headers...)
 }
 
 // ChanHeadWithContext sends an asynchronous HEAD request to the specified URL with context.
@@ -716,8 +705,8 @@ func (r *Client) ChanHead(url string, headers ...http.Header) <-chan *Response {
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodHead, nil, headers...)
+func (r *Client) HeadChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
+	r.doChanAsync(ctx, url, http.MethodHead, nil, rChan, headers...)
 }
 
 // ChanOptions sends an asynchronous OPTIONS request to the specified URL.
@@ -729,8 +718,8 @@ func (r *Client) ChanHeadWithContext(ctx context.Context, url string, headers ..
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanOptions(url string, headers ...http.Header) <-chan *Response {
-	return r.ChanOptionsWithContext(context.Background(), url, headers...)
+func (r *Client) OptionsChan(url string, rChan chan<- *Response, headers ...http.Header) {
+	r.OptionsChanWithContext(context.Background(), url, rChan, headers...)
 }
 
 // ChanOptionsWithContext sends an asynchronous OPTIONS request to the specified URL with context.
@@ -743,6 +732,6 @@ func (r *Client) ChanOptions(url string, headers ...http.Header) <-chan *Respons
 // Returns:
 //
 //	A channel that will receive the Response when it's ready.
-func (r *Client) ChanOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
-	return r.doChanAsync(ctx, url, http.MethodOptions, nil, headers...)
+func (r *Client) OptionsChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
+	r.doChanAsync(ctx, url, http.MethodOptions, nil, rChan, headers...)
 }

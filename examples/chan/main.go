@@ -13,7 +13,7 @@ import (
 func main() {
 	// Create a new context with a timeout of 5 seconds
 	// This will automatically cancel the request if it takes longer than 500 milliseconds to complete
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(1000)*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5000)*time.Millisecond)
 	defer cancel()
 
 	// Create a new REST client with custom settings
@@ -24,8 +24,12 @@ func main() {
 		Timeout:     time.Duration(5000) * time.Millisecond,
 	}
 
-	// Create a channel to collect the response asynchronously.
-	rChan := client.ChanGetWithContext(ctx, "/users")
+	rChan := make(chan *rest.Response)
+
+	go func() {
+		// Create a channel to collect the response asynchronously.
+		client.GetChanWithContext(ctx, "/users", rChan)
+	}()
 
 	// Wait for the response and handle errors
 	response := <-rChan
@@ -43,35 +47,34 @@ func main() {
 		panic(err)
 	}
 
-	uChan := make(chan *rest.Response, 1)
+	fmt.Printf("Users: %+v\n", usersResponse)
 
 	var wg sync.WaitGroup
-
 	for i := range usersResponse {
 		wg.Add(1)
 		go func(userResponse UserResponse) {
 			defer wg.Done()
 			apiURL := fmt.Sprintf("/users/%d", userResponse.ID)
-			uChan <- client.GetWithContext(ctx, apiURL)
+			client.GetChanWithContext(ctx, apiURL, rChan)
 		}(usersResponse[i])
 	}
 
 	go func() {
-		defer wg.Done()
-		for u := range uChan {
-			if u.Err != nil {
-				fmt.Printf("Error fetching user data: %v\n", u.Err)
-				continue
-			}
-			if u.StatusCode != http.StatusOK {
-				fmt.Printf("Received non-200 status code for user: %d\n", u.StatusCode)
-				continue
-			}
-			fmt.Printf("User: %+v\n", u)
-		}
+		wg.Wait()
+		close(rChan)
 	}()
 
-	wg.Wait()
+	for response = range rChan {
+		if response.Err != nil {
+			fmt.Printf("Error fetching user data: %v\n", response.Err)
+			continue
+		}
+		if response.StatusCode != http.StatusOK {
+			fmt.Printf("Received non-200 status code for user: %d\n", response.StatusCode)
+			continue
+		}
+		fmt.Printf("User: %+v\n", response)
+	}
 }
 
 type UserResponse struct {
