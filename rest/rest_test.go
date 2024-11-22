@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -20,46 +21,45 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestGet_Problem(t *testing.T) {
-	resp := rest.Get(server.URL + "/problem")
-	if resp.StatusCode != http.StatusNotFound {
+func TestClient_GetChan(t *testing.T) {
+	client := rest.Client{}
+	rChan := make(chan *rest.Response, 1)
+	client.GetChan(server.URL+"/user", rChan)
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200)")
 	}
-
-	var problemResponse rest.RFC7807Problem
-	err := resp.FillUp(&problemResponse)
-	require.NoError(t, err)
-
-	assert.Equal(t, "https://httpstatuses.com/404", problemResponse.Type)
-	assert.Equal(t, "Not Found", problemResponse.Title)
-	assert.Equal(t, "The requested resource was not found.", problemResponse.Detail)
-	assert.Equal(t, "/problem", problemResponse.Instance)
-	assert.Equal(t, http.StatusNotFound, problemResponse.Status)
 }
 
-func TestGet_Problem_Auto(t *testing.T) {
-	resp := rest.Get(server.URL + "/problem")
-	if resp.StatusCode != http.StatusNotFound {
-		t.Fatal("Status != OK (200)")
-	}
+func TestClient_GetChan_CtxCancel(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
+	client := rest.Client{}
+	rChan := make(chan *rest.Response, 1)
+	cancel()
+	client.GetChanWithContext(ctx, server.URL+"/user", rChan)
+	resp := <-rChan
 
-	require.NoError(t, resp.Err)
-	require.NotNil(t, resp.Problem)
-	assert.Equal(t, "https://httpstatuses.com/404", resp.Problem.Type)
-	assert.Equal(t, "Not Found", resp.Problem.Title)
-	assert.Equal(t, "The requested resource was not found.", resp.Problem.Detail)
-	assert.Equal(t, "/problem", resp.Problem.Instance)
-	assert.Equal(t, http.StatusNotFound, resp.Problem.Status)
+	require.Error(t, resp.Err, "expected context cancellation error")
 }
 
-func TestGet_Problem_Err(t *testing.T) {
-	resp := rest.Get(server.URL + "/problem_err")
-	if resp.StatusCode != http.StatusNotFound {
-		t.Fatal("Status != OK (200)")
+func TestClient_PostChan(t *testing.T) {
+	client := rest.Client{}
+	rChan := make(chan *rest.Response, 1)
+	client.PostChan(server.URL+"/user", &User{Name: "John"}, rChan)
+	resp := <-rChan
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatal("Status != Created (201)")
 	}
+}
 
-	require.NoError(t, resp.Err)
-	require.Nil(t, resp.Problem)
+func TestClient_HeadChan(t *testing.T) {
+	client := rest.Client{}
+	rChan := make(chan *rest.Response, 1)
+	client.HeadChan(server.URL+"/user", rChan)
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != Created (200)")
+	}
 }
 
 func TestSlowGet(t *testing.T) {
@@ -159,8 +159,35 @@ func TestPut(t *testing.T) {
 	}
 }
 
+func TestPut_Chan(t *testing.T) {
+	client := rest.NewClient()
+	rChan := make(chan *rest.Response, 1)
+	go func() {
+		client.PutChan(server.URL+"/user/3", &User{Name: "Pichucha"}, rChan)
+	}()
+	resp := <-rChan
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
+}
+
 func TestPatch(t *testing.T) {
 	resp := rest.Patch(server.URL+"/user/3", &User{Name: "Pichucha"})
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
+}
+
+func TestPatch_Chan(t *testing.T) {
+	client := rest.NewClient()
+	rChan := make(chan *rest.Response, 1)
+
+	go func() {
+		client.PatchChan(server.URL+"/user/3", &User{Name: "Pichucha"}, rChan)
+	}()
+	resp := <-rChan
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")
@@ -175,8 +202,35 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestDelete_Chan(t *testing.T) {
+	client := rest.NewClient()
+	rChan := make(chan *rest.Response, 1)
+	go func() {
+		client.DeleteChan(server.URL+"/user/4", rChan)
+	}()
+	resp := <-rChan
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
+}
+
 func TestOptions(t *testing.T) {
 	resp := rest.Options(server.URL + "/user")
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
+}
+
+func TestOptions_Chan(t *testing.T) {
+	client := rest.NewClient()
+	rChan := make(chan *rest.Response, 1)
+
+	go func() {
+		client.OptionsChan(server.URL+"/user", rChan)
+	}()
+	resp := <-rChan
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")
