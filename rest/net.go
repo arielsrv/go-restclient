@@ -41,11 +41,8 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
-		if cacheResponse = resourceCache.get(apiURL); cacheResponse != nil {
-			cacheResponse.cacheHit.Store(true)
-			if !cacheResponse.revalidate {
-				return cacheResponse
-			}
+		if value, found := resourceCache.Get(apiURL); found && !value.revalidate {
+			return value
 		}
 	}
 
@@ -171,7 +168,13 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If Cache enable: Cache SENA
 	if !r.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
-		resourceCache.setNX(cacheURL, result)
+		cost := int64(len(result.bytes))
+		if result.ttl != nil {
+			resourceCache.SetWithTTL(cacheURL, result, cost, time.Until(*result.ttl))
+		} else {
+			resourceCache.Set(cacheURL, result, cost)
+		}
+		resourceCache.Wait()
 	}
 
 	return result

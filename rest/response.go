@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"container/list"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -12,22 +11,19 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
-	"unsafe"
 )
 
 // Response ...
 type Response struct {
 	*http.Response
-	Err             error
-	Problem         *Problem
-	cacheHit        atomic.Value
-	listElement     *list.Element
-	skipListElement *skipListNode
-	ttl             *time.Time
-	lastModified    *time.Time
-	etag            string
-	bytes           []byte
-	revalidate      bool
+	Err          error
+	Problem      *Problem
+	cacheHit     atomic.Value
+	ttl          *time.Time
+	lastModified *time.Time
+	etag         string
+	bytes        []byte
+	revalidate   bool
 }
 
 // Problem represents a rfc7807 json|xml API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
@@ -39,22 +35,6 @@ type Problem struct {
 	Detail   string   `json:"detail,omitempty"   xml:"detail,omitempty"`
 	Instance string   `json:"instance,omitempty" xml:"instance,omitempty"`
 	Status   int      `json:"status,omitempty"   xml:"status,omitempty"`
-}
-
-func (r *Response) size() int64 {
-	size := int64(unsafe.Sizeof(*r))
-
-	size += int64(len(r.bytes))
-	size += int64(unsafe.Sizeof(*r.listElement))
-	size += int64(unsafe.Sizeof(*r.skipListElement))
-	size += int64(unsafe.Sizeof(*r.ttl))
-	size += int64(unsafe.Sizeof(*r.lastModified))
-	size += int64(len(r.etag))
-
-	size += int64(len(r.Response.Proto))
-	size += int64(len(r.Response.Status))
-
-	return size
 }
 
 // String return the Response Body as a String.
