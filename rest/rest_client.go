@@ -10,11 +10,11 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-// The default transport used by all RequestBuilders
+// The default dfltTransport used by all RequestBuilders
 // that haven't set up a CustomPool.
-var transport http.RoundTripper
+var dfltTransport http.RoundTripper
 
-// Sync once to set default client and transport to default Request Builder.
+// Sync once to set default client and dfltTransport to default Request Builder.
 var transportOnce sync.Once
 
 var (
@@ -87,7 +87,7 @@ type HTTPClient interface {
 // There's a Default Builder that you may use for simple requests
 // Client si thread-safe, and you should store it for later re-used.
 type Client struct {
-	// Create a CustomPool if you don't want to share the *transport*, with others
+	// Create a CustomPool if you don't want to share the *dfltTransport*, with others
 	// RESTClient
 	CustomPool *CustomPool
 
@@ -264,7 +264,7 @@ type OAuth struct {
 	AuthStyle      AuthStyle
 }
 
-// CustomPool defines a separate internal *transport* and connection pooling.
+// CustomPool defines a separate internal *dfltTransport* and connection pooling.
 type CustomPool struct {
 	// Public for custom fine-tuning
 	Transport http.RoundTripper

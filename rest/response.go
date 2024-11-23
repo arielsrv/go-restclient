@@ -19,7 +19,7 @@ import (
 type Response struct {
 	*http.Response
 	Err             error
-	Problem         *RFC7807Problem
+	Problem         *Problem
 	cacheHit        atomic.Value
 	listElement     *list.Element
 	skipListElement *skipListNode
@@ -30,8 +30,8 @@ type Response struct {
 	revalidate      bool
 }
 
-// RFC7807Problem represents a JSON API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
-type RFC7807Problem struct {
+// Problem represents a rfc7807 json|xml API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
+type Problem struct {
 	XMLName  xml.Name `json:"-"                  xml:"problem,omitempty"`
 	XMLNS    xml.Name `json:"-"                  xml:"xmlns,attr,omitempty"`
 	Type     string   `json:"type,omitempty"     xml:"type,omitempty"`

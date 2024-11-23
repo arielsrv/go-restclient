@@ -44,17 +44,17 @@ var (
 	}
 )
 
-type NamedMedia interface {
+type Media interface {
 	DefaultHeaders() http.Header
 }
 
 type MediaMarshaler interface {
-	NamedMedia
+	Media
 	Marshal(body any) (io.Reader, error)
 }
 
 type MediaUnmarshaler interface {
-	NamedMedia
+	Media
 	Unmarshal(data []byte, v any) error
 }
 

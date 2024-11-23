@@ -23,16 +23,15 @@ func main() {
 		ContentType:    rest.JSON,                              // rest.JSON by default
 		Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
 		ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
-		DefaultHeaders: map[string][]string{
+		DefaultHeaders: http.Header{
 			"X-Static-Header": {"My-Static-Value"}, // Add custom headers to the request
 		},
 	}
 
 	// Set headers for the request (optional)
 	headers := make(http.Header)
-	headers.Add("My-Dynamic-Header-1", "My-Dynamic-Value-1")
-	headers.Add("My-Dynamic-Header-2", "My-Dynamic-Value-2")
-	headers.Set("Authorization", "Bearer YOUR_API_KEY")
+	headers.Set("My-Dynamic-Header-1", "My-Dynamic-Value-1")
+	headers.Set("My-Dynamic-Header-2", "My-Dynamic-Value-2")
 
 	// Make a GET request (context optional)
 	response := client.GetWithContext(ctx, "/users", headers)

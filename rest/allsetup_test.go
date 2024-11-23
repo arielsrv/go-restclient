@@ -362,7 +362,7 @@ func allUsers(writer http.ResponseWriter, req *http.Request) {
 }
 
 func problem(writer http.ResponseWriter, req *http.Request) {
-	problemResponse := &rest.RFC7807Problem{
+	problemResponse := &rest.Problem{
 		Type:     "https://httpstatuses.com/404",
 		Title:    "Not Found",
 		Detail:   "The requested resource was not found.",

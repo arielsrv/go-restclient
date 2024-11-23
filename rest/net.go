@@ -96,11 +96,13 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	// Make the request
 	start := time.Now()
 	response, err := httpClient.Do(request)
+	duration := time.Since(start)
 
-	metrics.Collector.Prometheus().RecordExecutionTime("go_restclient_durations_seconds", time.Since(start), metrics.Tags{"client_name": r.Name})
+	// Metrics
+	metrics.Collector.Prometheus().RecordExecutionTime("go_restclient_durations_seconds", duration, metrics.Tags{"client_name": r.Name})
 
 	// Deprecated
-	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", time.Since(start),
+	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", duration,
 		buildTags(r.Name, "http_connection", "response_time"))
 
 	// Error handling
@@ -111,11 +113,19 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 			errorType = "timeout"
 		}
 
-		metrics.Collector.Prometheus().IncrementCounter("go_restclient_request_error", metrics.Tags{"client_name": r.Name, "error_type": errorType})
+		// Metrics
+		metrics.Collector.Prometheus().
+			IncrementCounter("go_restclient_request_error",
+				metrics.Tags{
+					"client_name": r.Name,
+					"error_type":  errorType,
+				})
 
 		// Deprecated
-		metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
-			buildTags(r.Name, "http_connection_error", errorType))
+		metrics.Collector.Prometheus().
+			IncrementCounter("services_dashboard_services_counters_total",
+				buildTags(r.Name, "http_connection_error", errorType))
+
 		result.Err = err
 		return result
 	}
@@ -128,9 +138,13 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		return result
 	}
 
+	// Metrics
 	metrics.Collector.Prometheus().
 		IncrementCounter("go_restclient_requests_total",
-			metrics.Tags{"client_name": r.Name, "status_code": strconv.Itoa(response.StatusCode)})
+			metrics.Tags{
+				"client_name": r.Name,
+				"status_code": strconv.Itoa(response.StatusCode),
+			})
 
 	// Deprecated
 	metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
@@ -247,8 +261,8 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 
 func (r *Client) setupTransport() http.RoundTripper {
 	transportOnce.Do(func() {
-		if transport == nil {
-			transport = &http.Transport{
+		if dfltTransport == nil {
+			dfltTransport = &http.Transport{
 				MaxIdleConnsPerHost:   DefaultMaxIdleConnsPerHost,
 				Proxy:                 http.ProxyFromEnvironment,
 				DialContext:           r.getDialContext(),
@@ -259,41 +273,42 @@ func (r *Client) setupTransport() http.RoundTripper {
 		defaultCheckRedirectFunc = http.Client{}.CheckRedirect
 	})
 
-	tr := transport
+	currentTransport := dfltTransport
 
-	if cp := r.CustomPool; cp != nil {
-		if cp.Transport == nil {
-			tr = &http.Transport{
+	if customPool := r.CustomPool; customPool != nil {
+		if customPool.Transport == nil {
+			currentTransport = &http.Transport{
 				MaxIdleConnsPerHost:   r.CustomPool.MaxIdleConnsPerHost,
 				DialContext:           r.getDialContext(),
 				ResponseHeaderTimeout: r.getRequestTimeout(),
 			}
 
 			// Set Proxy
-			if cp.Proxy != "" {
-				if proxy, err := url.Parse(cp.Proxy); err == nil {
-					if dfltTransport, ok := tr.(*http.Transport); ok {
+			if customPool.Proxy != "" {
+				if proxy, err := url.Parse(customPool.Proxy); err == nil {
+					if dfltTransport, ok := currentTransport.(*http.Transport); ok {
 						dfltTransport.Proxy = http.ProxyURL(proxy)
 					}
 				}
 			}
-			cp.Transport = tr
+			customPool.Transport = currentTransport
 		} else {
-			ctr, ok := cp.Transport.(*http.Transport)
+			customPoolTransport, ok := customPool.Transport.(*http.Transport)
 			if !ok {
-				// If custom transport is not http.Transport, timeouts will not be overwritten.
-				tr = cp.Transport
+				// If custom dfltTransport is not http.Transport, timeouts will not be overwritten.
+				currentTransport = customPool.Transport
 			} else {
-				ctr.DialContext = r.getDialContext()
-				ctr.ResponseHeaderTimeout = r.getRequestTimeout()
-				tr = ctr
+				customPoolTransport.DialContext = r.getDialContext()
+				customPoolTransport.ResponseHeaderTimeout = r.getRequestTimeout()
+				currentTransport = customPoolTransport
 			}
 		}
 	}
 
-	return tr
+	return currentTransport
 }
 
+// getDialContext returns a context.DialContext that applies the configured timeouts.
 func (r *Client) getDialContext() func(ctx context.Context, network string, address string) (net.Conn, error) {
 	return (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext
 }
@@ -366,7 +381,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 		request.Header[key.(string)] = value.([]string)
 		return true
 	})
-	
+
 	for _, h := range headers {
 		for k, v := range h {
 			request.Header[k] = v
@@ -374,12 +389,11 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}
 }
 
-func setTTL(resp *Response) bool {
-	now := time.Now()
-
+func setTTL(response *Response) bool {
 	// Cache-Control Header
-	cacheControl := maxAge.FindStringSubmatch(resp.Header.Get("Cache-Control"))
+	cacheControl := maxAge.FindStringSubmatch(response.Header.Get("Cache-Control"))
 
+	now := time.Now()
 	if len(cacheControl) > 1 {
 		ttl, err := strconv.Atoi(cacheControl[1])
 		if err != nil {
@@ -388,7 +402,7 @@ func setTTL(resp *Response) bool {
 
 		if ttl > 0 {
 			t := now.Add(time.Duration(ttl) * time.Second)
-			resp.ttl = &t
+			response.ttl = &t
 			return true
 		}
 
@@ -396,14 +410,13 @@ func setTTL(resp *Response) bool {
 	}
 
 	// Expires Header
-	// Date format from RFC-2616, Section 14.21
-	expires, err := time.Parse(time.RFC1123, resp.Header.Get("Expires"))
+	expires, err := time.Parse(time.RFC1123, response.Header.Get("Expires"))
 	if err != nil {
 		return false
 	}
 
 	if expires.Sub(now) > 0 {
-		resp.ttl = &expires
+		response.ttl = &expires
 		return true
 	}
 
@@ -420,10 +433,10 @@ func setLastModified(resp *Response) bool {
 	return true
 }
 
-func setETag(resp *Response) bool {
-	resp.etag = resp.Header.Get("Etag")
+func setETag(response *Response) bool {
+	response.etag = response.Header.Get("Etag")
 
-	return resp.etag != ""
+	return response.etag != ""
 }
 
 func buildTags(clientName, eventType, eventSubType string) metrics.Tags {

@@ -11,7 +11,7 @@
 // v0.1
 //   - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs
 //   - Dead simple, synchronous requests
-//   - Automatic caching of transport object and hosts connections
+//   - Automatic caching of dfltTransport object and hosts connections
 //   - Response Caching, based on response headers (cache-control, last-modified, etag, expires)
 //   - Local caching strategies: TTL, LRU & Max Byte Size.
 //   - Mockups!
