@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"net/http"
 	"time"
 
@@ -24,10 +26,20 @@ func main() {
 		Timeout:     time.Duration(5000) * time.Millisecond,
 	}
 
+	random := func(min, max int64) int64 {
+		z := max - min + 1
+		n, err := rand.Int(rand.Reader, big.NewInt(z))
+		if err != nil {
+			return 10
+		}
+
+		return n.Int64() + min
+	}
+
 	go func() {
 		for {
 			time.Sleep(time.Duration(1000) * time.Millisecond)
-			response := client.GetWithContext(context.Background(), "/cache/10")
+			response := client.GetWithContext(context.Background(), fmt.Sprintf("/cache/%d", random(1, 10)))
 			if response.Err != nil {
 				fmt.Printf("Error: %v\n", response.Err)
 				continue
