@@ -96,13 +96,13 @@ func setupMetrics(cache *ristretto.Cache[string, *Response]) {
 	// ratio
 	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "ratio"), cache.Metrics.Ratio)
 
-	// counters
 	incrementCounter := func(part string, metricFunc func() uint64) {
 		metrics.Collector.Prometheus().IncrementCounterFunc(buildName(part), func() float64 {
 			return float64(metricFunc())
 		})
 	}
 
+	// counters
 	incrementCounter("hits_total", cache.Metrics.Hits)
 	incrementCounter("misses_total", cache.Metrics.Misses)
 	incrementCounter("keys_added_total", cache.Metrics.KeysAdded)
