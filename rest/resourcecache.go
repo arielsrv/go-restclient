@@ -39,31 +39,28 @@ var (
 	// MaxCacheSize is the Maximum Byte Size to be hold by the resourceTTLLfuMap
 	// Default is 1 GigaByte
 	// Type: rest.ByteSize.
-	MaxCacheSize = int64(1 * GB)
-	NumCounters  = 1e7
-	BufferItems  = 64
+	MaxCacheSize       = int64(1 * GB)
+	NumCounters  int64 = 1e7
+	BufferItems  int64 = 64
 )
 
 func init() {
-	cache, err := ristretto.NewCache(&ristretto.Config[string, *Response]{
-		NumCounters: int64(NumCounters), // number of keys to track frequency of (10M).
-		MaxCost:     MaxCacheSize,       // maximum cost of cache (1GB).
-		BufferItems: int64(BufferItems), // number of keys per Get buffer.
+	cache, _ := ristretto.NewCache(&ristretto.Config[string, *Response]{
+		NumCounters: NumCounters,  // number of keys to track frequency of (10M).
+		MaxCost:     MaxCacheSize, // maximum cost of cache (1GB).
+		BufferItems: BufferItems,  // number of keys per Get buffer.
 		Metrics:     true,
 	})
-	if err != nil {
-		panic(fmt.Errorf("failed to create go-restclient cache: %w", err))
-	}
 
-	recordMetrics(cache)
+	setupMetrics(cache)
 
 	resourceCache = &resourceTTLLfuMap{
 		lowLevelCache: cache,
 	}
 }
 
-func (r *resourceTTLLfuMap) get(key string) (*Response, bool) {
-	if value, hit := r.lowLevelCache.Get(key); hit {
+func (r *resourceTTLLfuMap) get(url string) (*Response, bool) {
+	if value, hit := r.lowLevelCache.Get(url); hit {
 		return value, true
 	}
 
@@ -71,24 +68,24 @@ func (r *resourceTTLLfuMap) get(key string) (*Response, bool) {
 }
 
 // setNX sets a new value to the cache, if the key does not exist (like Redis SETNX).
-func (r *resourceTTLLfuMap) setNX(key string, value *Response) {
-	if _, hit := r.lowLevelCache.Get(key); hit {
+func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
+	if _, hit := r.lowLevelCache.Get(url); hit {
 		return
 	}
 
-	cost := value.size()
-	if ttl := value.ttl; ttl != nil {
-		r.lowLevelCache.SetWithTTL(key, value, cost, time.Until(*ttl))
+	cost := response.size()
+	if ttl := response.ttl; ttl != nil {
+		r.lowLevelCache.SetWithTTL(url, response, cost, time.Until(*ttl))
 		return
 	}
 
-	r.lowLevelCache.Set(key, value, cost)
+	r.lowLevelCache.Set(url, response, cost)
 }
 
-// recordMetrics records the cache's metrics to Prometheus.
-func recordMetrics(cache *ristretto.Cache[string, *Response]) {
+// setupMetrics records the cache's metrics to Prometheus.
+func setupMetrics(cache *ristretto.Cache[string, *Response]) {
 	// config
-	metrics.Collector.Prometheus().RecordValue(fmt.Sprintf(prefix, "num_counters"), NumCounters)
+	metrics.Collector.Prometheus().RecordValue(fmt.Sprintf(prefix, "num_counters"), float64(NumCounters))
 	metrics.Collector.Prometheus().RecordValue(fmt.Sprintf(prefix, "max_cost_bytes"), float64(cache.MaxCost()))
 	metrics.Collector.Prometheus().RecordValue(fmt.Sprintf(prefix, "buffer_items"), float64(BufferItems))
 
