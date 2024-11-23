@@ -63,6 +63,9 @@ func init() {
 }
 
 func (r *resourceTTLLfuMap) get(key string) (*Response, bool) {
+	now := time.Now()
+	defer metrics.Collector.Prometheus().RecordExecutionTime(fmt.Sprintf(prefix, "get_execution_time_seconds"), time.Since(now))
+
 	if value, hit := r.lowLevelCache.Get(key); hit {
 		return value, true
 	}
@@ -75,6 +78,9 @@ func (r *resourceTTLLfuMap) setNX(key string, value *Response) {
 	if _, hit := r.lowLevelCache.Get(key); hit {
 		return
 	}
+
+	now := time.Now()
+	defer metrics.Collector.Prometheus().RecordExecutionTime(fmt.Sprintf(prefix, "set_execution_time_seconds"), time.Since(now))
 
 	cost := value.size()
 	if value.ttl != nil {
