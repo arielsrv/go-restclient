@@ -30,7 +30,9 @@ func main() {
 
 	// Set headers for the request (optional)
 	headers := make(http.Header)
-	headers.Add("My-Dynamic-Header", "My-Dynamic-Value")
+	headers.Add("My-Dynamic-Header-1", "My-Dynamic-Value-1")
+	headers.Add("My-Dynamic-Header-2", "My-Dynamic-Value-2")
+	headers.Set("Authorization", "Bearer YOUR_API_KEY")
 
 	// Make a GET request (context optional)
 	response := client.GetWithContext(ctx, "/users", headers)

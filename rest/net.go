@@ -16,7 +16,6 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector/metrics"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config/env"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
@@ -28,27 +27,24 @@ import (
 var (
 	readVerbs                = []string{http.MethodGet, http.MethodHead, http.MethodOptions}
 	contentVerbs             = []string{http.MethodPost, http.MethodPut, http.MethodPatch}
-	defaultCheckRedirectFunc func(req *http.Request, via []*http.Request) error
+	defaultCheckRedirectFunc func(request *http.Request, via []*http.Request) error
 )
 
-var (
-	maxAge        = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
-	dfltUserAgent = "go-restclient"
-)
+var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
 func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, body any, headers ...http.Header) *Response {
 	var cacheURL string
-	var cacheResp *Response
+	var cacheResponse *Response
 
 	result := new(Response)
 	apiURL = r.BaseURL + apiURL
 
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
-		if cacheResp = resourceCache.get(apiURL); cacheResp != nil {
-			cacheResp.cacheHit.Store(true)
-			if !cacheResp.revalidate {
-				return cacheResp
+		if cacheResponse = resourceCache.get(apiURL); cacheResponse != nil {
+			cacheResponse.cacheHit.Store(true)
+			if !cacheResponse.revalidate {
+				return cacheResponse
 			}
 		}
 	}
@@ -95,7 +91,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 
 	// Set extra parameters
-	r.setParams(request, cacheResp, cacheURL, headers...)
+	r.setParams(request, cacheResponse, cacheURL, headers...)
 
 	// Make the request
 	start := time.Now()
@@ -142,7 +138,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If we get a 304, return response from cache
 	if response.StatusCode == http.StatusNotModified {
-		result = cacheResp
+		result = cacheResponse
 		return result
 	}
 
@@ -199,50 +195,7 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 	// This will be executed only once
 	// per request builder
 	r.clientMtxOnce.Do(func() {
-		dfltTransportOnce.Do(func() {
-			if dfltTransport == nil {
-				dfltTransport = &http.Transport{
-					MaxIdleConnsPerHost:   DefaultMaxIdleConnsPerHost,
-					Proxy:                 http.ProxyFromEnvironment,
-					DialContext:           (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext,
-					ResponseHeaderTimeout: r.getRequestTimeout(),
-				}
-			}
-
-			defaultCheckRedirectFunc = http.Client{}.CheckRedirect
-		})
-
-		tr := dfltTransport
-
-		if cp := r.CustomPool; cp != nil {
-			if cp.Transport == nil {
-				tr = &http.Transport{
-					MaxIdleConnsPerHost:   r.CustomPool.MaxIdleConnsPerHost,
-					DialContext:           (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext,
-					ResponseHeaderTimeout: r.getRequestTimeout(),
-				}
-
-				// Set Proxy
-				if cp.Proxy != "" {
-					if proxy, err := url.Parse(cp.Proxy); err == nil {
-						if transport, ok := tr.(*http.Transport); ok {
-							transport.Proxy = http.ProxyURL(proxy)
-						}
-					}
-				}
-				cp.Transport = tr
-			} else {
-				ctr, ok := cp.Transport.(*http.Transport)
-				if ok {
-					ctr.DialContext = (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext
-					ctr.ResponseHeaderTimeout = r.getRequestTimeout()
-					tr = ctr
-				} else {
-					// If custom transport is not http.Transport, timeouts will not be overwritten.
-					tr = cp.Transport
-				}
-			}
-		}
+		tr := r.setupTransport()
 
 		r.Client = &http.Client{
 			Transport: tr,
@@ -281,16 +234,68 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 	}
 
 	if r.Name == "" {
-		log.Debugf("No name provided for request builder, using hostname")
-		hostname, found := os.LookupEnv("HOSTNAME")
-		if found {
+		hostname, err := os.Hostname()
+		if err == nil {
 			r.Name = hostname
 		} else {
-			r.Name = "unknown"
+			r.Name = "undefined"
 		}
 	}
 
 	return r.Client
+}
+
+func (r *Client) setupTransport() http.RoundTripper {
+	transportOnce.Do(func() {
+		if transport == nil {
+			transport = &http.Transport{
+				MaxIdleConnsPerHost:   DefaultMaxIdleConnsPerHost,
+				Proxy:                 http.ProxyFromEnvironment,
+				DialContext:           r.getDialContext(),
+				ResponseHeaderTimeout: r.getRequestTimeout(),
+			}
+		}
+
+		defaultCheckRedirectFunc = http.Client{}.CheckRedirect
+	})
+
+	tr := transport
+
+	if cp := r.CustomPool; cp != nil {
+		if cp.Transport == nil {
+			tr = &http.Transport{
+				MaxIdleConnsPerHost:   r.CustomPool.MaxIdleConnsPerHost,
+				DialContext:           r.getDialContext(),
+				ResponseHeaderTimeout: r.getRequestTimeout(),
+			}
+
+			// Set Proxy
+			if cp.Proxy != "" {
+				if proxy, err := url.Parse(cp.Proxy); err == nil {
+					if dfltTransport, ok := tr.(*http.Transport); ok {
+						dfltTransport.Proxy = http.ProxyURL(proxy)
+					}
+				}
+			}
+			cp.Transport = tr
+		} else {
+			ctr, ok := cp.Transport.(*http.Transport)
+			if !ok {
+				// If custom transport is not http.Transport, timeouts will not be overwritten.
+				tr = cp.Transport
+			} else {
+				ctr.DialContext = r.getDialContext()
+				ctr.ResponseHeaderTimeout = r.getRequestTimeout()
+				tr = ctr
+			}
+		}
+	}
+
+	return tr
+}
+
+func (r *Client) getDialContext() func(ctx context.Context, network string, address string) (net.Conn, error) {
+	return (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext
 }
 
 func (r *Client) getRequestTimeout() time.Duration {
@@ -315,63 +320,56 @@ func (r *Client) getConnectionTimeout() time.Duration {
 	}
 }
 
-func (r *Client) setParams(req *http.Request, cacheResp *Response, cacheURL string, headers ...http.Header) {
+func (r *Client) setParams(request *http.Request, cacheResponse *Response, cacheURL string, headers ...http.Header) {
 	// Default headers
-	req.Header.Set("Connection", "keep-alive")
-	req.Header.Set("Cache-Control", "no-cache")
+	request.Header.Set("Connection", "keep-alive")
+	request.Header.Set("Cache-Control", "no-cache")
 
 	// If mockup
 	if *mockUpEnv {
-		req.Header.Set("X-Original-Url", cacheURL)
+		request.Header.Set("X-Original-Url", cacheURL)
 	}
 
 	// Basic Auth
-	if r.BasicAuth != nil {
-		req.SetBasicAuth(r.BasicAuth.Username, r.BasicAuth.Password)
+	if r.BasicAuth != nil && r.OAuth == nil {
+		request.SetBasicAuth(r.BasicAuth.Username, r.BasicAuth.Password)
 	}
 
 	// User Agent
-	req.Header.Set("User-Agent", func() string {
+	request.Header.Set("User-Agent", func() string {
 		if r.UserAgent != "" {
 			return r.UserAgent
 		}
-		return fmt.Sprintf("%s/%s", r.Name, dfltUserAgent)
+
+		return fmt.Sprintf("%s/%s", r.Name, "go-restclient")
 	}())
 
 	// Encoding
 	content, found := mediaMarshaler[r.ContentType]
 	if found {
-		req.Header.Set("Accept", content.DefaultHeaders().Get("Accept"))
-		if slices.Contains(contentVerbs, req.Method) {
-			req.Header.Set("Content-Type", content.DefaultHeaders().Get("Content-Type"))
+		request.Header.Set("Accept", content.DefaultHeaders().Get("Accept"))
+		if slices.Contains(contentVerbs, request.Method) {
+			request.Header.Set("Content-Type", content.DefaultHeaders().Get("Content-Type"))
 		}
 	}
 
-	if cacheResp != nil && cacheResp.revalidate {
+	if cacheResponse != nil && cacheResponse.revalidate {
 		switch {
-		case cacheResp.etag != "":
-			req.Header.Set("If-None-Match", cacheResp.etag)
-		case cacheResp.lastModified != nil:
-			req.Header.Set("If-Modified-Since", cacheResp.lastModified.Format(time.RFC1123))
+		case cacheResponse.etag != "":
+			request.Header.Set("If-None-Match", cacheResponse.etag)
+		case cacheResponse.lastModified != nil:
+			request.Header.Set("If-Modified-Since", cacheResponse.lastModified.Format(time.RFC1123))
 		}
 	}
 
 	r.defaultHeaders.Range(func(key, value any) bool {
-		k, ok := key.(string)
-		if !ok {
-			return false
-		}
-		v, ok := value.([]string)
-		if !ok {
-			return false
-		}
-		req.Header[k] = v
+		request.Header[key.(string)] = value.([]string)
 		return true
 	})
-
+	
 	for _, h := range headers {
 		for k, v := range h {
-			req.Header[k] = v
+			request.Header[k] = v
 		}
 	}
 }

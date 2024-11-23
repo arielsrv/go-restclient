@@ -12,10 +12,10 @@ import (
 
 // The default transport used by all RequestBuilders
 // that haven't set up a CustomPool.
-var dfltTransport http.RoundTripper
+var transport http.RoundTripper
 
 // Sync once to set default client and transport to default Request Builder.
-var dfltTransportOnce sync.Once
+var transportOnce sync.Once
 
 var (
 	// DefaultTimeout is the default timeout for all clients.
