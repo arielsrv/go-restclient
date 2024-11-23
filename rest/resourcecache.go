@@ -110,4 +110,8 @@ func setupMetrics(cache *ristretto.Cache[string, *Response]) {
 	incrementCounter("keys_updated_total", cache.Metrics.KeysUpdated)
 	incrementCounter("cost_added_bytes_total", cache.Metrics.CostAdded)
 	incrementCounter("cost_evicted_bytes_total", cache.Metrics.CostEvicted)
+	incrementCounter("gets_kept_total", cache.Metrics.GetsKept)
+	incrementCounter("gets_dropped_total", cache.Metrics.GetsDropped)
+	incrementCounter("sets_dropped_total", cache.Metrics.SetsDropped)
+	incrementCounter("sets_rejected_total", cache.Metrics.SetsRejected)
 }
