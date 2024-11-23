@@ -97,17 +97,17 @@ func setupMetrics(cache *ristretto.Cache[string, *Response]) {
 	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "ratio"), cache.Metrics.Ratio)
 
 	// counters
-	incrementCounterFunc := func(name string, metricFunc func() uint64) {
-		metrics.Collector.Prometheus().IncrementCounterFunc(buildName(name), func() float64 {
+	incrementCounter := func(part string, metricFunc func() uint64) {
+		metrics.Collector.Prometheus().IncrementCounterFunc(buildName(part), func() float64 {
 			return float64(metricFunc())
 		})
 	}
 
-	incrementCounterFunc("hits_total", cache.Metrics.Hits)
-	incrementCounterFunc("misses_total", cache.Metrics.Misses)
-	incrementCounterFunc("keys_added_total", cache.Metrics.KeysAdded)
-	incrementCounterFunc("keys_evicted_total", cache.Metrics.KeysEvicted)
-	incrementCounterFunc("keys_updated_total", cache.Metrics.KeysUpdated)
-	incrementCounterFunc("cost_added_bytes_total", cache.Metrics.CostAdded)
-	incrementCounterFunc("cost_evicted_bytes_total", cache.Metrics.CostEvicted)
+	incrementCounter("hits_total", cache.Metrics.Hits)
+	incrementCounter("misses_total", cache.Metrics.Misses)
+	incrementCounter("keys_added_total", cache.Metrics.KeysAdded)
+	incrementCounter("keys_evicted_total", cache.Metrics.KeysEvicted)
+	incrementCounter("keys_updated_total", cache.Metrics.KeysUpdated)
+	incrementCounter("cost_added_bytes_total", cache.Metrics.CostAdded)
+	incrementCounter("cost_evicted_bytes_total", cache.Metrics.CostEvicted)
 }
