@@ -104,7 +104,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	duration := time.Since(start)
 
 	// Metrics
-	metrics.Collector.Prometheus().RecordExecutionTime("go_restclient_durations_seconds", duration, metrics.Tags{"client_name": r.Name})
+	metrics.Collector.Prometheus().RecordExecutionTime("__go_restclient_durations_seconds", duration, metrics.Tags{"client_name": r.Name})
 
 	// Deprecated
 	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", duration,
@@ -120,7 +120,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 		// Metrics
 		metrics.Collector.Prometheus().
-			IncrementCounter("go_restclient_request_error",
+			IncrementCounter("__go_restclient_request_error",
 				metrics.Tags{
 					"client_name": r.Name,
 					"error_type":  errorType,
@@ -145,7 +145,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// Metrics
 	metrics.Collector.Prometheus().
-		IncrementCounter("go_restclient_requests_total",
+		IncrementCounter("__go_restclient_requests_total",
 			metrics.Tags{
 				"client_name": r.Name,
 				"status_code": strconv.Itoa(response.StatusCode),

@@ -81,7 +81,7 @@ func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
 
 // setupMetrics records the cache's metrics to Prometheus.
 func setupMetrics(cache *ristretto.Cache[string, *Response]) {
-	prefix := "go_restclient_cache_%s"
+	prefix := "__go_restclient_cache_%s"
 
 	buildName := func(key string) string {
 		return fmt.Sprintf(prefix, key)
