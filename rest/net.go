@@ -41,8 +41,11 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
-		if value, found := resourceCache.Get(apiURL); found && !value.revalidate {
-			return value
+		value, hit := resourceCache.Get(apiURL)
+		if hit {
+			if !value.revalidate {
+				return value
+			}
 		}
 	}
 

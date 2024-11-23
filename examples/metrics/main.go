@@ -1,0 +1,43 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+)
+
+func main() {
+	router := mux.NewRouter()
+	router.Handle("/metrics", promhttp.Handler())
+
+	// Create a new REST client with custom settings
+	client := &rest.Client{
+		BaseURL:     "https://httpbin.org",
+		ContentType: rest.JSON,
+		Name:        "gorest-client",
+		Timeout:     time.Duration(5000) * time.Millisecond,
+	}
+
+	go func() {
+		for {
+			time.Sleep(time.Duration(1000) * time.Millisecond)
+			response := client.GetWithContext(context.Background(), "/cache/10")
+			if response.Err != nil {
+				fmt.Printf("Error: %v\n", response.Err)
+				continue
+			}
+			fmt.Printf("Response: %+v\n", response.String())
+		}
+	}()
+
+	fmt.Printf("server started, metrics on http://localhost:8081/metrics")
+	if err := http.ListenAndServe(":8081", router); err != nil {
+		panic(err)
+	}
+}

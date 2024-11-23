@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strings"
-	"sync/atomic"
 	"time"
 	"unsafe"
 )
@@ -19,7 +18,6 @@ type Response struct {
 	*http.Response
 	Err          error
 	Problem      *Problem
-	cacheHit     atomic.Value
 	ttl          *time.Time
 	lastModified *time.Time
 	etag         string
@@ -114,15 +112,6 @@ func Deserialize[T any](r *Response) (T, error) {
 	}
 
 	return result, nil
-}
-
-// CacheHit shows if a response was get from the cache.
-func (r *Response) CacheHit() bool {
-	if hit, ok := r.cacheHit.Load().(bool); hit && ok {
-		return true
-	}
-
-	return false
 }
 
 // Debug let any request/response to be dumped, showing how the request/response

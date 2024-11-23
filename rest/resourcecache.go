@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/dgraph-io/ristretto/v2"
@@ -9,7 +10,10 @@ import (
 
 // resourceTTLLfuMap, is an LRU-TTL Cache, that caches Responses base on headers
 // The cache itself.
-var resourceCache *resourceTTLLfuMap
+var (
+	resourceCache *resourceTTLLfuMap
+	prefix        = "go_restclient_cache_%s"
+)
 
 type resourceTTLLfuMap struct {
 	*ristretto.Cache[string, *Response]
@@ -41,11 +45,16 @@ var (
 )
 
 func init() {
-	cache, _ := ristretto.NewCache(&ristretto.Config[string, *Response]{
+	cache, err := ristretto.NewCache(&ristretto.Config[string, *Response]{
 		NumCounters: int64(NumCounters), // number of keys to track frequency of (10M).
 		MaxCost:     MaxCacheSize,       // maximum cost of cache (1GB).
 		BufferItems: int64(BufferItems), // number of keys per Get buffer.
+		Metrics:     true,
 	})
+
+	if err != nil {
+		panic(fmt.Errorf("failed to create go-restclient cache: %w", err))
+	}
 
 	recordMetrics(cache)
 
@@ -54,28 +63,37 @@ func init() {
 	}
 }
 
+// setNX sets a new value to the cache, if the key does not exist (like Redis SETNX).
 func (r *resourceTTLLfuMap) setNX(key string, value *Response) {
-	if _, found := r.Get(key); !found {
-		if value.ttl != nil {
-			resourceCache.SetWithTTL(key, value, value.size(), time.Until(*value.ttl))
-		} else {
-			resourceCache.Set(key, value, value.size())
-		}
-		resourceCache.Wait()
+	if _, hit := r.Get(key); hit {
+		return
 	}
+
+	cost := value.size()
+	if value.ttl != nil {
+		resourceCache.SetWithTTL(key, value, cost, time.Until(*value.ttl))
+		return
+	}
+
+	resourceCache.Set(key, value, cost)
 }
 
 // recordMetrics records the cache's metrics to Prometheus.
 func recordMetrics(cache *ristretto.Cache[string, *Response]) {
-	metrics.Collector.Prometheus().RecordValue("go_restclient_cache_size_numcounters", NumCounters)
-	metrics.Collector.Prometheus().RecordValue("go_restclient_cache_size_maxcost", float64(cache.MaxCost()))
-	metrics.Collector.Prometheus().RecordValue("go_restclient_cache_size_bufferitems", float64(BufferItems))
-	metrics.Collector.Prometheus().RecordValueFunc("go_restclient_cache_ratio", func() float64 { return cache.Metrics.Ratio() })
-	metrics.Collector.Prometheus().RecordValueFunc("go_restclient_cache_hits", func() float64 { return float64(cache.Metrics.Hits()) })
-	metrics.Collector.Prometheus().RecordValueFunc("go_restclient_cache_misses", func() float64 { return float64(cache.Metrics.Misses()) })
-	metrics.Collector.Prometheus().RecordValueFunc("go_restclient_cache_keys_added", func() float64 { return float64(cache.Metrics.KeysAdded()) })
-	metrics.Collector.Prometheus().RecordValueFunc("go_restclient_cache_keys_evicted", func() float64 { return float64(cache.Metrics.KeysEvicted()) })
-	metrics.Collector.Prometheus().RecordValueFunc("go_restclient_cache_keys_updated", func() float64 { return float64(cache.Metrics.KeysUpdated()) })
-	metrics.Collector.Prometheus().RecordValueFunc("go_restclient_cache_cost_added", func() float64 { return float64(cache.Metrics.CostAdded()) })
-	metrics.Collector.Prometheus().RecordValueFunc("go_restclient_cache_cost_evicted", func() float64 { return float64(cache.Metrics.CostEvicted()) })
+	// config
+	metrics.Collector.Prometheus().RecordValue(fmt.Sprintf(prefix, "num_counters"), NumCounters)
+	metrics.Collector.Prometheus().RecordValue(fmt.Sprintf(prefix, "max_cost_bytes"), float64(cache.MaxCost()))
+	metrics.Collector.Prometheus().RecordValue(fmt.Sprintf(prefix, "buffer_items"), float64(BufferItems))
+
+	// metrics
+	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "ratio"), func() float64 { return cache.Metrics.Ratio() })
+	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "hits"), func() float64 { return float64(cache.Metrics.Hits()) })
+	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "misses"), func() float64 { return float64(cache.Metrics.Misses()) })
+
+	// cache metrics
+	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "keys_added"), func() float64 { return float64(cache.Metrics.KeysAdded()) })
+	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "keys_evicted"), func() float64 { return float64(cache.Metrics.KeysEvicted()) })
+	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "keys_updated"), func() float64 { return float64(cache.Metrics.KeysUpdated()) })
+	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "cost_added_bytes"), func() float64 { return float64(cache.Metrics.CostAdded()) })
+	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "cost_evicted_bytes"), func() float64 { return float64(cache.Metrics.CostEvicted()) })
 }
