@@ -6,7 +6,7 @@ require (
 	github.com/dgraph-io/ristretto/v2 v2.0.0
 	github.com/gorilla/mux v1.8.1
 	github.com/prometheus/client_golang v1.20.5
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.17
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16
