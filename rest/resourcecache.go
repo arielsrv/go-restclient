@@ -7,13 +7,11 @@ import (
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector/metrics"
 )
 
-// resourceTTLLruMap, is an LRU-TTL Cache, that caches Responses base on headers
-// It uses 3 goroutines -> one for LRU, and the other two for TTL.
-
+// resourceTTLLfuMap, is an LRU-TTL Cache, that caches Responses base on headers
 // The cache itself.
-var resourceCache *resourceTTLLruMap
+var resourceCache *resourceTTLLfuMap
 
-type resourceTTLLruMap struct {
+type resourceTTLLfuMap struct {
 	*ristretto.Cache[string, *Response]
 }
 
@@ -34,7 +32,7 @@ const (
 )
 
 var (
-	// MaxCacheSize is the Maximum Byte Size to be hold by the resourceTTLLruMap
+	// MaxCacheSize is the Maximum Byte Size to be hold by the resourceTTLLfuMap
 	// Default is 1 GigaByte
 	// Type: rest.ByteSize.
 	MaxCacheSize = int64(1 * GB)
@@ -51,12 +49,12 @@ func init() {
 
 	recordMetrics(cache)
 
-	resourceCache = &resourceTTLLruMap{
+	resourceCache = &resourceTTLLfuMap{
 		Cache: cache,
 	}
 }
 
-func (r *resourceTTLLruMap) setNX(key string, value *Response) {
+func (r *resourceTTLLfuMap) setNX(key string, value *Response) {
 	if _, found := r.Get(key); !found {
 		if value.ttl != nil {
 			resourceCache.SetWithTTL(key, value, value.size(), time.Until(*value.ttl))
