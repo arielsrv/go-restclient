@@ -3,7 +3,7 @@ module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient
 go 1.23.3
 
 require (
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.17
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16
