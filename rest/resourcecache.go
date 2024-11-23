@@ -89,15 +89,21 @@ func setupMetrics(cache *ristretto.Cache[string, *Response]) {
 	metrics.Collector.Prometheus().RecordValue(fmt.Sprintf(prefix, "max_cost_bytes"), float64(cache.MaxCost()))
 	metrics.Collector.Prometheus().RecordValue(fmt.Sprintf(prefix, "buffer_items"), float64(BufferItems))
 
-	// metrics
-	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "ratio"), func() float64 { return cache.Metrics.Ratio() })
-	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "hits_total"), func() float64 { return float64(cache.Metrics.Hits()) })
-	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "misses_total"), func() float64 { return float64(cache.Metrics.Misses()) })
+	// ratio
+	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "ratio"), cache.Metrics.Ratio)
 
-	// cache metrics
-	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "keys_added_total"), func() float64 { return float64(cache.Metrics.KeysAdded()) })
-	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "keys_evicted_total"), func() float64 { return float64(cache.Metrics.KeysEvicted()) })
-	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "keys_updated_total"), func() float64 { return float64(cache.Metrics.KeysUpdated()) })
-	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "cost_added_bytes_total"), func() float64 { return float64(cache.Metrics.CostAdded()) })
-	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "cost_evicted_bytes_total"), func() float64 { return float64(cache.Metrics.CostEvicted()) })
+	// counters
+	incrementCounter := func(name string, metricFunc func() uint64) {
+		metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, name), func() float64 {
+			return float64(metricFunc())
+		})
+	}
+
+	incrementCounter("hits_total", cache.Metrics.Hits)
+	incrementCounter("misses_total", cache.Metrics.Misses)
+	incrementCounter("keys_added_total", cache.Metrics.KeysAdded)
+	incrementCounter("keys_evicted_total", cache.Metrics.KeysEvicted)
+	incrementCounter("keys_updated_total", cache.Metrics.KeysUpdated)
+	incrementCounter("cost_added_bytes_total", cache.Metrics.CostAdded)
+	incrementCounter("cost_evicted_bytes_total", cache.Metrics.CostEvicted)
 }
