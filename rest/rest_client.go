@@ -6,8 +6,6 @@ import (
 	"net/url"
 	"sync"
 	"time"
-
-	"golang.org/x/oauth2/clientcredentials"
 )
 
 // The default dfltTransport used by all RequestBuilders
@@ -255,7 +253,6 @@ const (
 )
 
 type OAuth struct {
-	*clientcredentials.Config
 	EndpointParams url.Values
 	ClientID       string
 	ClientSecret   string
