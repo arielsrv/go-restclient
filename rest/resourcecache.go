@@ -10,10 +10,7 @@ import (
 
 // resourceTTLLfuMap, is an LRU-TTL Cache, that caches Responses base on headers
 // The cache itself.
-var (
-	resourceCache *resourceTTLLfuMap
-	prefix        = "go_restclient_cache_%s"
-)
+var resourceCache *resourceTTLLfuMap
 
 type resourceTTLLfuMap struct {
 	lowLevelCache *ristretto.Cache[string, *Response]
@@ -84,6 +81,8 @@ func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
 
 // setupMetrics records the cache's metrics to Prometheus.
 func setupMetrics(cache *ristretto.Cache[string, *Response]) {
+	prefix := "go_restclient_cache_%s"
+
 	buildName := func(key string) string {
 		return fmt.Sprintf(prefix, key)
 	}
@@ -94,7 +93,7 @@ func setupMetrics(cache *ristretto.Cache[string, *Response]) {
 	metrics.Collector.Prometheus().RecordValue(buildName("buffer_items"), float64(BufferItems))
 
 	// ratio
-	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "ratio"), cache.Metrics.Ratio)
+	metrics.Collector.Prometheus().RecordValueFunc(buildName("ratio"), cache.Metrics.Ratio)
 
 	incrementCounter := func(part string, metricFunc func() uint64) {
 		metrics.Collector.Prometheus().IncrementCounterFunc(buildName(part), func() float64 {
