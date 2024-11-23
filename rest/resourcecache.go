@@ -16,7 +16,7 @@ var (
 )
 
 type resourceTTLLfuMap struct {
-	*ristretto.Cache[string, *Response]
+	lowLevelCache *ristretto.Cache[string, *Response]
 }
 
 // ByteSize is a helper for configuring MaxCacheSize.
@@ -58,23 +58,31 @@ func init() {
 	recordMetrics(cache)
 
 	resourceCache = &resourceTTLLfuMap{
-		Cache: cache,
+		lowLevelCache: cache,
 	}
+}
+
+func (r *resourceTTLLfuMap) get(key string) (*Response, bool) {
+	if value, hit := r.lowLevelCache.Get(key); hit {
+		return value, true
+	}
+
+	return nil, false
 }
 
 // setNX sets a new value to the cache, if the key does not exist (like Redis SETNX).
 func (r *resourceTTLLfuMap) setNX(key string, value *Response) {
-	if _, hit := r.Get(key); hit {
+	if _, hit := r.lowLevelCache.Get(key); hit {
 		return
 	}
 
 	cost := value.size()
 	if value.ttl != nil {
-		resourceCache.SetWithTTL(key, value, cost, time.Until(*value.ttl))
+		r.lowLevelCache.SetWithTTL(key, value, cost, time.Until(*value.ttl))
 		return
 	}
 
-	resourceCache.Set(key, value, cost)
+	r.lowLevelCache.Set(key, value, cost)
 }
 
 // recordMetrics records the cache's metrics to Prometheus.
@@ -86,13 +94,13 @@ func recordMetrics(cache *ristretto.Cache[string, *Response]) {
 
 	// metrics
 	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "ratio"), func() float64 { return cache.Metrics.Ratio() })
-	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "hits"), func() float64 { return float64(cache.Metrics.Hits()) })
-	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "misses"), func() float64 { return float64(cache.Metrics.Misses()) })
+	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "hits_total"), func() float64 { return float64(cache.Metrics.Hits()) })
+	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "misses_total"), func() float64 { return float64(cache.Metrics.Misses()) })
 
 	// cache metrics
-	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "keys_added"), func() float64 { return float64(cache.Metrics.KeysAdded()) })
-	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "keys_evicted"), func() float64 { return float64(cache.Metrics.KeysEvicted()) })
-	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "keys_updated"), func() float64 { return float64(cache.Metrics.KeysUpdated()) })
-	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "cost_added_bytes"), func() float64 { return float64(cache.Metrics.CostAdded()) })
-	metrics.Collector.Prometheus().RecordValueFunc(fmt.Sprintf(prefix, "cost_evicted_bytes"), func() float64 { return float64(cache.Metrics.CostEvicted()) })
+	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "keys_added_total"), func() float64 { return float64(cache.Metrics.KeysAdded()) })
+	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "keys_evicted_total"), func() float64 { return float64(cache.Metrics.KeysEvicted()) })
+	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "keys_updated_total"), func() float64 { return float64(cache.Metrics.KeysUpdated()) })
+	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "cost_added_bytes_total"), func() float64 { return float64(cache.Metrics.CostAdded()) })
+	metrics.Collector.Prometheus().IncrementCounterFunc(fmt.Sprintf(prefix, "cost_evicted_bytes_total"), func() float64 { return float64(cache.Metrics.CostEvicted()) })
 }
