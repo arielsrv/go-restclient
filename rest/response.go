@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+	"unsafe"
 )
 
 // Response ...
@@ -35,6 +36,21 @@ type Problem struct {
 	Detail   string   `json:"detail,omitempty"   xml:"detail,omitempty"`
 	Instance string   `json:"instance,omitempty" xml:"instance,omitempty"`
 	Status   int      `json:"status,omitempty"   xml:"status,omitempty"`
+}
+
+// size returns the size of the Response in bytes.
+func (r *Response) size() int64 {
+	size := int64(unsafe.Sizeof(*r))
+
+	size += int64(len(r.bytes))
+	size += int64(unsafe.Sizeof(*r.ttl))
+	size += int64(unsafe.Sizeof(*r.lastModified))
+	size += int64(len(r.etag))
+
+	size += int64(len(r.Response.Proto))
+	size += int64(len(r.Response.Status))
+
+	return size
 }
 
 // String return the Response Body as a String.

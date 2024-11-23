@@ -168,13 +168,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If Cache enable: Cache SENA
 	if !r.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
-		cost := int64(len(result.bytes))
-		if result.ttl != nil {
-			resourceCache.SetWithTTL(cacheURL, result, cost, time.Until(*result.ttl))
-		} else {
-			resourceCache.Set(cacheURL, result, cost)
-		}
-		resourceCache.Wait()
+		resourceCache.setNX(cacheURL, result)
 	}
 
 	return result
