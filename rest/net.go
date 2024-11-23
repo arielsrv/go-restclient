@@ -33,19 +33,24 @@ var (
 var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
 func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, body any, headers ...http.Header) *Response {
-	var cacheURL string
-	var cacheResponse *Response
+	var (
+		cacheURL      string
+		cacheResponse *Response
+	)
 
 	result := new(Response)
-	apiURL = r.BaseURL + apiURL
+	validURL, err := url.Parse(fmt.Sprintf("%s%s", r.BaseURL, apiURL))
+	if err != nil {
+		result.Err = err
+		return result
+	}
+
+	apiURL = validURL.String()
 
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
-		value, hit := resourceCache.Get(apiURL)
-		if hit {
-			if !value.revalidate {
-				return value
-			}
+		if response, hit := resourceCache.Get(apiURL); hit && !response.revalidate {
+			return response
 		}
 	}
 
@@ -59,9 +64,9 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 			return result
 		}
 
-		reader, err := media.Marshal(body)
-		if err != nil {
-			result.Err = err
+		reader, mErr := media.Marshal(body)
+		if mErr != nil {
+			result.Err = mErr
 			return result
 		}
 
@@ -69,7 +74,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 
 	// Change URL to point to Mockup server
-	apiURL, cacheURL, err := checkMockup(apiURL)
+	apiURL, cacheURL, err = checkMockup(apiURL)
 	if err != nil {
 		result.Err = err
 		return result
@@ -286,8 +291,8 @@ func (r *Client) setupTransport() http.RoundTripper {
 			// Set Proxy
 			if customPool.Proxy != "" {
 				if proxy, err := url.Parse(customPool.Proxy); err == nil {
-					if dfltTransport, ok := currentTransport.(*http.Transport); ok {
-						dfltTransport.Proxy = http.ProxyURL(proxy)
+					if transport, ok := currentTransport.(*http.Transport); ok {
+						transport.Proxy = http.ProxyURL(proxy)
 					}
 				}
 			}

@@ -51,7 +51,6 @@ func init() {
 		BufferItems: int64(BufferItems), // number of keys per Get buffer.
 		Metrics:     true,
 	})
-
 	if err != nil {
 		panic(fmt.Errorf("failed to create go-restclient cache: %w", err))
 	}
