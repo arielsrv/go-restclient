@@ -186,12 +186,6 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	return result
 }
 
-type Cacheable struct {
-	TTL          bool
-	LastModified bool
-	ETag         bool
-}
-
 func setProblem(result *Response) {
 	contentType := result.Header.Get("Content-Type")
 	if strings.Contains(contentType, "problem") {
