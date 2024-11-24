@@ -57,6 +57,11 @@ func (r *Response) String() string {
 	return string(r.bytes)
 }
 
+// Raw return the Response Body as a String.
+func (r *Response) Raw() string {
+	return r.String()
+}
+
 // FillUp set the *fill* parameter with the corresponding JSON or XML response.
 // fill could be `struct` or `map[string]any`.
 func (r *Response) FillUp(fill any) error {

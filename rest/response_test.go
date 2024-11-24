@@ -10,6 +10,18 @@ import (
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
+func TestGet_Raw(t *testing.T) {
+	resp := rest.Get(server.URL + "/user")
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+
+	if !strings.EqualFold(resp.Raw(), resp.String()) {
+		t.Fatal("Debug() failed!")
+	}
+}
+
 func TestDebug(t *testing.T) {
 	resp := rest.Get(server.URL + "/user")
 
