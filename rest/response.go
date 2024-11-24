@@ -41,6 +41,7 @@ func (r *Response) size() int64 {
 	size := int64(unsafe.Sizeof(*r))
 
 	size += int64(len(r.bytes))
+	size += int64(unsafe.Sizeof(*r.Problem))
 	size += int64(unsafe.Sizeof(*r.ttl))
 	size += int64(unsafe.Sizeof(*r.lastModified))
 	size += int64(len(r.etag))
@@ -53,12 +54,7 @@ func (r *Response) size() int64 {
 
 // String return the Response Body as a String.
 func (r *Response) String() string {
-	return string(r.Bytes())
-}
-
-// Bytes return the Response Body as bytes.
-func (r *Response) Bytes() []byte {
-	return r.bytes
+	return string(r.bytes)
 }
 
 // FillUp set the *fill* parameter with the corresponding JSON or XML response.
@@ -89,6 +85,7 @@ func (r *Response) FillUp(fill any) error {
 
 // TypedFillUp FillUp set the *fill* parameter with the corresponding JSON or XML response.
 // fill could be `struct` or `map[string]any`.
+// Deprecated: use Deserialize[T] instead.
 func TypedFillUp[T any](r *Response) (*T, error) {
 	result, err := Deserialize[T](r)
 	if err != nil {

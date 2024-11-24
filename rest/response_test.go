@@ -10,18 +10,6 @@ import (
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
-func TestResponseBytesAndString(t *testing.T) {
-	resp := rest.Get(server.URL + "/user")
-
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("Status != OK (200)")
-	}
-
-	if string(resp.Bytes()) != resp.String() {
-		t.Fatal("Bytes() and String() are not equal")
-	}
-}
-
 func TestDebug(t *testing.T) {
 	resp := rest.Get(server.URL + "/user")
 
