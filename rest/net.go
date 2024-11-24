@@ -36,9 +36,9 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	var (
 		cacheURL      string
 		cacheResponse *Response
+		result        = new(Response)
 	)
 
-	result := new(Response)
 	validURL, err := url.Parse(fmt.Sprintf("%s%s", r.BaseURL, apiURL))
 	if err != nil {
 		result.Err = err
