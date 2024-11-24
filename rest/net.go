@@ -166,20 +166,30 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	setProblem(result)
 
 	// Cache headers
-	ttl := setTTL(result)
-	lastModified := setLastModified(result)
-	etag := setETag(result)
-
-	if !ttl && (lastModified || etag) {
-		result.revalidate = true
+	cacheHeaders := struct {
+		TTL          bool
+		LastModified bool
+		ETag         bool
+	}{
+		TTL:          setTTL(result),
+		LastModified: setLastModified(result),
+		ETag:         setETag(result),
 	}
 
+	result.revalidate = !cacheHeaders.TTL && (cacheHeaders.LastModified || cacheHeaders.ETag)
+
 	// If Cache enable: Cache SENA
-	if !r.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
+	if !r.DisableCache && slices.Contains(readVerbs, verb) && (cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
 		resourceCache.setNX(cacheURL, result)
 	}
 
 	return result
+}
+
+type Cacheable struct {
+	TTL          bool
+	LastModified bool
+	ETag         bool
 }
 
 func setProblem(result *Response) {
