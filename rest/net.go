@@ -32,6 +32,7 @@ var (
 
 var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
+// newRequest creates a new REST client with default configuration.
 func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, body any, headers ...http.Header) *Response {
 	var (
 		cacheURL      string
@@ -55,7 +56,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 
 	// Prepare reader for the body
-	bodyReader, err := buildBodyReader(body, r.ContentType)
+	reader, err := setupReader(body, r.ContentType)
 	if err != nil {
 		result.Err = err
 		return result
@@ -77,7 +78,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	httpClient := r.onceHTTPClient(ctx)
 
 	// Create a new HTTP request
-	request, err := http.NewRequestWithContext(ctx, verb, apiURL, bodyReader)
+	request, err := http.NewRequestWithContext(ctx, verb, apiURL, reader)
 	if err != nil {
 		result.Err = err
 		return result
@@ -92,7 +93,10 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	duration := time.Since(start)
 
 	// Metrics
-	metrics.Collector.Prometheus().RecordExecutionTime("__go_restclient_durations_seconds", duration, metrics.Tags{"client_name": r.Name})
+	metrics.Collector.Prometheus().
+		RecordExecutionTime("__go_restclient_durations_seconds", duration, metrics.Tags{
+			"client_name": r.Name,
+		})
 
 	// Deprecated
 	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", duration,
@@ -174,8 +178,8 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	return result
 }
 
-// buildBodyReader creates a reader from the given body and content type.
-func buildBodyReader(body any, contentType ContentType) (io.Reader, error) {
+// setupReader creates a reader from the given body and content type.
+func setupReader(body any, contentType ContentType) (io.Reader, error) {
 	if body != nil {
 		mediaMarshaler, found := mediaMarshalers[contentType]
 		if !found {
@@ -274,6 +278,7 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 	return r.Client
 }
 
+// setupTransport sets up the transport for the client.
 func (r *Client) setupTransport() http.RoundTripper {
 	transportOnce.Do(func() {
 		if dfltTransport == nil {
@@ -407,7 +412,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}
 }
 
-// setTTL.
+// setTTL sets the TTL (Time To Live) for the response.
 func setTTL(response *Response) bool {
 	// Cache-Control Header
 	cacheControl := maxAge.FindStringSubmatch(response.Header.Get("Cache-Control"))
