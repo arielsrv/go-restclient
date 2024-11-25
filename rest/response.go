@@ -27,17 +27,6 @@ type Response struct {
 	revalidate   bool
 }
 
-// Problem represents a rfc7807 json|xml API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
-type Problem struct {
-	XMLName  xml.Name `json:"-"                  xml:"problem,omitempty"`
-	XMLNS    xml.Name `json:"-"                  xml:"xmlns,attr,omitempty"`
-	Type     string   `json:"type,omitempty"     xml:"type,omitempty"`
-	Title    string   `json:"title,omitempty"    xml:"title,omitempty"`
-	Detail   string   `json:"detail,omitempty"   xml:"detail,omitempty"`
-	Instance string   `json:"instance,omitempty" xml:"instance,omitempty"`
-	Status   int      `json:"status,omitempty"   xml:"status,omitempty"`
-}
-
 // size returns the size of the Response in bytes.
 func (r *Response) size() int64 {
 	size := int64(unsafe.Sizeof(*r))
@@ -52,6 +41,17 @@ func (r *Response) size() int64 {
 	size += int64(len(r.Response.Status))
 
 	return size
+}
+
+// Problem represents a rfc7807 json|xml API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
+type Problem struct {
+	XMLName  xml.Name `json:"-"                  xml:"problem,omitempty"`
+	XMLNS    xml.Name `json:"-"                  xml:"xmlns,attr,omitempty"`
+	Type     string   `json:"type,omitempty"     xml:"type,omitempty"`
+	Title    string   `json:"title,omitempty"    xml:"title,omitempty"`
+	Detail   string   `json:"detail,omitempty"   xml:"detail,omitempty"`
+	Instance string   `json:"instance,omitempty" xml:"instance,omitempty"`
+	Status   int      `json:"status,omitempty"   xml:"status,omitempty"`
 }
 
 // String return the Response Body as a String.
