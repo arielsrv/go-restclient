@@ -34,6 +34,10 @@ func TestCacheGet(t *testing.T) {
 		if f[i].Response.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
 		}
+
+		if !f[i].Cached() {
+			t.Fatal("f.Cached() == false")
+		}
 	}
 }
 

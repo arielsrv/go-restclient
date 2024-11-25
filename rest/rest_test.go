@@ -21,6 +21,16 @@ func TestGet(t *testing.T) {
 	}
 }
 
+func TestGet_NoCache(t *testing.T) {
+	resp := rest.Get(server.URL + "/user")
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+	if resp.Cached() {
+		t.Fatal("resp.Cached() == true")
+	}
+}
+
 func TestClient_GetChan(t *testing.T) {
 	client := rest.Client{}
 	rChan := make(chan *rest.Response, 1)
