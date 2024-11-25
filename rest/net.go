@@ -427,7 +427,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 
 	// Gzip Encoding
 	if r.EnableGzip {
-		request.Header.Set("Accept-Encoding", "enableGZip")
+		request.Header.Set("Accept-Encoding", "gzip")
 	}
 
 	if cacheResponse != nil && cacheResponse.revalidate {
