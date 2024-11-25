@@ -189,8 +189,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 func setProblem(result *Response) {
 	contentType := result.Header.Get("Content-Type")
 	if strings.Contains(contentType, "problem") {
-		err := result.FillUp(&result.Problem)
-		if err != nil {
+		if err := result.FillUp(&result.Problem); err != nil {
 			return
 		}
 	}
@@ -257,12 +256,12 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 	}
 
 	if r.Name == "" {
-		hostname, err := os.Hostname()
-		if err == nil {
-			r.Name = hostname
-		} else {
-			r.Name = "undefined"
-		}
+		r.Name = func() string {
+			if hostname, err := os.Hostname(); err == nil {
+				return hostname
+			}
+			return "undefined"
+		}()
 	}
 
 	return r.Client
