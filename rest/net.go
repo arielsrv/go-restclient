@@ -130,14 +130,14 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 	defer response.Body.Close()
 
-	reader, err := r.setResponseReader(request, response)
+	respReader, err := r.setRespReader(request, response)
 	if err != nil {
 		result.Err = err
 		return result
 	}
 
 	// Read response
-	responseBody, err := io.ReadAll(reader)
+	responseBody, err := io.ReadAll(respReader)
 	if err != nil {
 		result.Err = err
 		return result
@@ -186,8 +186,8 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	return result
 }
 
-// enableGZip checks if GZip compression is enabled for the given request and response.
-func (r *Client) enableGZip(request *http.Request, response *http.Response) bool {
+// shouldCompress checks if GZip compression is enabled for the given request and response.
+func (r *Client) shouldCompress(request *http.Request, response *http.Response) bool {
 	return r.EnableGzip ||
 		(request.Header.Get("Accept-Encoding") == "gzip" && response.Header.Get("Content-Encoding") == "gzip")
 }
@@ -211,24 +211,23 @@ func setContentReader(body any, contentType ContentType) (io.Reader, error) {
 	return http.NoBody, nil
 }
 
-// setResponseReader creates a reader from the given request and response.
-func (r *Client) setResponseReader(request *http.Request, response *http.Response) (io.ReadCloser, error) {
-	if !r.enableGZip(request, response) {
+// setRespReader creates a reader from the given request and response.
+func (r *Client) setRespReader(request *http.Request, response *http.Response) (io.ReadCloser, error) {
+	if !r.shouldCompress(request, response) {
 		return response.Body, nil
 	}
 
-	gzipReader, err := gzip.NewReader(response.Body)
+	reader, err := gzip.NewReader(response.Body)
 	if err != nil {
 		return nil, err
 	}
 	defer func(gzipReader *gzip.Reader) {
-		cErr := gzipReader.Close()
-		if cErr != nil {
+		if cErr := gzipReader.Close(); cErr != nil {
 			return
 		}
-	}(gzipReader)
+	}(reader)
 
-	return gzipReader, nil
+	return reader, nil
 }
 
 func setProblem(result *Response) {
@@ -287,8 +286,8 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 			r.Client = oauth.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
 		}
 
-		for k, v := range r.DefaultHeaders {
-			r.defaultHeaders.Store(k, v)
+		for key, value := range r.DefaultHeaders {
+			r.defaultHeaders.Store(key, value)
 		}
 	})
 
@@ -392,7 +391,7 @@ func (r *Client) getConnectionTimeout() time.Duration {
 }
 
 // setParams sets the request parameters and headers.
-func (r *Client) setParams(request *http.Request, cacheResponse *Response, cacheURL string, headers ...http.Header) {
+func (r *Client) setParams(request *http.Request, cacheResponse *Response, cacheURL string, paramHeaders ...http.Header) {
 	// Default headers
 	request.Header.Set("Connection", "keep-alive")
 	request.Header.Set("Cache-Control", "no-cache")
@@ -440,13 +439,18 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}
 
 	r.defaultHeaders.Range(func(key, value any) bool {
-		request.Header[key.(string)] = value.([]string)
+		values := value.([]string)
+		for _, v := range values {
+			request.Header.Add(key.(string), v)
+		}
 		return true
 	})
 
-	for _, h := range headers {
-		for k, v := range h {
-			request.Header[k] = v
+	for _, headers := range paramHeaders {
+		for k, values := range headers {
+			for _, v := range values {
+				request.Header.Add(k, v)
+			}
 		}
 	}
 }
