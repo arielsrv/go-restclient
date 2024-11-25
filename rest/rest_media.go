@@ -33,12 +33,12 @@ var (
 )
 
 var (
-	mediaMarshaler = map[ContentType]MediaMarshaler{
+	mediaMarshalers = map[ContentType]MediaMarshaler{
 		JSON: jsonMedia,
 		XML:  xmlMedia,
 		FORM: formMedia,
 	}
-	mediaUnmarshaler = map[ContentType]MediaUnmarshaler{
+	mediaUnmarshalers = map[ContentType]MediaUnmarshaler{
 		JSON: jsonMedia,
 		XML:  xmlMedia,
 	}

@@ -55,22 +55,10 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 
 	// Prepare reader for the body
-	var bodyReader io.Reader
-	bodyReader = http.NoBody
-	if body != nil {
-		media, found := mediaMarshaler[r.ContentType]
-		if !found {
-			result.Err = fmt.Errorf("marshal fail, unsupported content type: %d", r.ContentType)
-			return result
-		}
-
-		reader, mErr := media.Marshal(body)
-		if mErr != nil {
-			result.Err = mErr
-			return result
-		}
-
-		bodyReader = reader
+	bodyReader, err := buildBodyReader(body, r.ContentType)
+	if err != nil {
+		result.Err = err
+		return result
 	}
 
 	// Change URL to point to Mockup server
@@ -184,6 +172,25 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 
 	return result
+}
+
+// buildBodyReader creates a reader from the given body and content type.
+func buildBodyReader(body any, contentType ContentType) (io.Reader, error) {
+	if body != nil {
+		mediaMarshaler, found := mediaMarshalers[contentType]
+		if !found {
+			return nil, fmt.Errorf("marshal fail, unsupported content type: %d", contentType)
+		}
+
+		reader, err := mediaMarshaler.Marshal(body)
+		if err != nil {
+			return nil, err
+		}
+
+		return reader, nil
+	}
+
+	return http.NoBody, nil
 }
 
 func setProblem(result *Response) {
@@ -321,6 +328,7 @@ func (r *Client) getDialContext() func(ctx context.Context, network string, addr
 	return (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext
 }
 
+// getRequestTimeout returns the configured request timeout.
 func (r *Client) getRequestTimeout() time.Duration {
 	switch {
 	case r.DisableTimeout:
@@ -332,6 +340,7 @@ func (r *Client) getRequestTimeout() time.Duration {
 	}
 }
 
+// getConnectionTimeout returns the configured connection timeout.
 func (r *Client) getConnectionTimeout() time.Duration {
 	switch {
 	case r.DisableTimeout:
@@ -343,6 +352,7 @@ func (r *Client) getConnectionTimeout() time.Duration {
 	}
 }
 
+// setParams sets the request parameters and headers.
 func (r *Client) setParams(request *http.Request, cacheResponse *Response, cacheURL string, headers ...http.Header) {
 	// Default headers
 	request.Header.Set("Connection", "keep-alive")
@@ -368,7 +378,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}())
 
 	// Encoding
-	content, found := mediaMarshaler[r.ContentType]
+	content, found := mediaMarshalers[r.ContentType]
 	if found {
 		request.Header.Set("Accept", content.DefaultHeaders().Get("Accept"))
 		if slices.Contains(contentVerbs, request.Method) {
@@ -397,6 +407,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}
 }
 
+// setTTL.
 func setTTL(response *Response) bool {
 	// Cache-Control Header
 	cacheControl := maxAge.FindStringSubmatch(response.Header.Get("Cache-Control"))
@@ -431,6 +442,7 @@ func setTTL(response *Response) bool {
 	return false
 }
 
+// setLastModified sets the Last-Modified header in the response.
 func setLastModified(resp *Response) bool {
 	lastModified, err := time.Parse(time.RFC1123, resp.Header.Get("Last-Modified"))
 	if err != nil {
@@ -441,12 +453,14 @@ func setLastModified(resp *Response) bool {
 	return true
 }
 
+// setETag sets the ETag header in the response.
 func setETag(response *Response) bool {
 	response.etag = response.Header.Get("Etag")
 
 	return response.etag != ""
 }
 
+// buildTags builds the tags for the Prometheus metrics.
 func buildTags(clientName, eventType, eventSubType string) metrics.Tags {
 	return metrics.Tags{
 		"client_name":   clientName,
