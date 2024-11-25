@@ -77,29 +77,17 @@ func (r *Response) FillUp(fill any) error {
 		return fmt.Errorf("invalid content type: %s", contentType)
 	}
 
-	for unmarshaller := range maps.Values(mediaUnmarshalers) {
-		values := unmarshaller.DefaultHeaders().Values("Content-Type")
+	for mediaUnmarshaler := range maps.Values(mediaUnmarshalers) {
+		values := mediaUnmarshaler.DefaultHeaders().Values("Content-Type")
 		for i := range values {
 			value := values[i]
 			if mediaType == value {
-				return unmarshaller.Unmarshal(r.bytes, fill)
+				return mediaUnmarshaler.Unmarshal(r.bytes, fill)
 			}
 		}
 	}
 
 	return fmt.Errorf("unmarshal fail, unsupported content type: %s", contentType)
-}
-
-// TypedFillUp FillUp set the *fill* parameter with the corresponding JSON or XML response.
-// fill could be `struct` or `map[string]any`.
-// Deprecated: use Deserialize[T] instead.
-func TypedFillUp[T any](r *Response) (*T, error) {
-	result, err := Deserialize[T](r)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
 }
 
 // Deserialize fills the provided pointer with the JSON or XML response.

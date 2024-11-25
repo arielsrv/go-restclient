@@ -92,12 +92,12 @@ func TestGetTypedFillUpJSON(t *testing.T) {
 		t.Fatal("Status != OK (200)")
 	}
 
-	result, err := rest.TypedFillUp[[]User](resp)
+	result, err := rest.Deserialize[[]User](resp)
 	if err != nil {
 		t.Fatal("Json fill up failed. Error: " + err.Error())
 	}
 
-	for _, v := range *result {
+	for _, v := range result {
 		if v.Name == "Alice" {
 			return
 		}
@@ -226,9 +226,9 @@ func TestFillUp_TypedErr(t *testing.T) {
 	resp := new(rest.Response)
 	resp.Response = &http.Response{}
 	resp.Header = map[string][]string{"Content-Type": {"application/invalid"}}
-	user, err := rest.TypedFillUp[string](resp)
+	user, err := rest.Deserialize[string](resp)
 	require.Error(t, err)
-	require.Nil(t, user)
+	require.Empty(t, user)
 	require.Contains(t, err.Error(), "unsupported content type: application/invalid")
 }
 
@@ -237,8 +237,8 @@ func TestFillUp_Detection(t *testing.T) {
 	resp.Response = &http.Response{
 		Body: io.NopCloser(strings.NewReader(`{"text": "plain"}`)),
 	}
-	user, err := rest.TypedFillUp[string](resp)
+	user, err := rest.Deserialize[string](resp)
 	require.Error(t, err)
-	require.Nil(t, user)
+	require.Empty(t, user)
 	require.Contains(t, err.Error(), "unsupported content type: text/plain")
 }
