@@ -76,7 +76,7 @@ func (r *resourceTTLLfuMap) get(url string) (*Response, bool) {
 
 // setNX sets a new value to the cache, if the key does not exist (like Redis SETNX).
 func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
-	if _, hit := r.lowLevelCache.Get(url); !hit {
+	if _, hit := r.lowLevelCache.Get(url); hit {
 		return
 	}
 
