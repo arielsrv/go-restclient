@@ -100,17 +100,17 @@ func setupMetrics(cache *ristretto.Cache[string, *Response]) {
 	recordValueFunc("ratio", cache.Metrics.Ratio)
 
 	// counters
-	incrementCounter("hits_total", cache.Metrics.Hits)
-	incrementCounter("misses_total", cache.Metrics.Misses)
-	incrementCounter("keys_added_total", cache.Metrics.KeysAdded)
-	incrementCounter("keys_evicted_total", cache.Metrics.KeysEvicted)
-	incrementCounter("keys_updated_total", cache.Metrics.KeysUpdated)
-	incrementCounter("cost_added_bytes_total", cache.Metrics.CostAdded)
-	incrementCounter("cost_evicted_bytes_total", cache.Metrics.CostEvicted)
-	incrementCounter("gets_kept_total", cache.Metrics.GetsKept)
-	incrementCounter("gets_dropped_total", cache.Metrics.GetsDropped)
-	incrementCounter("sets_dropped_total", cache.Metrics.SetsDropped)
-	incrementCounter("sets_rejected_total", cache.Metrics.SetsRejected)
+	incrementCounterFunc("hits_total", cache.Metrics.Hits)
+	incrementCounterFunc("misses_total", cache.Metrics.Misses)
+	incrementCounterFunc("keys_added_total", cache.Metrics.KeysAdded)
+	incrementCounterFunc("keys_evicted_total", cache.Metrics.KeysEvicted)
+	incrementCounterFunc("keys_updated_total", cache.Metrics.KeysUpdated)
+	incrementCounterFunc("cost_added_bytes_total", cache.Metrics.CostAdded)
+	incrementCounterFunc("cost_evicted_bytes_total", cache.Metrics.CostEvicted)
+	incrementCounterFunc("gets_kept_total", cache.Metrics.GetsKept)
+	incrementCounterFunc("gets_dropped_total", cache.Metrics.GetsDropped)
+	incrementCounterFunc("sets_dropped_total", cache.Metrics.SetsDropped)
+	incrementCounterFunc("sets_rejected_total", cache.Metrics.SetsRejected)
 }
 
 // buildMetricName constructs a Prometheus metric name.
@@ -118,8 +118,8 @@ func buildMetricName(suffix string) string {
 	return fmt.Sprintf("__go_restclient_cache_%s", suffix)
 }
 
-// incrementCounter increments a Prometheus counter.
-func incrementCounter(metricName string, metricFunc func() uint64) {
+// incrementCounterFunc increments a Prometheus counter.
+func incrementCounterFunc(metricName string, metricFunc func() uint64) {
 	metrics.Collector.Prometheus().IncrementCounterFunc(buildMetricName(metricName), func() float64 {
 		return float64(metricFunc())
 	})
