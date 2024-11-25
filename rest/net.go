@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"compress/gzip"
 	"context"
 	"errors"
 	"fmt"
@@ -56,8 +57,8 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		}
 	}
 
-	// Prepare reader for the body
-	reader, err := setupReader(body, r.ContentType)
+	// Prepare contentReader for the body
+	contentReader, err := setupContentReader(body, r.ContentType)
 	if err != nil {
 		result.Err = err
 		return result
@@ -79,7 +80,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	httpClient := r.onceHTTPClient(ctx)
 
 	// Create a new HTTP request
-	request, err := http.NewRequestWithContext(ctx, verb, apiURL, reader)
+	request, err := http.NewRequestWithContext(ctx, verb, apiURL, contentReader)
 	if err != nil {
 		result.Err = err
 		return result
@@ -129,8 +130,19 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 	defer response.Body.Close()
 
+	var reader io.ReadCloser
+	reader = response.Body
+	if r.gzip(request, response) {
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			result.Err = err
+			return result
+		}
+		defer reader.Close()
+	}
+
 	// Read response
-	responseBody, err := io.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(reader)
 	if err != nil {
 		result.Err = err
 		return result
@@ -179,8 +191,14 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	return result
 }
 
-// setupReader creates a reader from the given body and content type.
-func setupReader(body any, contentType ContentType) (io.Reader, error) {
+// gzip checks if gzip is enabled for the given request and response.
+func (r *Client) gzip(request *http.Request, response *http.Response) bool {
+	return r.EnableGzip ||
+		(request.Header.Get("Accept-Encoding") == "gzip" && response.Header.Get("Content-Encoding") == "gzip")
+}
+
+// setupContentReader creates a reader from the given body and content type.
+func setupContentReader(body any, contentType ContentType) (io.Reader, error) {
 	if body != nil {
 		mediaMarshaler, found := mediaMarshalers[contentType]
 		if !found {
@@ -390,6 +408,11 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 		if slices.Contains(contentVerbs, request.Method) {
 			request.Header.Set("Content-Type", content.DefaultHeaders().Get("Content-Type"))
 		}
+	}
+
+	// Gzip Encoding
+	if r.EnableGzip {
+		request.Header.Set("Accept-Encoding", "gzip")
 	}
 
 	if cacheResponse != nil && cacheResponse.revalidate {

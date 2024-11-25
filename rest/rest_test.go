@@ -21,6 +21,56 @@ func TestGet(t *testing.T) {
 	}
 }
 
+func TestGet_GZip(t *testing.T) {
+	client := &rest.Client{
+		EnableGzip: true,
+	}
+
+	resp := client.Get(server.URL + "/gzip/user")
+	if resp.Err != nil {
+		t.Fatal("Error:", resp.Err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+	t.Log(resp.String())
+	if !strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		t.Fatal("Content-Encoding header not found")
+	}
+}
+
+func TestGet_GZip_Err(t *testing.T) {
+	client := &rest.Client{
+		EnableGzip: true,
+	}
+
+	resp := client.Get(server.URL + "/gzip/user/err")
+	if resp.Err == nil {
+		t.Fatal("Error should not be nil")
+	}
+}
+
+func TestGet_GZip_Headers(t *testing.T) {
+	client := &rest.Client{
+		EnableGzip: true,
+	}
+
+	headers := make(http.Header)
+	headers.Add("Accept-Encoding", "gzip")
+
+	resp := client.Get(server.URL+"/gzip/user", headers)
+	if resp.Err != nil {
+		t.Fatal("Error:", resp.Err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+	t.Log(resp.String())
+	if !strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		t.Fatal("Content-Encoding header not found")
+	}
+}
+
 func TestGet_NoCache(t *testing.T) {
 	resp := rest.Get(server.URL + "/user")
 	if resp.StatusCode != http.StatusOK {

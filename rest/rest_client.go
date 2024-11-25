@@ -137,6 +137,9 @@ type Client struct {
 	// Set the http client to follow a redirect if we get a 3xx response
 	FollowRedirect bool
 
+	// Enable gzip compression for incoming and outgoing requests
+	EnableGzip bool
+
 	// Enable tracing
 	EnableTrace bool
 }
