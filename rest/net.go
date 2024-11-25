@@ -194,12 +194,12 @@ func (r *Client) shouldCompress(request *http.Request, response *http.Response) 
 // setContentReader creates a reader from the given body and content type.
 func setContentReader(body any, contentType ContentType) (io.Reader, error) {
 	if body != nil {
-		mediaMarshaler, found := mediaMarshalers[contentType]
+		mediaContent, found := contentMarshalers[contentType]
 		if !found {
 			return nil, fmt.Errorf("marshal fail, unsupported content type: %d", contentType)
 		}
 
-		reader, err := mediaMarshaler.Marshal(body)
+		reader, err := mediaContent.Marshal(body)
 		if err != nil {
 			return nil, err
 		}
@@ -415,7 +415,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}())
 
 	// Encoding
-	if marshaler, found := mediaMarshalers[r.ContentType]; found {
+	if marshaler, found := contentMarshalers[r.ContentType]; found {
 		request.Header.Set("Accept", marshaler.DefaultHeaders().Get("Accept"))
 		if slices.Contains(contentVerbs, request.Method) {
 			request.Header.Set("Content-Type", marshaler.DefaultHeaders().Get("Content-Type"))

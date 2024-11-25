@@ -77,12 +77,12 @@ func (r *Response) FillUp(fill any) error {
 		return fmt.Errorf("invalid content type: %s", contentType)
 	}
 
-	for mediaUnmarshaler := range maps.Values(mediaUnmarshalers) {
-		values := mediaUnmarshaler.DefaultHeaders().Values("Content-Type")
+	for mediaContent := range maps.Values(readMarshalers) {
+		values := mediaContent.DefaultHeaders().Values("Content-Type")
 		for i := range values {
 			value := values[i]
 			if mediaType == value {
-				return mediaUnmarshaler.Unmarshal(r.bytes, fill)
+				return mediaContent.Unmarshal(r.bytes, fill)
 			}
 		}
 	}
