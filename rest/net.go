@@ -186,10 +186,10 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	return result
 }
 
-// enableGZip checks if enableGZip is enabled for the given request and response.
+// enableGZip checks if GZip compression is enabled for the given request and response.
 func (r *Client) enableGZip(request *http.Request, response *http.Response) bool {
 	return r.EnableGzip ||
-		(request.Header.Get("Accept-Encoding") == "enableGZip" && response.Header.Get("Content-Encoding") == "enableGZip")
+		(request.Header.Get("Accept-Encoding") == "gzip" && response.Header.Get("Content-Encoding") == "gzip")
 }
 
 // setContentReader creates a reader from the given body and content type.
