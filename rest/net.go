@@ -58,7 +58,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 
 	// Prepare contentReader for the body
-	contentReader, err := setupContentReader(body, r.ContentType)
+	contentReader, err := setContentReader(body, r.ContentType)
 	if err != nil {
 		result.Err = err
 		return result
@@ -130,15 +130,10 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 	defer response.Body.Close()
 
-	var reader io.ReadCloser
-	reader = response.Body
-	if r.gzip(request, response) {
-		reader, err = gzip.NewReader(response.Body)
-		if err != nil {
-			result.Err = err
-			return result
-		}
-		defer reader.Close()
+	reader, err := r.setResponseReader(request, response)
+	if err != nil {
+		result.Err = err
+		return result
 	}
 
 	// Read response
@@ -191,14 +186,14 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	return result
 }
 
-// gzip checks if gzip is enabled for the given request and response.
-func (r *Client) gzip(request *http.Request, response *http.Response) bool {
+// enableGZip checks if enableGZip is enabled for the given request and response.
+func (r *Client) enableGZip(request *http.Request, response *http.Response) bool {
 	return r.EnableGzip ||
-		(request.Header.Get("Accept-Encoding") == "gzip" && response.Header.Get("Content-Encoding") == "gzip")
+		(request.Header.Get("Accept-Encoding") == "enableGZip" && response.Header.Get("Content-Encoding") == "enableGZip")
 }
 
-// setupContentReader creates a reader from the given body and content type.
-func setupContentReader(body any, contentType ContentType) (io.Reader, error) {
+// setContentReader creates a reader from the given body and content type.
+func setContentReader(body any, contentType ContentType) (io.Reader, error) {
 	if body != nil {
 		mediaMarshaler, found := mediaMarshalers[contentType]
 		if !found {
@@ -214,6 +209,26 @@ func setupContentReader(body any, contentType ContentType) (io.Reader, error) {
 	}
 
 	return http.NoBody, nil
+}
+
+// setResponseReader creates a reader from the given request and response.
+func (r *Client) setResponseReader(request *http.Request, response *http.Response) (io.ReadCloser, error) {
+	if !r.enableGZip(request, response) {
+		return response.Body, nil
+	}
+
+	gzipReader, err := gzip.NewReader(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer func(gzipReader *gzip.Reader) {
+		cErr := gzipReader.Close()
+		if cErr != nil {
+			return
+		}
+	}(gzipReader)
+
+	return gzipReader, nil
 }
 
 func setProblem(result *Response) {
@@ -412,7 +427,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 
 	// Gzip Encoding
 	if r.EnableGzip {
-		request.Header.Set("Accept-Encoding", "gzip")
+		request.Header.Set("Accept-Encoding", "enableGZip")
 	}
 
 	if cacheResponse != nil && cacheResponse.revalidate {
