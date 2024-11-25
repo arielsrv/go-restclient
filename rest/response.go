@@ -103,16 +103,16 @@ func TypedFillUp[T any](r *Response) (*T, error) {
 }
 
 // Deserialize fills the provided pointer with the JSON or XML response.
-func Deserialize[T any](r *Response) (T, error) {
-	var zero T
-	if r == nil {
-		return zero, errors.New("response is nil")
+func Deserialize[T any](response *Response) (T, error) {
+	var dflt T
+	if response == nil {
+		return dflt, errors.New("response is nil")
 	}
 
 	var result T
-	err := r.FillUp(&result)
+	err := response.FillUp(&result)
 	if err != nil {
-		return zero, err
+		return dflt, err
 	}
 
 	return result, nil
@@ -120,8 +120,8 @@ func Deserialize[T any](r *Response) (T, error) {
 
 // Cached shows if a response was get from the cache.
 func (r *Response) Cached() bool {
-	if hit, ok := r.cached.Load().(bool); hit && ok {
-		return true
+	if hit, ok := r.cached.Load().(bool); ok {
+		return hit
 	}
 
 	return false

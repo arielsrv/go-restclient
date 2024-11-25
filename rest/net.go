@@ -91,7 +91,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// Make the request
 	start := time.Now()
-	response, err := httpClient.Do(request)
+	httpResponse, err := httpClient.Do(request)
 	duration := time.Since(start)
 
 	// Metrics
@@ -128,16 +128,16 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		result.Err = err
 		return result
 	}
-	defer response.Body.Close()
+	defer httpResponse.Body.Close()
 
-	respReader, err := r.setRespReader(request, response)
+	respReader, err := r.setRespReader(request, httpResponse)
 	if err != nil {
 		result.Err = err
 		return result
 	}
 
-	// Read response
-	responseBody, err := io.ReadAll(respReader)
+	// Read httpResponse
+	respBody, err := io.ReadAll(respReader)
 	if err != nil {
 		result.Err = err
 		return result
@@ -148,21 +148,21 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		IncrementCounter("__go_restclient_requests_total",
 			metrics.Tags{
 				"client_name": r.Name,
-				"status_code": strconv.Itoa(response.StatusCode),
+				"status_code": strconv.Itoa(httpResponse.StatusCode),
 			})
 
 	// Deprecated
 	metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
-		buildTags(r.Name, "http_status", strconv.Itoa(response.StatusCode)))
+		buildTags(r.Name, "http_status", strconv.Itoa(httpResponse.StatusCode)))
 
-	// If we get a 304, return response from cache
-	if response.StatusCode == http.StatusNotModified {
+	// If we get a 304, return httpResponse from cache
+	if httpResponse.StatusCode == http.StatusNotModified {
 		result = cacheResponse
 		return result
 	}
 
-	result.Response = response
-	result.bytes = responseBody
+	result.Response = httpResponse
+	result.bytes = respBody
 	setProblem(result)
 
 	// Cache headers
@@ -416,11 +416,10 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}())
 
 	// Encoding
-	content, found := mediaMarshalers[r.ContentType]
-	if found {
-		request.Header.Set("Accept", content.DefaultHeaders().Get("Accept"))
+	if marshaler, found := mediaMarshalers[r.ContentType]; found {
+		request.Header.Set("Accept", marshaler.DefaultHeaders().Get("Accept"))
 		if slices.Contains(contentVerbs, request.Method) {
-			request.Header.Set("Content-Type", content.DefaultHeaders().Get("Content-Type"))
+			request.Header.Set("Content-Type", marshaler.DefaultHeaders().Get("Content-Type"))
 		}
 	}
 
@@ -491,14 +490,13 @@ func setTTL(response *Response) bool {
 }
 
 // setLastModified sets the Last-Modified header in the response.
-func setLastModified(resp *Response) bool {
-	lastModified, err := time.Parse(time.RFC1123, resp.Header.Get("Last-Modified"))
-	if err != nil {
-		return false
+func setLastModified(response *Response) bool {
+	if lastModified, err := time.Parse(time.RFC1123, response.Header.Get("Last-Modified")); err == nil {
+		response.lastModified = &lastModified
+		return true
 	}
 
-	resp.lastModified = &lastModified
-	return true
+	return false
 }
 
 // setETag sets the ETag header in the response.
