@@ -17,9 +17,10 @@ func main() {
 		ContentType: rest.JSON,        // rest.JSON by default
 		Timeout:     time.Duration(5000) * time.Millisecond,
 		BaseURL:     "https://httpbin.org",
+		EnableGzip:  true,
 	}
 
-	// Enable gzip compression for the request
+	// Enable gzip compression for the request (or use EnableGzip option in the client settings)
 	headers := make(http.Header)
 	headers.Add("Accept-Encoding", "gzip")
 
