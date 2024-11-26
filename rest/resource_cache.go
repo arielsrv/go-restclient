@@ -68,9 +68,6 @@ func init() {
 // get retrieves a Response from the cache, if it exists.
 func (r *resourceTTLLfuMap) get(url string) (*Response, bool) {
 	if value, hit := r.lowLevelCache.Get(url); hit {
-		if value != nil {
-			value.cached.Store(hit)
-		}
 		return value, hit
 	}
 

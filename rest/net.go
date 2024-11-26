@@ -52,6 +52,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
 		if response, hit := resourceCache.get(apiURL); hit && !response.revalidate {
+			response.Hit()
 			return response
 		}
 	}

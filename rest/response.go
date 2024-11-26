@@ -147,10 +147,12 @@ func (r *Response) Debug() string {
 	return dump
 }
 
+// IsOk checks if the response status code is within the 200-399 range.
 func (r *Response) IsOk() bool {
 	return r.StatusCode >= http.StatusOK && r.StatusCode < http.StatusBadRequest
 }
 
+// VerifyIsOkOrError checks if the response is OK or if an error occurred.
 func (r *Response) VerifyIsOkOrError() error {
 	if r.Err != nil {
 		return r.Err
@@ -161,4 +163,9 @@ func (r *Response) VerifyIsOkOrError() error {
 	}
 
 	return nil
+}
+
+// Hit marks the response as a hit in the cache.
+func (r *Response) Hit() {
+	r.cached.Store(true)
 }
