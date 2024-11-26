@@ -38,13 +38,11 @@ func main() {
 
 	go func() {
 		for {
-			time.Sleep(time.Duration(1000) * time.Millisecond)
 			response := client.GetWithContext(context.Background(), fmt.Sprintf("/cache/%d", random(1, 100)))
 			if response.Err != nil {
 				fmt.Printf("Error: %v\n", response.Err)
 				continue
 			}
-			fmt.Printf("Response: %+v\n", response.String())
 		}
 	}()
 
