@@ -5,9 +5,10 @@
 > This package provides a http client adapter with some features
 
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs.
-- Response Caching, based on response headers (`cache-control`, `last-modified`, `etag`, `expires`)
+- Response Caching, based on response headers (`cache-control`, `last-modified`, `etag`, `expires`) 
     - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
       this will consume more memory in your app until the validation time expires.
+    - Allowed formats RFC1123, RFC850, ANSIC
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default `JSON`.
     - Including HTTP `RFC7807` [Problems](https://datatracker.ietf.org/doc/html/rfc7807)
 - Content-Type can be `JSON`, `XML` & `FORM`
