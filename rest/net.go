@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"compress/gzip"
 	"context"
 	"errors"
 	"fmt"
@@ -32,44 +33,59 @@ var (
 
 var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
-func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, body any, headers ...http.Header) *Response {
-	var cacheURL string
-	var cacheResponse *Response
+var timeFormats = []string{
+	time.RFC1123, // "Mon, 02 Jan 2006 15:04:05 GMT"
+	time.RFC850,  // "Monday, 02-Jan-06 15:04:05 GMT"
+	time.ANSIC,   // "Mon Jan  2 15:04:05 2006"
+}
 
-	result := new(Response)
-	apiURL = r.BaseURL + apiURL
+const (
+	CanonicalUserAgentHeader       = "User-Agent"
+	CanonicalConnectionHeader      = "Connection"
+	CanonicalCacheControlHeader    = "Cache-Control"
+	CanonicalXOriginalURLHeader    = "X-Original-Url"
+	CanonicalETagHeader            = "ETag"
+	CanonicalLastModifiedHeader    = "Last-Modified"
+	CanonicalExpiresHeader         = "Expires"
+	CanonicalAcceptEncodingHeader  = "Accept-Encoding"
+	CanonicalContentEncodingHeader = "Content-Encoding"
+	CanonicalIfModifiedSinceHeader = "If-Modified-Since"
+	CanonicalIfNoneMatchHeader     = "If-None-Match"
+)
+
+// newRequest creates a new REST client with default configuration.
+func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, body any, headers ...http.Header) *Response {
+	var (
+		cacheURL      string
+		cacheResponse *Response
+		result        = new(Response)
+	)
+
+	validURL, err := url.Parse(fmt.Sprintf("%s%s", r.BaseURL, apiURL))
+	if err != nil {
+		result.Err = err
+		return result
+	}
+
+	apiURL = validURL.String()
 
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
-		if cacheResponse = resourceCache.get(apiURL); cacheResponse != nil {
-			cacheResponse.cacheHit.Store(true)
-			if !cacheResponse.revalidate {
-				return cacheResponse
-			}
+		if response, hit := resourceCache.get(apiURL); hit && !response.revalidate {
+			response.Hit()
+			return response
 		}
 	}
 
-	// Prepare reader for the body
-	var bodyReader io.Reader
-	bodyReader = http.NoBody
-	if body != nil {
-		media, found := mediaMarshaler[r.ContentType]
-		if !found {
-			result.Err = fmt.Errorf("marshal fail, unsupported content type: %d", r.ContentType)
-			return result
-		}
-
-		reader, err := media.Marshal(body)
-		if err != nil {
-			result.Err = err
-			return result
-		}
-
-		bodyReader = reader
+	// Prepare contentReader for the body
+	contentReader, err := setContentReader(body, r.ContentType)
+	if err != nil {
+		result.Err = err
+		return result
 	}
 
 	// Change URL to point to Mockup server
-	apiURL, cacheURL, err := checkMockup(apiURL)
+	apiURL, cacheURL, err = checkMockup(apiURL)
 	if err != nil {
 		result.Err = err
 		return result
@@ -84,7 +100,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	httpClient := r.onceHTTPClient(ctx)
 
 	// Create a new HTTP request
-	request, err := http.NewRequestWithContext(ctx, verb, apiURL, bodyReader)
+	request, err := http.NewRequestWithContext(ctx, verb, apiURL, contentReader)
 	if err != nil {
 		result.Err = err
 		return result
@@ -95,11 +111,14 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// Make the request
 	start := time.Now()
-	response, err := httpClient.Do(request)
+	httpResponse, err := httpClient.Do(request)
 	duration := time.Since(start)
 
 	// Metrics
-	metrics.Collector.Prometheus().RecordExecutionTime("go_restclient_durations_seconds", duration, metrics.Tags{"client_name": r.Name})
+	metrics.Collector.Prometheus().
+		RecordExecutionTime("__go_restclient_durations_seconds", duration, metrics.Tags{
+			"client_name": r.Name,
+		})
 
 	// Deprecated
 	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", duration,
@@ -115,7 +134,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 		// Metrics
 		metrics.Collector.Prometheus().
-			IncrementCounter("go_restclient_request_error",
+			IncrementCounter("__go_restclient_request_error",
 				metrics.Tags{
 					"client_name": r.Name,
 					"error_type":  errorType,
@@ -129,10 +148,16 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		result.Err = err
 		return result
 	}
-	defer response.Body.Close()
+	defer httpResponse.Body.Close()
 
-	// Read response
-	responseBody, err := io.ReadAll(response.Body)
+	respReader, err := r.setRespReader(request, httpResponse)
+	if err != nil {
+		result.Err = err
+		return result
+	}
+
+	// Read httpResponse
+	respBody, err := io.ReadAll(respReader)
 	if err != nil {
 		result.Err = err
 		return result
@@ -140,48 +165,95 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// Metrics
 	metrics.Collector.Prometheus().
-		IncrementCounter("go_restclient_requests_total",
+		IncrementCounter("__go_restclient_requests_total",
 			metrics.Tags{
 				"client_name": r.Name,
-				"status_code": strconv.Itoa(response.StatusCode),
+				"status_code": strconv.Itoa(httpResponse.StatusCode),
 			})
 
 	// Deprecated
 	metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
-		buildTags(r.Name, "http_status", strconv.Itoa(response.StatusCode)))
+		buildTags(r.Name, "http_status", strconv.Itoa(httpResponse.StatusCode)))
 
-	// If we get a 304, return response from cache
-	if response.StatusCode == http.StatusNotModified {
+	// If we get a 304, return httpResponse from cache
+	if httpResponse.StatusCode == http.StatusNotModified {
 		result = cacheResponse
 		return result
 	}
 
-	result.Response = response
-	result.bytes = responseBody
+	result.Response = httpResponse
+	result.bytes = respBody
 	setProblem(result)
 
 	// Cache headers
-	ttl := setTTL(result)
-	lastModified := setLastModified(result)
-	etag := setETag(result)
-
-	if !ttl && (lastModified || etag) {
-		result.revalidate = true
+	cacheHeaders := struct {
+		TTL          bool
+		LastModified bool
+		ETag         bool
+	}{
+		TTL:          setTTL(result),
+		LastModified: setLastModified(result),
+		ETag:         setETag(result),
 	}
 
+	result.revalidate = !cacheHeaders.TTL && (cacheHeaders.LastModified || cacheHeaders.ETag)
+
 	// If Cache enable: Cache SENA
-	if !r.DisableCache && slices.Contains(readVerbs, verb) && (ttl || lastModified || etag) {
+	if !r.DisableCache && slices.Contains(readVerbs, verb) && (cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
 		resourceCache.setNX(cacheURL, result)
 	}
 
 	return result
 }
 
-func setProblem(result *Response) {
-	contentType := result.Header.Get("Content-Type")
-	if strings.Contains(contentType, "problem") {
-		err := result.FillUp(&result.Problem)
+// shouldCompress checks if GZip compression is enabled for the given request and response.
+func (r *Client) shouldCompress(request *http.Request, response *http.Response) bool {
+	return (r.EnableGzip || request.Header.Get(CanonicalAcceptEncodingHeader) == "gzip") &&
+		response.Header.Get(CanonicalContentEncodingHeader) == "gzip"
+}
+
+// setContentReader creates a reader from the given body and content type.
+func setContentReader(body any, contentType ContentType) (io.Reader, error) {
+	if body != nil {
+		mediaContent, found := contentMarshalers[contentType]
+		if !found {
+			return nil, fmt.Errorf("marshal fail, unsupported content type: %d", contentType)
+		}
+
+		reader, err := mediaContent.Marshal(body)
 		if err != nil {
+			return nil, err
+		}
+
+		return reader, nil
+	}
+
+	return http.NoBody, nil
+}
+
+// setRespReader creates a reader from the given request and response.
+func (r *Client) setRespReader(request *http.Request, response *http.Response) (io.ReadCloser, error) {
+	if !r.shouldCompress(request, response) {
+		return response.Body, nil
+	}
+
+	reader, err := gzip.NewReader(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer func(gzipReader *gzip.Reader) {
+		if cErr := gzipReader.Close(); cErr != nil {
+			return
+		}
+	}(reader)
+
+	return reader, nil
+}
+
+func setProblem(result *Response) {
+	contentType := result.Header.Get(CanonicalContentTypeHeader)
+	if strings.Contains(contentType, "problem") {
+		if err := result.FillUp(&result.Problem); err != nil {
 			return
 		}
 	}
@@ -234,8 +306,8 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 			r.Client = oauth.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
 		}
 
-		for k, v := range r.DefaultHeaders {
-			r.defaultHeaders.Store(k, v)
+		for key, value := range r.DefaultHeaders {
+			r.defaultHeaders.Store(key, value)
 		}
 	})
 
@@ -248,17 +320,18 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 	}
 
 	if r.Name == "" {
-		hostname, err := os.Hostname()
-		if err == nil {
-			r.Name = hostname
-		} else {
-			r.Name = "undefined"
-		}
+		r.Name = func() string {
+			if hostname, err := os.Hostname(); err == nil {
+				return hostname
+			}
+			return "undefined"
+		}()
 	}
 
 	return r.Client
 }
 
+// setupTransport sets up the transport for the client.
 func (r *Client) setupTransport() http.RoundTripper {
 	transportOnce.Do(func() {
 		if dfltTransport == nil {
@@ -286,8 +359,8 @@ func (r *Client) setupTransport() http.RoundTripper {
 			// Set Proxy
 			if customPool.Proxy != "" {
 				if proxy, err := url.Parse(customPool.Proxy); err == nil {
-					if dfltTransport, ok := currentTransport.(*http.Transport); ok {
-						dfltTransport.Proxy = http.ProxyURL(proxy)
+					if transport, ok := currentTransport.(*http.Transport); ok {
+						transport.Proxy = http.ProxyURL(proxy)
 					}
 				}
 			}
@@ -313,6 +386,7 @@ func (r *Client) getDialContext() func(ctx context.Context, network string, addr
 	return (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext
 }
 
+// getRequestTimeout returns the configured request timeout.
 func (r *Client) getRequestTimeout() time.Duration {
 	switch {
 	case r.DisableTimeout:
@@ -324,6 +398,7 @@ func (r *Client) getRequestTimeout() time.Duration {
 	}
 }
 
+// getConnectionTimeout returns the configured connection timeout.
 func (r *Client) getConnectionTimeout() time.Duration {
 	switch {
 	case r.DisableTimeout:
@@ -335,14 +410,15 @@ func (r *Client) getConnectionTimeout() time.Duration {
 	}
 }
 
-func (r *Client) setParams(request *http.Request, cacheResponse *Response, cacheURL string, headers ...http.Header) {
+// setParams sets the request parameters and headers.
+func (r *Client) setParams(request *http.Request, cacheResponse *Response, cacheURL string, paramHeaders ...http.Header) {
 	// Default headers
-	request.Header.Set("Connection", "keep-alive")
-	request.Header.Set("Cache-Control", "no-cache")
+	request.Header.Set(CanonicalConnectionHeader, "keep-alive")
+	request.Header.Set(CanonicalCacheControlHeader, "no-cache")
 
 	// If mockup
 	if *mockUpEnv {
-		request.Header.Set("X-Original-Url", cacheURL)
+		request.Header.Set(CanonicalXOriginalURLHeader, cacheURL)
 	}
 
 	// Basic Auth
@@ -351,7 +427,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}
 
 	// User Agent
-	request.Header.Set("User-Agent", func() string {
+	request.Header.Set(CanonicalUserAgentHeader, func() string {
 		if r.UserAgent != "" {
 			return r.UserAgent
 		}
@@ -360,38 +436,48 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}())
 
 	// Encoding
-	content, found := mediaMarshaler[r.ContentType]
-	if found {
-		request.Header.Set("Accept", content.DefaultHeaders().Get("Accept"))
+	if marshaler, found := contentMarshalers[r.ContentType]; found {
+		request.Header.Set(CanonicalAcceptHeader, marshaler.DefaultHeaders().Get(CanonicalAcceptHeader))
 		if slices.Contains(contentVerbs, request.Method) {
-			request.Header.Set("Content-Type", content.DefaultHeaders().Get("Content-Type"))
+			request.Header.Set(CanonicalContentTypeHeader, marshaler.DefaultHeaders().Get(CanonicalContentTypeHeader))
 		}
+	}
+
+	// Gzip Encoding
+	if r.EnableGzip {
+		request.Header.Set(CanonicalAcceptEncodingHeader, "gzip")
 	}
 
 	if cacheResponse != nil && cacheResponse.revalidate {
 		switch {
 		case cacheResponse.etag != "":
-			request.Header.Set("If-None-Match", cacheResponse.etag)
+			request.Header.Set(CanonicalIfNoneMatchHeader, cacheResponse.etag)
 		case cacheResponse.lastModified != nil:
-			request.Header.Set("If-Modified-Since", cacheResponse.lastModified.Format(time.RFC1123))
+			request.Header.Set(CanonicalIfModifiedSinceHeader, cacheResponse.lastModified.Format(time.RFC1123))
 		}
 	}
 
 	r.defaultHeaders.Range(func(key, value any) bool {
-		request.Header[key.(string)] = value.([]string)
+		values := value.([]string)
+		for _, v := range values {
+			request.Header.Add(key.(string), v)
+		}
 		return true
 	})
 
-	for _, h := range headers {
-		for k, v := range h {
-			request.Header[k] = v
+	for _, headers := range paramHeaders {
+		for k, values := range headers {
+			for _, v := range values {
+				request.Header.Add(k, v)
+			}
 		}
 	}
 }
 
+// setTTL sets the TTL (Time To Live) for the response.
 func setTTL(response *Response) bool {
 	// Cache-Control Header
-	cacheControl := maxAge.FindStringSubmatch(response.Header.Get("Cache-Control"))
+	cacheControl := maxAge.FindStringSubmatch(response.Header.Get(CanonicalCacheControlHeader))
 
 	now := time.Now()
 	if len(cacheControl) > 1 {
@@ -409,36 +495,43 @@ func setTTL(response *Response) bool {
 		return false
 	}
 
-	// Expires Header
-	expires, err := time.Parse(time.RFC1123, response.Header.Get("Expires"))
-	if err != nil {
-		return false
-	}
-
-	if expires.Sub(now) > 0 {
-		response.ttl = &expires
-		return true
+	for i := range timeFormats {
+		format := timeFormats[i]
+		if expires, parseErr := time.Parse(format, response.Header.Get(CanonicalExpiresHeader)); parseErr == nil && expires.Sub(now) > 0 {
+			response.ttl = &expires
+			return true
+		}
 	}
 
 	return false
 }
 
-func setLastModified(resp *Response) bool {
-	lastModified, err := time.Parse(time.RFC1123, resp.Header.Get("Last-Modified"))
-	if err != nil {
+// setLastModified sets the Last-Modified header in the response.
+func setLastModified(response *Response) bool {
+	lastModifiedValue := response.Header.Get(CanonicalLastModifiedHeader)
+	if lastModifiedValue == "" {
 		return false
 	}
 
-	resp.lastModified = &lastModified
-	return true
+	for i := range timeFormats {
+		format := timeFormats[i]
+		if lastModified, parseErr := time.Parse(format, lastModifiedValue); parseErr == nil {
+			response.lastModified = &lastModified
+			return true
+		}
+	}
+
+	return false
 }
 
+// setETag sets the ETag header in the response.
 func setETag(response *Response) bool {
-	response.etag = response.Header.Get("Etag")
+	response.etag = response.Header.Get(CanonicalETagHeader)
 
 	return response.etag != ""
 }
 
+// buildTags builds the tags for the Prometheus metrics.
 func buildTags(clientName, eventType, eventSubType string) metrics.Tags {
 	return metrics.Tags{
 		"client_name":   clientName,

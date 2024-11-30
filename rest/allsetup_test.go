@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"encoding/xml"
 	"io"
@@ -60,6 +61,8 @@ func setup() {
 	tmux.HandleFunc("/xml/user", usersXML)
 	tmux.HandleFunc("/form/user", usersForm)
 	tmux.HandleFunc("/bytes/user", usersBytes)
+	tmux.HandleFunc("/gzip/user", gzipUser)
+	tmux.HandleFunc("/gzip/user/err", gzipUserErr)
 	tmux.HandleFunc("/cache/user", usersCache)
 	tmux.HandleFunc("/cache/expires/user", usersCacheWithExpires)
 	tmux.HandleFunc("/cache/etag/user", usersEtag)
@@ -359,6 +362,37 @@ func allUsers(writer http.ResponseWriter, req *http.Request) {
 		writer.Write(b)
 		return
 	}
+}
+
+func gzipUser(writer http.ResponseWriter, _ *http.Request) {
+	// Crear un escritor GZIP sobre el cuerpo de la respuesta
+	gzWriter := gzip.NewWriter(writer)
+	defer gzWriter.Close()
+
+	// Preparar el objeto de usuario
+	user := &User{ID: 1, Name: "John GZIP Doe"}
+
+	// Convertir el objeto de usuario a JSON
+	b, _ := json.Marshal(user)
+
+	// Establecer el encabezado Content-Encoding
+	writer.Header().Set("Content-Encoding", "gzip")
+	writer.Header().Set("Content-Type", "application/json")
+
+	// Escribir los datos comprimidos en el escritor GZIP
+	_, _ = gzWriter.Write(b)
+}
+
+func gzipUserErr(writer http.ResponseWriter, _ *http.Request) {
+	user := &User{ID: 1, Name: "John GZIP Doe"}
+
+	// Convertir el objeto de usuario a JSON
+	b, _ := json.Marshal(user)
+
+	// Establecer el encabezado Content-Encoding
+	writer.Header().Set("Content-Encoding", "gzip")
+	writer.Header().Set("Content-Type", "application/json")
+	writer.Write(b)
 }
 
 func problem(writer http.ResponseWriter, req *http.Request) {

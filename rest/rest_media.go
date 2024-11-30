@@ -11,6 +11,21 @@ import (
 	"strings"
 )
 
+const (
+	MIMETextXML                = "text/xml"
+	MIMETextPlain              = "text/plain"
+	MIMEApplicationXML         = "application/xml"
+	MIMEApplicationJSON        = "application/json"
+	MIMEApplicationProblemJSON = "application/problem+json"
+	MIMEApplicationProblemXML  = "application/problem+xml"
+	MIMEApplicationForm        = "application/x-www-form-urlencoded"
+)
+
+const (
+	CanonicalContentTypeHeader = "Content-Type"
+	CanonicalAcceptHeader      = "Accept"
+)
+
 // ContentType represents the Content Type for the Body of HTTP Verbs like
 // POST, PUT, and PATCH.
 type ContentType int
@@ -27,18 +42,24 @@ const (
 )
 
 var (
-	jsonMedia = &JSONMedia{ContentType: "application/json"}
-	xmlMedia  = &XMLMedia{ContentType: "application/xml"}
-	formMedia = &FormMedia{ContentType: "application/x-www-form-urlencoded"}
+	jsonMedia = &JSONMedia{
+		ContentType: MIMEApplicationJSON,
+	}
+	xmlMedia = &XMLMedia{
+		ContentType: MIMEApplicationXML,
+	}
+	formMedia = &FormMedia{
+		ContentType: MIMEApplicationForm,
+	}
 )
 
 var (
-	mediaMarshaler = map[ContentType]MediaMarshaler{
+	contentMarshalers = map[ContentType]MediaMarshaler{
 		JSON: jsonMedia,
 		XML:  xmlMedia,
 		FORM: formMedia,
 	}
-	mediaUnmarshaler = map[ContentType]MediaUnmarshaler{
+	readMarshalers = map[ContentType]MediaUnmarshaler{
 		JSON: jsonMedia,
 		XML:  xmlMedia,
 	}
@@ -77,13 +98,13 @@ func (r JSONMedia) Unmarshal(data []byte, v any) error {
 
 func (r JSONMedia) DefaultHeaders() http.Header {
 	return http.Header{
-		"Content-Type": []string{
+		CanonicalContentTypeHeader: []string{
 			r.ContentType,
 			"application/problem+json",
 		},
-		"Accept": []string{
-			"application/json",
-			"application/problem+json",
+		CanonicalAcceptHeader: []string{
+			MIMEApplicationJSON,
+			MIMEApplicationProblemJSON,
 		},
 	}
 }
@@ -107,13 +128,13 @@ func (r XMLMedia) Unmarshal(data []byte, v any) error {
 
 func (r XMLMedia) DefaultHeaders() http.Header {
 	return http.Header{
-		"Content-Type": []string{
+		CanonicalContentTypeHeader: []string{
 			r.ContentType,
 		},
-		"Accept": []string{
-			"application/xml",
-			"application/problem+xml",
-			"txt/xml",
+		CanonicalAcceptHeader: []string{
+			MIMEApplicationXML,
+			MIMEApplicationProblemXML,
+			MIMETextXML,
 		},
 	}
 }
@@ -132,13 +153,13 @@ func (r FormMedia) Marshal(body any) (io.Reader, error) {
 
 func (r FormMedia) DefaultHeaders() http.Header {
 	return http.Header{
-		"Content-Type": []string{
+		CanonicalContentTypeHeader: []string{
 			r.ContentType,
 		},
-		"Accept": []string{
-			"application/json",
-			"application/xml",
-			"text/plain",
+		CanonicalAcceptHeader: []string{
+			MIMEApplicationJSON,
+			MIMEApplicationXML,
+			MIMETextPlain,
 		},
 	}
 }

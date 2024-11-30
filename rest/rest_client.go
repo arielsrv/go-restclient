@@ -137,6 +137,9 @@ type Client struct {
 	// Set the http client to follow a redirect if we get a 3xx response
 	FollowRedirect bool
 
+	// Enable gzip compression for incoming and outgoing requests
+	EnableGzip bool
+
 	// Enable tracing
 	EnableTrace bool
 }
@@ -228,9 +231,23 @@ func WithContentType(contentType ContentType) Option {
 }
 
 // WithFollowRedirect enables or disables following redirects.
-func WithFollowRedirect(enabled bool) Option {
+func WithFollowRedirect() Option {
 	return func(c *Client) {
-		c.FollowRedirect = enabled
+		c.FollowRedirect = true
+	}
+}
+
+// WithGzip enables or disables gzip compression.
+func WithGzip() Option {
+	return func(c *Client) {
+		c.EnableGzip = true
+	}
+}
+
+// WithTrace enables or disables tracing.
+func WithTrace() Option {
+	return func(c *Client) {
+		c.EnableTrace = true
 	}
 }
 

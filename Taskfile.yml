@@ -8,29 +8,41 @@ env:
   COVERAGE_HTML_FILE: coverage.html
 
 tasks:
+  setup:
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install mvdan.cc/gofumpt@latest
+      - go install github.com/dkorunic/betteralign/cmd/betteralign@latest
+      - go install github.com/oligot/go-mod-upgrade@latest
+      - go install gotest.tools/gotestsum@latest
+
   lint:
     desc: Use golangci-lint (.golangci.yml).
     cmds:
-      - go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix
-      - go run mvdan.cc/gofumpt@latest -w -l .
-      - go run github.com/dkorunic/betteralign/cmd/betteralign@latest -test_files -generated_files -apply ./...
+      - golangci-lint run --fix
+      - gofumpt -w -l .
+      - betteralign -test_files -generated_files -apply ./...
+
   lint:report:
     desc: Linter report
     cmds:
       - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+
   race:
     desc: Run race conditions test.
     cmds:
       - go test -race -count 5 ./...
+
   test:
     desc: Run test.
     cmds:
-      - go test ./...
+      - go test -v ./...
+
   test:report:
     desc: CI test report.
     cmds:
-      - go install gotest.tools/gotestsum@latest
       - gotestsum --junitfile report.xml --format testname
+
   mock:
     desc: Create mocks
     cmds:
@@ -41,29 +53,32 @@ tasks:
       - go test $SOURCE_FOLDER -covermode=count -coverprofile=$COVERAGE_OUT_FILE
       - go tool cover -html $COVERAGE_OUT_FILE -o $COVERAGE_HTML_FILE
       - go tool cover -func=$COVERAGE_OUT_FILE -o=$COVERAGE_OUT_FILE
+
   coverage:report:
     desc: CI coverage report
     cmds:
       - CGO_ENABLED=0 go test $SOURCE_FOLDER -coverprofile=coverage-report.out
+
   clean:
     desc: Clean binaries and reports.
     cmds:
       - rm -rf $COVERAGE_OUT_FILE $COVERAGE_HTML_FILE
+
   download:
     desc: Run go mod tidy.
     cmds:
       - go mod tidy
+
   upgrade:
     desc: Check for latest direct dependencies.
     cmds:
       - go-mod-upgrade
+
   build:
     desc: Build the go EXECUTABLE.
-    generates:
-      - server
-    interactive: true
     cmds:
       - go build -v ./...
+
   release:
     desc: Run relevant tasks.
     cmds:
@@ -73,6 +88,7 @@ tasks:
       - task: lint
       - task: test
       - task: race
+
   default:
     desc: Run [release] task.
     cmds:

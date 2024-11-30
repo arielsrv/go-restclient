@@ -5,9 +5,10 @@
 > This package provides a http client adapter with some features
 
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs.
-- Response Caching, based on response headers (`cache-control`, `last-modified`, `etag`, `expires`)
+- Response Caching, based on response headers (`cache-control`, `last-modified`, `etag`, `expires`) 
     - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
       this will consume more memory in your app until the validation time expires.
+    - Allowed formats RFC1123, RFC850, ANSIC
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default `JSON`.
     - Including HTTP `RFC7807` [Problems](https://datatracker.ietf.org/doc/html/rfc7807)
 - Content-Type can be `JSON`, `XML` & `FORM`
@@ -150,6 +151,64 @@ User: 7527445, Name: Dhyaneshwar Reddy, Email: dhyaneshwar_reddy@brown.test
 ```
 
 ## Metrics
+
+```text
+# HELP __go_restclient_cache_buffer_items 
+# TYPE __go_restclient_cache_buffer_items gauge
+__go_restclient_cache_buffer_items 64
+# HELP __go_restclient_cache_cost_added_bytes_total 
+# TYPE __go_restclient_cache_cost_added_bytes_total counter
+__go_restclient_cache_cost_added_bytes_total 13109
+# HELP __go_restclient_cache_cost_evicted_bytes_total 
+# TYPE __go_restclient_cache_cost_evicted_bytes_total counter
+__go_restclient_cache_cost_evicted_bytes_total 2279
+# HELP __go_restclient_cache_gets_dropped_total 
+# TYPE __go_restclient_cache_gets_dropped_total counter
+__go_restclient_cache_gets_dropped_total 0
+# HELP __go_restclient_cache_gets_kept_total 
+# TYPE __go_restclient_cache_gets_kept_total counter
+__go_restclient_cache_gets_kept_total 0
+# HELP __go_restclient_cache_hits_total 
+# TYPE __go_restclient_cache_hits_total counter
+__go_restclient_cache_hits_total 8
+# HELP __go_restclient_cache_keys_added_total 
+# TYPE __go_restclient_cache_keys_added_total counter
+__go_restclient_cache_keys_added_total 23
+# HELP __go_restclient_cache_keys_evicted_total 
+# TYPE __go_restclient_cache_keys_evicted_total counter
+__go_restclient_cache_keys_evicted_total 4
+# HELP __go_restclient_cache_keys_updated_total 
+# TYPE __go_restclient_cache_keys_updated_total counter
+__go_restclient_cache_keys_updated_total 1
+# HELP __go_restclient_cache_max_cost_bytes 
+# TYPE __go_restclient_cache_max_cost_bytes gauge
+__go_restclient_cache_max_cost_bytes 1.073741824e+09
+# HELP __go_restclient_cache_misses_total 
+# TYPE __go_restclient_cache_misses_total counter
+__go_restclient_cache_misses_total 48
+# HELP __go_restclient_cache_num_counters 
+# TYPE __go_restclient_cache_num_counters gauge
+__go_restclient_cache_num_counters 1e+07
+# HELP __go_restclient_cache_ratio 
+# TYPE __go_restclient_cache_ratio gauge
+__go_restclient_cache_ratio 0.14285714285714285
+# HELP __go_restclient_cache_sets_dropped_total 
+# TYPE __go_restclient_cache_sets_dropped_total counter
+__go_restclient_cache_sets_dropped_total 0
+# HELP __go_restclient_cache_sets_rejected_total 
+# TYPE __go_restclient_cache_sets_rejected_total counter
+__go_restclient_cache_sets_rejected_total 0
+# HELP __go_restclient_durations_seconds 
+# TYPE __go_restclient_durations_seconds summary
+__go_restclient_durations_seconds{client_name="gorest-client",quantile="0.5"} 113
+__go_restclient_durations_seconds{client_name="gorest-client",quantile="0.95"} 586
+__go_restclient_durations_seconds{client_name="gorest-client",quantile="0.99"} 649
+__go_restclient_durations_seconds_sum{client_name="gorest-client"} 4298
+__go_restclient_durations_seconds_count{client_name="gorest-client"} 24
+# HELP __go_restclient_requests_total 
+# TYPE __go_restclient_requests_total counter
+__go_restclient_requests_total{client_name="gorest-client",status_code="200"} 24
+```
 
 ![prometheus]
 ![otel]

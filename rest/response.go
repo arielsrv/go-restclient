@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"container/list"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -17,17 +16,31 @@ import (
 
 // Response ...
 type Response struct {
+	Err    error
+	cached atomic.Value
 	*http.Response
-	Err             error
-	Problem         *Problem
-	cacheHit        atomic.Value
-	listElement     *list.Element
-	skipListElement *skipListNode
-	ttl             *time.Time
-	lastModified    *time.Time
-	etag            string
-	bytes           []byte
-	revalidate      bool
+	Problem      *Problem
+	ttl          *time.Time
+	lastModified *time.Time
+	etag         string
+	bytes        []byte
+	revalidate   bool
+}
+
+// size returns the size of the Response in bytes.
+func (r *Response) size() int64 {
+	size := int64(unsafe.Sizeof(*r))
+
+	size += int64(len(r.bytes))
+	size += int64(unsafe.Sizeof(*r.Problem))
+	size += int64(unsafe.Sizeof(*r.ttl))
+	size += int64(unsafe.Sizeof(*r.lastModified))
+	size += int64(len(r.etag))
+
+	size += int64(len(r.Response.Proto))
+	size += int64(len(r.Response.Status))
+
+	return size
 }
 
 // Problem represents a rfc7807 json|xml API problem response. https://datatracker.ietf.org/doc/html/rfc7807#section-1
@@ -41,36 +54,20 @@ type Problem struct {
 	Status   int      `json:"status,omitempty"   xml:"status,omitempty"`
 }
 
-func (r *Response) size() int64 {
-	size := int64(unsafe.Sizeof(*r))
-
-	size += int64(len(r.bytes))
-	size += int64(unsafe.Sizeof(*r.listElement))
-	size += int64(unsafe.Sizeof(*r.skipListElement))
-	size += int64(unsafe.Sizeof(*r.ttl))
-	size += int64(unsafe.Sizeof(*r.lastModified))
-	size += int64(len(r.etag))
-
-	size += int64(len(r.Response.Proto))
-	size += int64(len(r.Response.Status))
-
-	return size
-}
-
 // String return the Response Body as a String.
 func (r *Response) String() string {
-	return string(r.Bytes())
+	return string(r.bytes)
 }
 
-// Bytes return the Response Body as bytes.
-func (r *Response) Bytes() []byte {
-	return r.bytes
+// Raw return the Response Body as a String.
+func (r *Response) Raw() string {
+	return r.String()
 }
 
 // FillUp set the *fill* parameter with the corresponding JSON or XML response.
 // fill could be `struct` or `map[string]any`.
 func (r *Response) FillUp(fill any) error {
-	contentType := strings.ToLower(r.Header.Get("Content-Type"))
+	contentType := strings.ToLower(r.Header.Get(CanonicalContentTypeHeader))
 	if contentType == "" {
 		contentType = http.DetectContentType(r.bytes)
 	}
@@ -80,12 +77,12 @@ func (r *Response) FillUp(fill any) error {
 		return fmt.Errorf("invalid content type: %s", contentType)
 	}
 
-	for unmarshaller := range maps.Values(mediaUnmarshaler) {
-		values := unmarshaller.DefaultHeaders().Values("Content-Type")
+	for mediaContent := range maps.Values(readMarshalers) {
+		values := mediaContent.DefaultHeaders().Values(CanonicalContentTypeHeader)
 		for i := range values {
 			value := values[i]
 			if mediaType == value {
-				return unmarshaller.Unmarshal(r.bytes, fill)
+				return mediaContent.Unmarshal(r.bytes, fill)
 			}
 		}
 	}
@@ -93,37 +90,26 @@ func (r *Response) FillUp(fill any) error {
 	return fmt.Errorf("unmarshal fail, unsupported content type: %s", contentType)
 }
 
-// TypedFillUp FillUp set the *fill* parameter with the corresponding JSON or XML response.
-// fill could be `struct` or `map[string]any`.
-func TypedFillUp[T any](r *Response) (*T, error) {
-	result, err := Deserialize[T](r)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
 // Deserialize fills the provided pointer with the JSON or XML response.
-func Deserialize[T any](r *Response) (T, error) {
-	var zero T
-	if r == nil {
-		return zero, errors.New("response is nil")
+func Deserialize[T any](response *Response) (T, error) {
+	var dflt T
+	if response == nil {
+		return dflt, errors.New("response is nil")
 	}
 
 	var result T
-	err := r.FillUp(&result)
+	err := response.FillUp(&result)
 	if err != nil {
-		return zero, err
+		return dflt, err
 	}
 
 	return result, nil
 }
 
-// CacheHit shows if a response was get from the cache.
-func (r *Response) CacheHit() bool {
-	if hit, ok := r.cacheHit.Load().(bool); hit && ok {
-		return true
+// Cached shows if a response was get from the cache.
+func (r *Response) Cached() bool {
+	if hit, ok := r.cached.Load().(bool); ok {
+		return hit
 	}
 
 	return false
@@ -161,10 +147,12 @@ func (r *Response) Debug() string {
 	return dump
 }
 
+// IsOk checks if the response status code is within the 200-399 range.
 func (r *Response) IsOk() bool {
 	return r.StatusCode >= http.StatusOK && r.StatusCode < http.StatusBadRequest
 }
 
+// VerifyIsOkOrError checks if the response is OK or if an error occurred.
 func (r *Response) VerifyIsOkOrError() error {
 	if r.Err != nil {
 		return r.Err
@@ -175,4 +163,9 @@ func (r *Response) VerifyIsOkOrError() error {
 	}
 
 	return nil
+}
+
+// Hit marks the response as a hit in the cache.
+func (r *Response) Hit() {
+	r.cached.Store(true)
 }

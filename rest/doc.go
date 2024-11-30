@@ -15,7 +15,6 @@
 //   - Response Caching, based on response headers (cache-control, last-modified, etag, expires)
 //   - Local caching strategies: TTL, LRU & Max Byte Size.
 //   - Mockups!
-//   - Fork-Join request pattern, for sending many requests concurrently, getting better client performance.
 //   - Async request pattern.
 //   - Request Body can be `string`, `[]byte`, `struct` & `map`
 //   - Automatic marshal and unmarshal for `JSON` and `XML` Content-Type. Default JSON.
@@ -33,7 +32,7 @@
 //
 // v0.4
 //   - Custom Root Certificates and Client Certificates
-//   - Testing +95%
+//   - Testing +90%
 //
 // v0.5
 //   - Pluggable external caches like Memcached
@@ -42,7 +41,7 @@
 //
 //	is done by two strategies working together: Time To Live (TTL) and
 //
-// Least Recently Used (LRU). List are inserted in the cache based on
+// Least Frequently Used (LFU). List are inserted in the cache based on
 // Response Headers. You can establish a maximum Memory Size for the cache
 // and objects are flushed based on time expiration (TTL) or by hitting the maximum
 // memory limit. In the last case, least accessed objects will be removed first.
@@ -130,7 +129,7 @@
 // * Cache: enable
 // * Cache Size: 1GB
 // * Idle Connections Per Host: 2 (the default of http.net package)
-// * HTTP/2: automatic with Go 1.6
+// * HTTP/2: automatic with Go > 1.6
 // * Gzip: automatic support for gzip responses
 //
 // # RESTClient
@@ -143,7 +142,7 @@
 //	headers := make(http.Header)
 //	headers.Add("myHeader", "myValue")
 //
-//	var rb = rest.RESTClient{
+//	var c = rest.RESTClient{
 //	  Headers:             headers,
 //	  Timeout:             200 * time.Millisecond,
 //	  BaseURL:             "https://baseURL",
@@ -154,16 +153,9 @@
 //	  MaxIdleConnsPerHost: 10,
 //	}
 //
-//	resp := rb.Get("/mypath")
+//	resp := c.Get("/mypath")
 //
 // # Mockups
-//
-// When using mockups, all requests will be sent to the mockup server.
-// To activate the mockup *environment* you have two ways: using the flag -mock
-//
-//	go test -mock
-//
-// Or by programmatically starting the mockup server
 //
 //	StartMockupServer()
 //

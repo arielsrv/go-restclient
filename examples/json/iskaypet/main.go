@@ -101,8 +101,6 @@ func main() {
 		log.Fatal(response.Err)
 	case response.StatusCode != http.StatusOK:
 		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
-	case !response.CacheHit():
-		log.Fatalf("*** LRU cache miss: %v ***", response.CacheHit())
 	}
 
 	log.Infof("Cache-Control: %v", response.Header.Get("Cache-Control"))
