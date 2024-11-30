@@ -33,6 +33,7 @@ var (
 
 var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
+// timeFormats is a list of time.Parse formats to use when parsing HTTP date headers.
 var timeFormats = []string{
 	time.RFC1123, // "Mon, 02 Jan 2006 15:04:05 GMT"
 	time.RFC850,  // "Monday, 02-Jan-06 15:04:05 GMT"
@@ -196,6 +197,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		ETag:         setETag(result),
 	}
 
+	// Must revalidate response if necessary
 	result.revalidate = !cacheHeaders.TTL && (cacheHeaders.LastModified || cacheHeaders.ETag)
 
 	// If Cache enable: Cache SENA
@@ -250,6 +252,7 @@ func (r *Client) setRespReader(request *http.Request, response *http.Response) (
 	return reader, nil
 }
 
+// setProblems sets the problem field in the response if the response content type is a problem.
 func setProblem(result *Response) {
 	contentType := result.Header.Get(CanonicalContentTypeHeader)
 	if strings.Contains(contentType, "problem") {
@@ -259,6 +262,7 @@ func setProblem(result *Response) {
 	}
 }
 
+// checkMockup checks if the request URL should be mocked up.
 func checkMockup(reqURL string) (string, string, error) {
 	cacheURL := reqURL
 
@@ -277,6 +281,7 @@ func checkMockup(reqURL string) (string, string, error) {
 	return reqURL, cacheURL, nil
 }
 
+// onceHTTPClient sets up the HTTP client for the given request builder.
 func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 	// This will be executed only once
 	// per request builder
