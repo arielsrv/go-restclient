@@ -67,7 +67,7 @@ func (r *Response) Raw() string {
 // FillUp set the *fill* parameter with the corresponding JSON or XML response.
 // fill could be `struct` or `map[string]any`.
 func (r *Response) FillUp(fill any) error {
-	contentType := strings.ToLower(r.Header.Get("Content-Type"))
+	contentType := strings.ToLower(r.Header.Get(CanonicalContentTypeHeader))
 	if contentType == "" {
 		contentType = http.DetectContentType(r.bytes)
 	}
@@ -78,7 +78,7 @@ func (r *Response) FillUp(fill any) error {
 	}
 
 	for mediaContent := range maps.Values(readMarshalers) {
-		values := mediaContent.DefaultHeaders().Values("Content-Type")
+		values := mediaContent.DefaultHeaders().Values(CanonicalContentTypeHeader)
 		for i := range values {
 			value := values[i]
 			if mediaType == value {
