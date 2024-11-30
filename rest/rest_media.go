@@ -100,7 +100,6 @@ func (r JSONMedia) DefaultHeaders() http.Header {
 	return http.Header{
 		CanonicalContentTypeHeader: []string{
 			r.ContentType,
-			"application/problem+json",
 		},
 		CanonicalAcceptHeader: []string{
 			MIMEApplicationJSON,
