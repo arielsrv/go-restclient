@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector/metrics"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config/env"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
@@ -149,7 +150,11 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		result.Err = err
 		return result
 	}
-	defer httpResponse.Body.Close()
+	defer func(Body io.ReadCloser) {
+		if cErr := Body.Close(); cErr != nil {
+			log.Errorf("error closing response body: %v", cErr)
+		}
+	}(httpResponse.Body)
 
 	// Metrics
 	metrics.Collector.Prometheus().
