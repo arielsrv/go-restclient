@@ -67,6 +67,7 @@ func setup() {
 	tmux.HandleFunc("/cache/expires/user", usersCacheWithExpires)
 	tmux.HandleFunc("/cache/etag/user", usersEtag)
 	tmux.HandleFunc("/cache/lastmodified/user", usersLastModified)
+	tmux.HandleFunc("/cache/lastmodified/user/err", usersLastModifiedErr)
 	tmux.HandleFunc("/slow/cache/user", slowUsersCache)
 	tmux.HandleFunc("/slow/user", slowUsers)
 	tmux.HandleFunc("/auth", auth)
@@ -187,6 +188,18 @@ func usersLastModified(writer http.ResponseWriter, req *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("Last-Modified", lastModifiedDate.Format(time.RFC1123))
 		writer.Write(b)
+	}
+}
+
+func usersLastModifiedErr(writer http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodGet {
+		b, _ := json.Marshal(users[0])
+
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Header().Set("Cache-Control", "no-cache")
+		writer.Header().Set("Last-Modified", "invalid")
+		writer.Write(b)
+		return
 	}
 }
 

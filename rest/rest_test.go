@@ -39,6 +39,20 @@ func TestGet_GZip(t *testing.T) {
 	}
 }
 
+func TestGet_LastModifiedErr(t *testing.T) {
+	client := &rest.Client{
+		EnableGzip: true,
+	}
+
+	resp := client.Get(server.URL + "/cache/lastmodified/user/err")
+	if resp.Err != nil {
+		t.Fatal("Error:", resp.Err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+}
+
 func TestGet_GZip_Err(t *testing.T) {
 	client := &rest.Client{
 		EnableGzip: true,
