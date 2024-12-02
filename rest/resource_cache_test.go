@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -39,6 +41,24 @@ func TestCacheGet(t *testing.T) {
 			t.Fatal("f.Cached() == false")
 		}
 	}
+}
+
+func TestCacheGet_NotModified(t *testing.T) {
+	client := &rest.Client{
+		BaseURL: server.URL,
+	}
+
+	response := client.Get("/cache/user/not_modified")
+	require.NotNil(t, response)
+	require.NoError(t, response.Err)
+	require.NotNil(t, response.Response)
+	assert.Equal(t, http.StatusNotModified, response.Response.StatusCode)
+
+	response = client.Get("/cache/user/not_modified")
+	require.NotNil(t, response)
+	require.NoError(t, response.Err)
+	require.NotNil(t, response.Response)
+	assert.Equal(t, http.StatusNotModified, response.Response.StatusCode)
 }
 
 func TestCacheGetEtag(t *testing.T) {

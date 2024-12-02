@@ -151,19 +151,6 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 	defer httpResponse.Body.Close()
 
-	respReader, err := r.setRespReader(request, httpResponse)
-	if err != nil {
-		result.Err = err
-		return result
-	}
-
-	// Read httpResponse
-	respBody, err := io.ReadAll(respReader)
-	if err != nil {
-		result.Err = err
-		return result
-	}
-
 	// Metrics
 	metrics.Collector.Prometheus().
 		IncrementCounter("__go_restclient_requests_total",
@@ -178,7 +165,22 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If we get a 304, return httpResponse from cache
 	if httpResponse.StatusCode == http.StatusNotModified {
-		result = cacheResponse
+		if response, hit := resourceCache.get(apiURL); hit && !response.revalidate {
+			response.Hit()
+			return response
+		}
+	}
+
+	respReader, err := r.setRespReader(request, httpResponse)
+	if err != nil {
+		result.Err = err
+		return result
+	}
+
+	// Read httpResponse
+	respBody, err := io.ReadAll(respReader)
+	if err != nil {
+		result.Err = err
 		return result
 	}
 
