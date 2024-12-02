@@ -41,17 +41,17 @@ var timeFormats = []string{
 }
 
 const (
-	CanonicalUserAgentHeader       = "User-Agent"
-	CanonicalConnectionHeader      = "Connection"
-	CanonicalCacheControlHeader    = "Cache-Control"
-	CanonicalXOriginalURLHeader    = "X-Original-Url"
-	CanonicalETagHeader            = "ETag"
-	CanonicalLastModifiedHeader    = "Last-Modified"
-	CanonicalExpiresHeader         = "Expires"
-	CanonicalAcceptEncodingHeader  = "Accept-Encoding"
-	CanonicalContentEncodingHeader = "Content-Encoding"
-	CanonicalIfModifiedSinceHeader = "If-Modified-Since"
-	CanonicalIfNoneMatchHeader     = "If-None-Match"
+	UserAgentHeader       = "User-Agent"
+	ConnectionHeader      = "Connection"
+	CacheControlHeader    = "Cache-Control"
+	XOriginalURLHeader    = "X-Original-Url"
+	ETagHeader            = "ETag"
+	LastModifiedHeader    = "Last-Modified"
+	ExpiresHeader         = "Expires"
+	AcceptEncodingHeader  = "Accept-Encoding"
+	ContentEncodingHeader = "Content-Encoding"
+	IfModifiedSinceHeader = "If-Modified-Since"
+	IfNoneMatchHeader     = "If-None-Match"
 )
 
 // newRequest creates a new REST client with default configuration.
@@ -210,8 +210,8 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 // shouldCompress checks if GZip compression is enabled for the given request and response.
 func (r *Client) shouldCompress(request *http.Request, response *http.Response) bool {
-	return (r.EnableGzip || request.Header.Get(CanonicalAcceptEncodingHeader) == "gzip") &&
-		response.Header.Get(CanonicalContentEncodingHeader) == "gzip"
+	return (r.EnableGzip || request.Header.Get(AcceptEncodingHeader) == "gzip") &&
+		response.Header.Get(ContentEncodingHeader) == "gzip"
 }
 
 // setContentReader creates a reader from the given body and content type.
@@ -418,12 +418,12 @@ func (r *Client) getConnectionTimeout() time.Duration {
 // setParams sets the request parameters and headers.
 func (r *Client) setParams(request *http.Request, cacheResponse *Response, cacheURL string, paramHeaders ...http.Header) {
 	// Default headers
-	request.Header.Set(CanonicalConnectionHeader, "keep-alive")
-	request.Header.Set(CanonicalCacheControlHeader, "no-cache")
+	request.Header.Set(ConnectionHeader, "keep-alive")
+	request.Header.Set(CacheControlHeader, "no-cache")
 
 	// If mockup
 	if *mockUpEnv {
-		request.Header.Set(CanonicalXOriginalURLHeader, cacheURL)
+		request.Header.Set(XOriginalURLHeader, cacheURL)
 	}
 
 	// Basic Auth
@@ -432,7 +432,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 	}
 
 	// User Agent
-	request.Header.Set(CanonicalUserAgentHeader, func() string {
+	request.Header.Set(UserAgentHeader, func() string {
 		if r.UserAgent != "" {
 			return r.UserAgent
 		}
@@ -450,15 +450,15 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 
 	// Gzip Encoding
 	if r.EnableGzip {
-		request.Header.Set(CanonicalAcceptEncodingHeader, "gzip")
+		request.Header.Set(AcceptEncodingHeader, "gzip")
 	}
 
 	if cacheResponse != nil && cacheResponse.revalidate {
 		switch {
 		case cacheResponse.etag != "":
-			request.Header.Set(CanonicalIfNoneMatchHeader, cacheResponse.etag)
+			request.Header.Set(IfNoneMatchHeader, cacheResponse.etag)
 		case cacheResponse.lastModified != nil:
-			request.Header.Set(CanonicalIfModifiedSinceHeader, cacheResponse.lastModified.Format(time.RFC1123))
+			request.Header.Set(IfModifiedSinceHeader, cacheResponse.lastModified.Format(time.RFC1123))
 		}
 	}
 
@@ -482,7 +482,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 // setTTL sets the TTL (Time To Live) for the response.
 func setTTL(response *Response) bool {
 	// Cache-Control Header
-	cacheControl := maxAge.FindStringSubmatch(response.Header.Get(CanonicalCacheControlHeader))
+	cacheControl := maxAge.FindStringSubmatch(response.Header.Get(CacheControlHeader))
 
 	now := time.Now()
 	if len(cacheControl) > 1 {
@@ -502,7 +502,7 @@ func setTTL(response *Response) bool {
 
 	for i := range timeFormats {
 		format := timeFormats[i]
-		if expires, parseErr := time.Parse(format, response.Header.Get(CanonicalExpiresHeader)); parseErr == nil && expires.Sub(now) > 0 {
+		if expires, err := time.Parse(format, response.Header.Get(ExpiresHeader)); err == nil && expires.Sub(now) > 0 {
 			response.ttl = &expires
 			return true
 		}
@@ -513,14 +513,14 @@ func setTTL(response *Response) bool {
 
 // setLastModified sets the Last-Modified header in the response.
 func setLastModified(response *Response) bool {
-	lastModifiedValue := response.Header.Get(CanonicalLastModifiedHeader)
+	lastModifiedValue := response.Header.Get(LastModifiedHeader)
 	if lastModifiedValue == "" {
 		return false
 	}
 
 	for i := range timeFormats {
 		format := timeFormats[i]
-		if lastModified, parseErr := time.Parse(format, lastModifiedValue); parseErr == nil {
+		if lastModified, err := time.Parse(format, lastModifiedValue); err == nil {
 			response.lastModified = &lastModified
 			return true
 		}
@@ -531,7 +531,7 @@ func setLastModified(response *Response) bool {
 
 // setETag sets the ETag header in the response.
 func setETag(response *Response) bool {
-	response.etag = response.Header.Get(CanonicalETagHeader)
+	response.etag = response.Header.Get(ETagHeader)
 
 	return response.etag != ""
 }
