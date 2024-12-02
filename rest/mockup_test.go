@@ -106,7 +106,7 @@ func TestFlushMockups(t *testing.T) {
 
 	// Verify that the mockup is removed
 	v := rest.Get(myURL)
-	if v.String() != "MockUp nil!" {
+	if v.String() != rest.ErrMockNotFound.Error() {
 		t.Fatal("Mockup Should Be Removed!")
 	}
 }

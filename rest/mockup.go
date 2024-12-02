@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 	"time"
 )
 
-const MockNotFoundError string = "MockUp nil!"
+var ErrMockNotFound = errors.New("mockUp nil")
 
 var (
 	mockUpEnv   = flag.Bool("mock", false, "Use 'mock' flag to tell package rest that you would like to use mockups.")
@@ -174,5 +175,5 @@ func mockupHandler(writer http.ResponseWriter, req *http.Request) {
 	}
 
 	writer.WriteHeader(http.StatusBadRequest)
-	_, _ = writer.Write([]byte(MockNotFoundError))
+	_, _ = writer.Write([]byte(ErrMockNotFound.Error()))
 }
