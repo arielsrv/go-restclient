@@ -1,6 +1,6 @@
 module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient
 
-go 1.23.3
+go 1.23.4
 
 require (
 	github.com/dgraph-io/ristretto/v2 v2.0.0

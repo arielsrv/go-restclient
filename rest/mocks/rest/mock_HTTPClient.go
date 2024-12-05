@@ -69,7 +69,7 @@ func (_c *MockHTTPClient_AsyncDelete_Call) Return() *MockHTTPClient_AsyncDelete_
 }
 
 func (_c *MockHTTPClient_AsyncDelete_Call) RunAndReturn(run func(string, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncDelete_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -119,7 +119,7 @@ func (_c *MockHTTPClient_AsyncDeleteWithContext_Call) Return() *MockHTTPClient_A
 }
 
 func (_c *MockHTTPClient_AsyncDeleteWithContext_Call) RunAndReturn(run func(context.Context, string, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncDeleteWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -168,7 +168,7 @@ func (_c *MockHTTPClient_AsyncGet_Call) Return() *MockHTTPClient_AsyncGet_Call {
 }
 
 func (_c *MockHTTPClient_AsyncGet_Call) RunAndReturn(run func(string, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncGet_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -218,7 +218,7 @@ func (_c *MockHTTPClient_AsyncGetWithContext_Call) Return() *MockHTTPClient_Asyn
 }
 
 func (_c *MockHTTPClient_AsyncGetWithContext_Call) RunAndReturn(run func(context.Context, string, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncGetWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -267,7 +267,7 @@ func (_c *MockHTTPClient_AsyncHead_Call) Return() *MockHTTPClient_AsyncHead_Call
 }
 
 func (_c *MockHTTPClient_AsyncHead_Call) RunAndReturn(run func(string, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncHead_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -317,7 +317,7 @@ func (_c *MockHTTPClient_AsyncHeadWithContext_Call) Return() *MockHTTPClient_Asy
 }
 
 func (_c *MockHTTPClient_AsyncHeadWithContext_Call) RunAndReturn(run func(context.Context, string, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncHeadWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -366,7 +366,7 @@ func (_c *MockHTTPClient_AsyncOptions_Call) Return() *MockHTTPClient_AsyncOption
 }
 
 func (_c *MockHTTPClient_AsyncOptions_Call) RunAndReturn(run func(string, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncOptions_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -416,7 +416,7 @@ func (_c *MockHTTPClient_AsyncOptionsWithContext_Call) Return() *MockHTTPClient_
 }
 
 func (_c *MockHTTPClient_AsyncOptionsWithContext_Call) RunAndReturn(run func(context.Context, string, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncOptionsWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -466,7 +466,7 @@ func (_c *MockHTTPClient_AsyncPatch_Call) Return() *MockHTTPClient_AsyncPatch_Ca
 }
 
 func (_c *MockHTTPClient_AsyncPatch_Call) RunAndReturn(run func(string, any, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncPatch_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -517,7 +517,7 @@ func (_c *MockHTTPClient_AsyncPatchWithContext_Call) Return() *MockHTTPClient_As
 }
 
 func (_c *MockHTTPClient_AsyncPatchWithContext_Call) RunAndReturn(run func(context.Context, string, any, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncPatchWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -567,7 +567,7 @@ func (_c *MockHTTPClient_AsyncPost_Call) Return() *MockHTTPClient_AsyncPost_Call
 }
 
 func (_c *MockHTTPClient_AsyncPost_Call) RunAndReturn(run func(string, any, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncPost_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -618,7 +618,7 @@ func (_c *MockHTTPClient_AsyncPostWithContext_Call) Return() *MockHTTPClient_Asy
 }
 
 func (_c *MockHTTPClient_AsyncPostWithContext_Call) RunAndReturn(run func(context.Context, string, any, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncPostWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -668,7 +668,7 @@ func (_c *MockHTTPClient_AsyncPut_Call) Return() *MockHTTPClient_AsyncPut_Call {
 }
 
 func (_c *MockHTTPClient_AsyncPut_Call) RunAndReturn(run func(string, any, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncPut_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -719,7 +719,7 @@ func (_c *MockHTTPClient_AsyncPutWithContext_Call) Return() *MockHTTPClient_Asyn
 }
 
 func (_c *MockHTTPClient_AsyncPutWithContext_Call) RunAndReturn(run func(context.Context, string, any, func(*rest.Response), ...http.Header)) *MockHTTPClient_AsyncPutWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -831,7 +831,7 @@ func (_c *MockHTTPClient_DeleteChan_Call) Return() *MockHTTPClient_DeleteChan_Ca
 }
 
 func (_c *MockHTTPClient_DeleteChan_Call) RunAndReturn(run func(string, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_DeleteChan_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -881,7 +881,7 @@ func (_c *MockHTTPClient_DeleteChanWithContext_Call) Return() *MockHTTPClient_De
 }
 
 func (_c *MockHTTPClient_DeleteChanWithContext_Call) RunAndReturn(run func(context.Context, string, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_DeleteChanWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -1057,7 +1057,7 @@ func (_c *MockHTTPClient_GetChan_Call) Return() *MockHTTPClient_GetChan_Call {
 }
 
 func (_c *MockHTTPClient_GetChan_Call) RunAndReturn(run func(string, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_GetChan_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -1107,7 +1107,7 @@ func (_c *MockHTTPClient_GetChanWithContext_Call) Return() *MockHTTPClient_GetCh
 }
 
 func (_c *MockHTTPClient_GetChanWithContext_Call) RunAndReturn(run func(context.Context, string, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_GetChanWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -1283,7 +1283,7 @@ func (_c *MockHTTPClient_HeadChan_Call) Return() *MockHTTPClient_HeadChan_Call {
 }
 
 func (_c *MockHTTPClient_HeadChan_Call) RunAndReturn(run func(string, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_HeadChan_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -1333,7 +1333,7 @@ func (_c *MockHTTPClient_HeadChanWithContext_Call) Return() *MockHTTPClient_Head
 }
 
 func (_c *MockHTTPClient_HeadChanWithContext_Call) RunAndReturn(run func(context.Context, string, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_HeadChanWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -1509,7 +1509,7 @@ func (_c *MockHTTPClient_OptionsChan_Call) Return() *MockHTTPClient_OptionsChan_
 }
 
 func (_c *MockHTTPClient_OptionsChan_Call) RunAndReturn(run func(string, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_OptionsChan_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -1559,7 +1559,7 @@ func (_c *MockHTTPClient_OptionsChanWithContext_Call) Return() *MockHTTPClient_O
 }
 
 func (_c *MockHTTPClient_OptionsChanWithContext_Call) RunAndReturn(run func(context.Context, string, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_OptionsChanWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -1737,7 +1737,7 @@ func (_c *MockHTTPClient_PatchChan_Call) Return() *MockHTTPClient_PatchChan_Call
 }
 
 func (_c *MockHTTPClient_PatchChan_Call) RunAndReturn(run func(string, any, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_PatchChan_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -1788,7 +1788,7 @@ func (_c *MockHTTPClient_PatchChanWithContext_Call) Return() *MockHTTPClient_Pat
 }
 
 func (_c *MockHTTPClient_PatchChanWithContext_Call) RunAndReturn(run func(context.Context, string, any, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_PatchChanWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -1967,7 +1967,7 @@ func (_c *MockHTTPClient_PostChan_Call) Return() *MockHTTPClient_PostChan_Call {
 }
 
 func (_c *MockHTTPClient_PostChan_Call) RunAndReturn(run func(string, any, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_PostChan_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -2018,7 +2018,7 @@ func (_c *MockHTTPClient_PostChanWithContext_Call) Return() *MockHTTPClient_Post
 }
 
 func (_c *MockHTTPClient_PostChanWithContext_Call) RunAndReturn(run func(context.Context, string, any, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_PostChanWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -2197,7 +2197,7 @@ func (_c *MockHTTPClient_PutChan_Call) Return() *MockHTTPClient_PutChan_Call {
 }
 
 func (_c *MockHTTPClient_PutChan_Call) RunAndReturn(run func(string, any, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_PutChan_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -2248,7 +2248,7 @@ func (_c *MockHTTPClient_PutChanWithContext_Call) Return() *MockHTTPClient_PutCh
 }
 
 func (_c *MockHTTPClient_PutChanWithContext_Call) RunAndReturn(run func(context.Context, string, any, chan<- *rest.Response, ...http.Header)) *MockHTTPClient_PutChanWithContext_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
