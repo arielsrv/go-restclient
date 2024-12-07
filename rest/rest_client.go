@@ -552,13 +552,9 @@ func doAsyncRequest(r *Response, f func(*Response)) {
 
 // doChanAsync creates a new request and sends it asynchronously.
 func (r *Client) doChanAsync(ctx context.Context, url string, verb string, body any, rChan chan<- *Response, headers ...http.Header) {
-	select {
-	case rChan <- r.newRequest(ctx, verb, url, body, headers...):
-	case <-ctx.Done():
-		rChan <- &Response{
-			Err: ctx.Err(),
-		}
-	}
+	go func() {
+		rChan <- r.newRequest(ctx, verb, url, body, headers...)
+	}()
 }
 
 // GetChan sends an asynchronous GET request to the specified URL.
@@ -585,7 +581,7 @@ func (r *Client) GetChan(url string, rChan chan<- *Response, headers ...http.Hea
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) GetChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	go r.doChanAsync(ctx, url, http.MethodGet, http.NoBody, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodGet, http.NoBody, rChan, headers...)
 }
 
 // PostChan sends an asynchronous POST request to the specified URL.
@@ -614,7 +610,7 @@ func (r *Client) PostChan(url string, body any, rChan chan<- *Response, headers 
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) PostChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header) {
-	go r.doChanAsync(ctx, url, http.MethodPost, body, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodPost, body, rChan, headers...)
 }
 
 // PutChan sends an asynchronous PUT request to the specified URL.
@@ -643,7 +639,7 @@ func (r *Client) PutChan(url string, body any, rChan chan<- *Response, headers .
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) PutChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header) {
-	go r.doChanAsync(ctx, url, http.MethodPut, body, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodPut, body, rChan, headers...)
 }
 
 // PatchChan sends an asynchronous PATCH request to the specified URL.
@@ -672,7 +668,7 @@ func (r *Client) PatchChan(url string, body any, rChan chan<- *Response, headers
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) PatchChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header) {
-	go r.doChanAsync(ctx, url, http.MethodPatch, body, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodPatch, body, rChan, headers...)
 }
 
 // DeleteChan sends an asynchronous DELETE request to the specified URL.
@@ -699,7 +695,7 @@ func (r *Client) DeleteChan(url string, rChan chan<- *Response, headers ...http.
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) DeleteChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	go r.doChanAsync(ctx, url, http.MethodDelete, http.NoBody, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodDelete, http.NoBody, rChan, headers...)
 }
 
 // HeadChan sends an asynchronous HEAD request to the specified URL.
@@ -726,7 +722,7 @@ func (r *Client) HeadChan(url string, rChan chan<- *Response, headers ...http.He
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) HeadChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	go r.doChanAsync(ctx, url, http.MethodHead, http.NoBody, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodHead, http.NoBody, rChan, headers...)
 }
 
 // OptionsChan sends an asynchronous OPTIONS request to the specified URL.
@@ -753,5 +749,5 @@ func (r *Client) OptionsChan(url string, rChan chan<- *Response, headers ...http
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) OptionsChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	go r.doChanAsync(ctx, url, http.MethodOptions, http.NoBody, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodOptions, http.NoBody, rChan, headers...)
 }
