@@ -223,10 +223,6 @@ func (r *Client) shouldCompress(request *http.Request, response *http.Response) 
 
 // setContentReader creates a reader from the given body and content type.
 func setContentReader(body any, contentType ContentType) (io.Reader, error) {
-	if body == nil {
-		return http.NoBody, nil
-	}
-
 	mediaContent, found := contentMarshalers[contentType]
 	if !found {
 		return nil, fmt.Errorf("marshal fail, unsupported content type: %d", contentType)
