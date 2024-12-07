@@ -53,7 +53,7 @@ func main() {
 		usersClient.GetChanWithContext(ctx, apiURL, rChan)
 	}
 
-	for i := 0; i < len(usersResponse); i++ {
+	for range usersResponse {
 		if response.Err != nil {
 			fmt.Printf("Error fetching user data: %v\n", response.Err)
 			continue
