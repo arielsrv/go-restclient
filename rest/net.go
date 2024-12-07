@@ -57,40 +57,38 @@ const (
 
 // newRequest creates a new REST client with default configuration.
 func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, body any, headers ...http.Header) *Response {
-	var (
-		cacheURL      string
-		cacheResponse *Response
-		result        = new(Response)
-	)
-
 	validURL, err := url.Parse(fmt.Sprintf("%s%s", r.BaseURL, apiURL))
 	if err != nil {
-		result.Err = err
-		return result
+		return &Response{
+			Err: err,
+		}
 	}
 
 	apiURL = validURL.String()
 
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
-		if response, hit := resourceCache.get(apiURL); hit && !response.revalidate {
-			response.Hit()
-			return response
+		if cacheResponse, hit := resourceCache.get(apiURL); hit && !cacheResponse.revalidate {
+			cacheResponse.Hit()
+			return cacheResponse
 		}
 	}
 
 	// Prepare contentReader for the body
 	contentReader, err := setContentReader(body, r.ContentType)
 	if err != nil {
-		result.Err = err
-		return result
+		return &Response{
+			Err: err,
+		}
 	}
 
 	// Change URL to point to Mockup server
+	var cacheURL string
 	apiURL, cacheURL, err = checkMockup(apiURL)
 	if err != nil {
-		result.Err = err
-		return result
+		return &Response{
+			Err: err,
+		}
 	}
 
 	// Enable trace if enabled
@@ -104,11 +102,13 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	// Create a new HTTP request
 	request, err := http.NewRequestWithContext(ctx, verb, apiURL, contentReader)
 	if err != nil {
-		result.Err = err
-		return result
+		return &Response{
+			Err: err,
+		}
 	}
 
 	// Set extra parameters
+	cacheResponse := new(Response)
 	r.setParams(request, cacheResponse, cacheURL, headers...)
 
 	// Make the request
@@ -147,8 +147,9 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 			IncrementCounter("services_dashboard_services_counters_total",
 				buildTags(r.Name, "http_connection_error", errorType))
 
-		result.Err = err
-		return result
+		return &Response{
+			Err: err,
+		}
 	}
 	defer func(Body io.ReadCloser) {
 		if cErr := Body.Close(); cErr != nil {
@@ -178,20 +179,26 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	respReader, err := r.setRespReader(request, httpResponse)
 	if err != nil {
-		result.Err = err
-		return result
+		return &Response{
+			Err: err,
+		}
 	}
 
 	// Read httpResponse
 	respBody, err := io.ReadAll(respReader)
 	if err != nil {
-		result.Err = err
-		return result
+		return &Response{
+			Err: err,
+		}
 	}
 
-	result.Response = httpResponse
-	result.bytes = respBody
-	setProblem(result)
+	// Create a new response
+	response := &Response{
+		Response: httpResponse,
+		bytes:    respBody,
+	}
+
+	setProblem(response)
 
 	// Cache headers
 	cacheHeaders := struct {
@@ -199,20 +206,20 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 		LastModified bool
 		ETag         bool
 	}{
-		TTL:          setTTL(result),
-		LastModified: setLastModified(result),
-		ETag:         setETag(result),
+		TTL:          setTTL(response),
+		LastModified: setLastModified(response),
+		ETag:         setETag(response),
 	}
 
 	// Must revalidate response if necessary
-	result.revalidate = !cacheHeaders.TTL && (cacheHeaders.LastModified || cacheHeaders.ETag)
+	response.revalidate = !cacheHeaders.TTL && (cacheHeaders.LastModified || cacheHeaders.ETag)
 
 	// If Cache enable: Cache SENA
 	if !r.DisableCache && slices.Contains(readVerbs, verb) && (cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
-		resourceCache.setNX(cacheURL, result)
+		resourceCache.setNX(cacheURL, response)
 	}
 
-	return result
+	return response
 }
 
 // shouldCompress checks if GZip compression is enabled for the given request and response.
