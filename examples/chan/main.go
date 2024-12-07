@@ -48,8 +48,8 @@ func main() {
 
 	defer close(rChan)
 	for i := range usersResponse {
-		userID := usersResponse[i].ID
-		apiURL := fmt.Sprintf("/users/%d", userID)
+		userResponse := usersResponse[i]
+		apiURL := fmt.Sprintf("/users/%d", userResponse.ID)
 		usersClient.GetChanWithContext(ctx, apiURL, rChan)
 	}
 
