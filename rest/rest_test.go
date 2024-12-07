@@ -327,13 +327,14 @@ func TestOptions_Chan(t *testing.T) {
 func TestAsyncGet(t *testing.T) {
 	h := make(http.Header)
 	h.Add("X-Custom-Header", "Custom-Value")
+	done := make(chan bool)
 	rest.AsyncGet(server.URL+"/user", func(r *rest.Response) {
 		if r.StatusCode != http.StatusOK {
 			t.Fatal("Status != OK (200)")
 		}
+		done <- true
 	}, h)
-
-	time.Sleep(50 * time.Millisecond)
+	<-done
 }
 
 func TestAsyncHead(t *testing.T) {
@@ -347,53 +348,58 @@ func TestAsyncHead(t *testing.T) {
 }
 
 func TestAsyncPost(t *testing.T) {
+	done := make(chan bool)
 	rest.AsyncPost(server.URL+"/user", &User{Name: "Maria"}, func(r *rest.Response) {
 		if r.StatusCode != http.StatusCreated {
 			t.Fatal("Status != OK (201)")
 		}
+		done <- true
 	})
-
-	time.Sleep(50 * time.Millisecond)
+	<-done
 }
 
 func TestAsyncPut(t *testing.T) {
+	done := make(chan bool)
 	rest.AsyncPut(server.URL+"/user/3", &User{Name: "Pichucha"}, func(r *rest.Response) {
 		if r.StatusCode != http.StatusOK {
 			t.Fatal("Status != OK (200)")
 		}
+		done <- true
 	})
-
-	time.Sleep(50 * time.Millisecond)
+	<-done
 }
 
 func TestAsyncPatch(t *testing.T) {
+	done := make(chan bool)
 	rest.AsyncPatch(server.URL+"/user/3", &User{Name: "Pichucha"}, func(r *rest.Response) {
 		if r.StatusCode != http.StatusOK {
 			t.Fatal("Status != OK (200)")
 		}
+		done <- true
 	})
-
-	time.Sleep(50 * time.Millisecond)
+	<-done
 }
 
 func TestAsyncDelete(t *testing.T) {
+	done := make(chan bool)
 	rest.AsyncDelete(server.URL+"/user/4", func(r *rest.Response) {
 		if r.StatusCode != http.StatusOK {
 			t.Fatal("Status != OK (200)")
 		}
+		done <- true
 	})
-
-	time.Sleep(50 * time.Millisecond)
+	<-done
 }
 
 func TestAsyncOptions(t *testing.T) {
+	done := make(chan bool)
 	rest.AsyncOptions(server.URL+"/user", func(r *rest.Response) {
 		if r.StatusCode != http.StatusOK {
 			t.Fatal("Status != OK (200)")
 		}
+		done <- true
 	})
-
-	time.Sleep(50 * time.Millisecond)
+	<-done
 }
 
 func TestHeaders(t *testing.T) {
