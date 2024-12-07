@@ -39,8 +39,7 @@ func main() {
 	}
 
 	var usersResponse []UserResponse
-	err := response.FillUp(&usersResponse)
-	if err != nil {
+	if err := response.FillUp(&usersResponse); err != nil {
 		panic(err)
 	}
 
