@@ -106,14 +106,27 @@ func TestClient_GetChan(t *testing.T) {
 }
 
 func TestClient_GetChan_CtxCancel(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
 	client := rest.Client{}
 	rChan := make(chan *rest.Response, 1)
-	cancel()
 	client.GetChanWithContext(ctx, server.URL+"/user", rChan)
 	resp := <-rChan
 
-	require.Error(t, resp.Err, "expected context cancellation error")
+	require.Error(t, resp.Err)
+	assert.ErrorContains(t, context.Canceled, resp.Err.Error())
+}
+
+func TestClient_GetChan_CtxTimeout(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 0)
+	cancel()
+	client := rest.Client{}
+	rChan := make(chan *rest.Response, 1)
+	client.GetChanWithContext(ctx, server.URL+"/user", rChan)
+	resp := <-rChan
+
+	require.Error(t, resp.Err)
+	assert.ErrorIs(t, context.DeadlineExceeded, resp.Err)
 }
 
 func TestClient_PostChan(t *testing.T) {
