@@ -64,7 +64,7 @@ type Mock struct {
 	Timeout time.Duration
 }
 
-// StartMockupServer sets the enviroment to send all client requests
+// StartMockupServer sets the environment to send all client requests
 // to the mockup server.
 func StartMockupServer() {
 	*mockUpEnv = true
@@ -153,7 +153,7 @@ func FlushMockups() {
 }
 
 func mockupHandler(writer http.ResponseWriter, req *http.Request) {
-	normalizedURL, err := getNormalizedURL(req.Header.Get("X-Original-Url"))
+	normalizedURL, err := getNormalizedURL(req.Header.Get(XOriginalURLHeader))
 
 	if err == nil {
 		mockDBMutex.RLock()
