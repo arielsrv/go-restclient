@@ -114,6 +114,7 @@ func TestClient_GetChan_CtxCancel(t *testing.T) {
 	resp := <-rChan
 
 	require.Error(t, resp.Err)
+	assert.ErrorContains(t, resp.Err, context.Canceled.Error())
 }
 
 func TestClient_GetChan_CtxTimeout(t *testing.T) {
@@ -125,7 +126,7 @@ func TestClient_GetChan_CtxTimeout(t *testing.T) {
 	resp := <-rChan
 
 	require.Error(t, resp.Err)
-	assert.ErrorIs(t, context.DeadlineExceeded, resp.Err)
+	assert.ErrorContains(t, resp.Err, context.DeadlineExceeded.Error())
 }
 
 func TestClient_PostChan(t *testing.T) {
