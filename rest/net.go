@@ -56,15 +56,15 @@ const (
 )
 
 // newRequest creates a new REST client with default configuration.
-func (r *Client) newRequest(ctx context.Context, verb string, uri string, body any, headers ...http.Header) *Response {
-	validURL, err := url.Parse(fmt.Sprintf("%s%s", r.BaseURL, uri))
+func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, body any, headers ...http.Header) *Response {
+	validURL, err := url.Parse(fmt.Sprintf("%s%s", r.BaseURL, apiURL))
 	if err != nil {
 		return &Response{
 			Err: err,
 		}
 	}
 
-	apiURL := validURL.String()
+	apiURL = validURL.String()
 
 	// If Cache enable && operation is read: Cache GET
 	if !r.DisableCache && slices.Contains(readVerbs, verb) {
