@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
@@ -16,20 +15,18 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5000)*time.Millisecond)
 	defer cancel()
 
-	// Create a new REST client with custom settings
-	client := &rest.Client{
+	// Create a new REST usersClient with custom settings
+	usersClient := &rest.Client{
 		BaseURL:     "https://gorest.co.in/public/v2",
 		ContentType: rest.JSON,
-		Name:        "gorest-client",
+		Name:        "gorest-usersClient",
 		Timeout:     time.Duration(5000) * time.Millisecond,
 	}
 
 	rChan := make(chan *rest.Response)
 
-	go func() {
-		// Create a channel to collect the response asynchronously.
-		client.GetChanWithContext(ctx, "/users", rChan)
-	}()
+	// Create a channel to collect the response asynchronously.
+	usersClient.GetChanWithContext(ctx, "/users", rChan)
 
 	// Wait for the response and handle errors
 	response := <-rChan
@@ -49,22 +46,14 @@ func main() {
 
 	fmt.Printf("Users: %+v\n", usersResponse)
 
-	var wg sync.WaitGroup
+	defer close(rChan)
 	for i := range usersResponse {
-		wg.Add(1)
-		go func(userResponse UserResponse) {
-			defer wg.Done()
-			apiURL := fmt.Sprintf("/users/%d", userResponse.ID)
-			client.GetChanWithContext(ctx, apiURL, rChan)
-		}(usersResponse[i])
+		userID := usersResponse[i].ID
+		apiURL := fmt.Sprintf("/users/%d", userID)
+		usersClient.GetChanWithContext(ctx, apiURL, rChan)
 	}
 
-	go func() {
-		wg.Wait()
-		close(rChan)
-	}()
-
-	for response = range rChan {
+	for i := 0; i < len(usersResponse); i++ {
 		if response.Err != nil {
 			fmt.Printf("Error fetching user data: %v\n", response.Err)
 			continue
