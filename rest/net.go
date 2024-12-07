@@ -224,8 +224,8 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 // shouldCompress checks if GZip compression is enabled for the given request and response.
 func (r *Client) shouldCompress(request *http.Request, response *http.Response) bool {
-	return (r.EnableGzip || request.Header.Get(AcceptEncodingHeader) == "gzip") &&
-		response.Header.Get(ContentEncodingHeader) == "gzip"
+	return (r.EnableGzip ||
+		request.Header.Get(AcceptEncodingHeader) == "gzip") && response.Header.Get(ContentEncodingHeader) == "gzip"
 }
 
 // setContentReader creates a reader from the given body and content type.
