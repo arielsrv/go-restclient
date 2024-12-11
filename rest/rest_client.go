@@ -309,7 +309,7 @@ func (r *Client) Get(url string, headers ...http.Header) *Response {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (r *Client) GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response {
-	return r.newRequest(ctx, http.MethodGet, url, http.NoBody, headers...)
+	return r.newRequest(ctx, http.MethodGet, url, nil, headers...)
 }
 
 // Post issues a POST HTTP verb to the specified URL.
@@ -393,7 +393,7 @@ func (r *Client) Delete(url string, headers ...http.Header) *Response {
 // Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request).
 func (r *Client) DeleteWithContext(ctx context.Context, url string, headers ...http.Header) *Response {
-	return r.newRequest(ctx, http.MethodDelete, url, http.NoBody, headers...)
+	return r.newRequest(ctx, http.MethodDelete, url, nil, headers...)
 }
 
 // Head issues a HEAD HTTP verb to the specified URL
@@ -411,7 +411,7 @@ func (r *Client) Head(url string, headers ...http.Header) *Response {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (r *Client) HeadWithContext(ctx context.Context, url string, headers ...http.Header) *Response {
-	return r.newRequest(ctx, http.MethodHead, url, http.NoBody, headers...)
+	return r.newRequest(ctx, http.MethodHead, url, nil, headers...)
 }
 
 // Options issues a OPTIONS HTTP verb to the specified URL
@@ -431,7 +431,7 @@ func (r *Client) Options(url string, headers ...http.Header) *Response {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (r *Client) OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response {
-	return r.newRequest(ctx, http.MethodOptions, url, http.NoBody, headers...)
+	return r.newRequest(ctx, http.MethodOptions, url, nil, headers...)
 }
 
 // AsyncGet is the *asynchronous* option for GET.
@@ -581,7 +581,7 @@ func (r *Client) GetChan(url string, rChan chan<- *Response, headers ...http.Hea
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) GetChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodGet, http.NoBody, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodGet, nil, rChan, headers...)
 }
 
 // PostChan sends an asynchronous POST request to the specified URL.
@@ -695,7 +695,7 @@ func (r *Client) DeleteChan(url string, rChan chan<- *Response, headers ...http.
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) DeleteChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodDelete, http.NoBody, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodDelete, nil, rChan, headers...)
 }
 
 // HeadChan sends an asynchronous HEAD request to the specified URL.
@@ -722,7 +722,7 @@ func (r *Client) HeadChan(url string, rChan chan<- *Response, headers ...http.He
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) HeadChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodHead, http.NoBody, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodHead, nil, rChan, headers...)
 }
 
 // OptionsChan sends an asynchronous OPTIONS request to the specified URL.
@@ -749,5 +749,5 @@ func (r *Client) OptionsChan(url string, rChan chan<- *Response, headers ...http
 //
 //	A channel that will receive the Response when it's ready.
 func (r *Client) OptionsChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodOptions, http.NoBody, rChan, headers...)
+	r.doChanAsync(ctx, url, http.MethodOptions, nil, rChan, headers...)
 }
