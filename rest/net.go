@@ -224,8 +224,8 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	return response
 }
 
-// shouldCompress checks if GZip compression is enabled for the given request and response.
-func (r *Client) shouldCompress(request *http.Request, response *http.Response) bool {
+// handleGZip checks if GZip compression is enabled for the given request and response.
+func (r *Client) handleGZip(request *http.Request, response *http.Response) bool {
 	return (r.EnableGzip ||
 		request.Header.Get(AcceptEncodingHeader) == "gzip") && response.Header.Get(ContentEncodingHeader) == "gzip"
 }
@@ -251,7 +251,7 @@ func setContentReader(body any, contentType ContentType) (io.Reader, error) {
 
 // setRespReader creates a reader from the given request and response.
 func (r *Client) setRespReader(request *http.Request, response *http.Response) (io.ReadCloser, error) {
-	if !r.shouldCompress(request, response) {
+	if !r.handleGZip(request, response) {
 		return response.Body, nil
 	}
 
