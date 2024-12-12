@@ -73,29 +73,28 @@ func main() {
         ContentType:    rest.JSON,                              // rest.JSON by default
         Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
         ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
-        /*EnableCache:   true,                                  // Last-Modified, Expires & ETag headers are disabled by default
-          CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
-          	Transport: &http.Transport{
-          		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
-          		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
-          		MaxIdleConnsPerHost:   10,
-          	},
-          },
-          BasicAuth: &rest.BasicAuth{
-          	Username: "your_username",
-          	Password: "your_password",
-          },
-          OAuth: &rest.OAuth{
-          	ClientID:     "your_client_id",
-          	ClientSecret: "your_client_secret",
-          	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
-          	AuthStyle:    rest.AuthStyleInHeader,
-          },
-          EnableTrace:    true,
-          UserAgent:      "<Your User Agent>",
-          DisableTimeout: false,
-          EnableGzip: true
-          FollowRedirect: false,*/
+        EnableCache:    true,                                   // Last-Modified, Expires & ETag headers are disabled by default
+        CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
+            Transport: &http.Transport{
+                IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
+                ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
+                MaxIdleConnsPerHost:   10,
+            },
+        },
+        BasicAuth: &rest.BasicAuth{
+            Username: "your_username",
+            Password: "your_password",
+        },
+        OAuth: &rest.OAuth{
+            ClientID:     "your_client_id",
+            ClientSecret: "your_client_secret",
+            TokenURL:     "https://oauth.gorest.co.in/oauth/token",
+            AuthStyle:    rest.AuthStyleInHeader,
+        },
+        EnableTrace:    true,
+        UserAgent:      "<Your User Agent>",
+        DisableTimeout: false,
+        FollowRedirect: false,
     }
 
     // Set headers for the request (optional)
