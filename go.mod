@@ -12,9 +12,9 @@ require (
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.57.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.57.0
-	go.opentelemetry.io/otel v1.32.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.32.0
-	go.opentelemetry.io/otel/sdk v1.32.0
+	go.opentelemetry.io/otel v1.33.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.33.0
+	go.opentelemetry.io/otel/sdk v1.33.0
 	golang.org/x/oauth2 v0.24.0
 )
 
@@ -51,8 +51,9 @@ require (
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	go.opentelemetry.io/otel/metric v1.32.0 // indirect
-	go.opentelemetry.io/otel/trace v1.32.0 // indirect
+	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
+	go.opentelemetry.io/otel/metric v1.33.0 // indirect
+	go.opentelemetry.io/otel/trace v1.33.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect

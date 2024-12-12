@@ -42,10 +42,10 @@ const (
 // MaxCacheSize is the Maximum Byte Size to be hold by the resourceTTLLfuMap
 // Default is 1 GigaByte
 // Type: rest.ByteSize.
-var MaxCacheSize = 1 * GB
+var MaxCacheSize = 128 * MB
 
 const (
-	numCounters int64 = 1e7
+	numCounters int64 = 1e5
 	bufferItems int64 = 64
 )
 
