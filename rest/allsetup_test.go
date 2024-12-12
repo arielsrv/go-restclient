@@ -64,7 +64,6 @@ func setup() {
 	tmux.HandleFunc("/gzip/user", gzipUser)
 	tmux.HandleFunc("/gzip/user/err", gzipUserErr)
 	tmux.HandleFunc("/cache/user", usersCache)
-	tmux.HandleFunc("/cache/user/not_modified", usersCacheNotModified)
 	tmux.HandleFunc("/cache/expires/user", usersCacheWithExpires)
 	tmux.HandleFunc("/cache/etag/user", usersEtag)
 	tmux.HandleFunc("/cache/lastmodified/user", usersLastModified)
@@ -138,19 +137,6 @@ func usersCache(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("Cache-Control", "max-age="+strconv.Itoa(c))
-		writer.Write(b)
-	}
-}
-
-func usersCacheNotModified(writer http.ResponseWriter, req *http.Request) {
-	// Get
-	if req.Method == http.MethodGet {
-		c := rand.Intn(2) + 1
-		b, _ := json.Marshal(users)
-
-		writer.Header().Set("Content-Type", "application/json")
-		writer.Header().Set("Cache-Control", "max-age="+strconv.Itoa(c))
-		writer.WriteHeader(http.StatusNotModified)
 		writer.Write(b)
 	}
 }

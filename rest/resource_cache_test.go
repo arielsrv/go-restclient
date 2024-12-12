@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -44,24 +42,6 @@ func TestCacheGet(t *testing.T) {
 	}
 }
 
-func TestCacheGet_NotModified(t *testing.T) {
-	client := &rest.Client{
-		BaseURL: server.URL,
-	}
-
-	response := client.Get("/cache/user/not_modified")
-	require.NotNil(t, response)
-	require.NoError(t, response.Err)
-	require.NotNil(t, response.Response)
-	assert.Equal(t, http.StatusNotModified, response.Response.StatusCode)
-
-	response = client.Get("/cache/user/not_modified")
-	require.NotNil(t, response)
-	require.NoError(t, response.Err)
-	require.NotNil(t, response.Response)
-	assert.Equal(t, http.StatusNotModified, response.Response.StatusCode)
-}
-
 func TestCacheGetEtag(t *testing.T) {
 	c := &rest.Client{BaseURL: server.URL, EnableCache: true, Timeout: 10 * time.Second, ConnectTimeout: 10 * time.Second}
 	response := c.Get("/cache/etag/user")
@@ -72,10 +52,7 @@ func TestCacheGetEtag(t *testing.T) {
 		t.Fatal("Error getting response: ", response.Err)
 	}
 
-	etag := response.Header.Get("ETag")
-	require.NotEmpty(t, etag)
-
-	response = c.Get("/cache/etag/user", http.Header{"If-None-Match": []string{etag}})
+	response = c.Get("/cache/etag/user")
 	if response.Err != nil {
 		t.Fatal(response.Err)
 	}

@@ -66,9 +66,12 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	apiURL = validURL.String()
 
+	var cacheResponse *Response
+
 	// If Cache enable && operation is read: Cache GET
 	if r.EnableCache && slices.Contains(readVerbs, verb) {
-		if cacheResponse, hit := resourceCache.get(apiURL); hit {
+		if value, hit := resourceCache.get(apiURL); hit {
+			cacheResponse = value
 			cacheResponse.Hit()
 			if !cacheResponse.revalidate {
 				return cacheResponse
@@ -110,7 +113,6 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	}
 
 	// Set extra parameters
-	cacheResponse := new(Response)
 	r.setParams(request, cacheResponse, cacheURL, headers...)
 
 	// Make the request
@@ -173,10 +175,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If we get a 304, return httpResponse from cache
 	if httpResponse.StatusCode == http.StatusNotModified {
-		if response, hit := resourceCache.get(apiURL); hit {
-			response.Hit()
-			return response
-		}
+		return cacheResponse
 	}
 
 	respReader, err := r.setRespReader(request, httpResponse)
