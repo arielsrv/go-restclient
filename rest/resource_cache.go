@@ -39,22 +39,21 @@ const (
 	GB
 )
 
-// MaxCacheSize is the Maximum Byte Size to be hold by the resourceTTLLfuMap
-// Default is 1 GigaByte
-// Type: rest.ByteSize.
-var MaxCacheSize = 128 * MB
-
-const (
-	numCounters int64 = 1e5
-	bufferItems int64 = 64
+var (
+	// MaxCacheSize is the Maximum Byte Size to be hold by the resourceTTLLfuMap
+	// Default is 128Mb
+	// Type: rest.ByteSize.
+	MaxCacheSize = 128 * MB
+	NumCounters  = 1e5
+	BufferItems  = 64
 )
 
 // init initializes the resourceTTLLfuMap with a Ristretto cache.
 func init() {
 	cache, _ := ristretto.NewCache(&ristretto.Config[string, *Response]{
-		MaxCost:     int64(MaxCacheSize), // maximum cost of cache (1GB).
-		NumCounters: numCounters,         // number of keys to track frequency of (10M).
-		BufferItems: bufferItems,         // number of keys per Get buffer.
+		MaxCost:     int64(MaxCacheSize), // maximum cost of cache (128Mb).
+		NumCounters: int64(NumCounters),  // number of keys to track frequency of (100K).
+		BufferItems: int64(BufferItems),  // number of keys per Get buffer.
 		Metrics:     true,
 	})
 
@@ -92,9 +91,9 @@ func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
 // registerMetrics records the cache's metrics to Prometheus.
 func registerMetrics(cache *ristretto.Cache[string, *Response]) {
 	// config
-	recordValue("num_counters", float64(numCounters))
+	recordValue("num_counters", NumCounters)
 	recordValue("max_cost_bytes", float64(cache.MaxCost()))
-	recordValue("buffer_items", float64(bufferItems))
+	recordValue("buffer_items", float64(BufferItems))
 
 	// ratio
 	recordValueFunc("ratio", cache.Metrics.Ratio)

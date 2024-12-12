@@ -128,8 +128,8 @@ type Client struct {
 	// clientMtx protects the clientMtxOnce
 	clientMtxOnce sync.Once
 
-	// Disable 	internal caching of Responses
-	DisableCache bool
+	// Enable internal caching of Responses
+	EnableCache bool
 
 	// Disable timeout and default timeout = no timeout
 	DisableTimeout bool
@@ -216,10 +216,10 @@ func WithOAuth(oauth *OAuth) Option {
 	}
 }
 
-// WithDisableCache disables caching in the Client.
-func WithDisableCache() Option {
+// WithCache disables caching in the Client.
+func WithCache() Option {
 	return func(c *Client) {
-		c.DisableCache = true
+		c.EnableCache = true
 	}
 }
 

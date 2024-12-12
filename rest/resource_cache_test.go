@@ -28,17 +28,18 @@ func TestCacheGetLowCacheMaxSize(t *testing.T) {
 }
 
 func TestCacheGet(t *testing.T) {
-	var f [1000]*rest.Response
+	c := &rest.Client{BaseURL: server.URL, EnableCache: true}
 
-	for i := range f {
-		f[i] = rb.Get("/cache/user")
+	for i := range 1000 {
+		t.Log(i)
+		r := c.Get("/cache/user")
 
-		if f[i].Response.StatusCode != http.StatusOK {
-			t.Fatal("f Status != OK (200)")
+		if r.Err != nil {
+			t.Fatal("Error:", r.Err)
 		}
 
-		if !f[i].Cached() {
-			t.Fatal("f.Cached() == false")
+		if r.StatusCode != http.StatusOK {
+			t.Fatal("f Status != OK (200)")
 		}
 	}
 }
@@ -62,14 +63,26 @@ func TestCacheGet_NotModified(t *testing.T) {
 }
 
 func TestCacheGetEtag(t *testing.T) {
-	var f [100]*rest.Response
+	c := &rest.Client{BaseURL: server.URL, EnableCache: true, Timeout: 10 * time.Second, ConnectTimeout: 10 * time.Second}
+	response := c.Get("/cache/etag/user")
+	if response.Err != nil {
+		t.Fatal(response.Err)
+	}
+	if response.StatusCode != http.StatusOK {
+		t.Fatal("Error getting response: ", response.Err)
+	}
 
-	for i := range f {
-		f[i] = rb.Get("/cache/etag/user")
+	etag := response.Header.Get("ETag")
+	require.NotEmpty(t, etag)
 
-		if f[i].Response.StatusCode != http.StatusOK {
-			t.Fatal("f Status != OK (200)")
-		}
+	response = c.Get("/cache/etag/user", http.Header{"If-None-Match": []string{etag}})
+	if response.Err != nil {
+		t.Fatal(response.Err)
+	}
+
+	// Should be Not Modified (304) when the response has not been modified in cURL
+	if response.StatusCode != http.StatusOK {
+		t.Fatal("Expected Status Not Modified")
 	}
 }
 

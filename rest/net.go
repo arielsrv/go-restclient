@@ -67,10 +67,12 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	apiURL = validURL.String()
 
 	// If Cache enable && operation is read: Cache GET
-	if !r.DisableCache && slices.Contains(readVerbs, verb) {
-		if cacheResponse, hit := resourceCache.get(apiURL); hit && !cacheResponse.revalidate {
+	if r.EnableCache && slices.Contains(readVerbs, verb) {
+		if cacheResponse, hit := resourceCache.get(apiURL); hit {
 			cacheResponse.Hit()
-			return cacheResponse
+			if !cacheResponse.revalidate {
+				return cacheResponse
+			}
 		}
 	}
 
@@ -171,7 +173,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If we get a 304, return httpResponse from cache
 	if httpResponse.StatusCode == http.StatusNotModified {
-		if response, hit := resourceCache.get(apiURL); hit && !response.revalidate {
+		if response, hit := resourceCache.get(apiURL); hit {
 			response.Hit()
 			return response
 		}
@@ -215,7 +217,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	response.revalidate = !cacheHeaders.TTL && (cacheHeaders.LastModified || cacheHeaders.ETag)
 
 	// If Cache enable: Cache SENA
-	if !r.DisableCache && slices.Contains(readVerbs, verb) && (cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
+	if r.EnableCache && slices.Contains(readVerbs, verb) && (cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
 		resourceCache.setNX(cacheURL, response)
 	}
 

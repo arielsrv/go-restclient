@@ -148,7 +148,7 @@
 //	  BaseURL:             "https://baseURL",
 //	  Proxy:               "http://myproxy",
 //	  ContentType:         rest.JSON,
-//	  WithDisableCache:        false,
+//	  WithCache:           false,
 //	  DisableTimeout:      false,
 //	  MaxIdleConnsPerHost: 10,
 //	}

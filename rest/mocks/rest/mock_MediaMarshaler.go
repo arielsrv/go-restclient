@@ -22,7 +22,7 @@ func (_m *MockMediaMarshaler) EXPECT() *MockMediaMarshaler_Expecter {
 	return &MockMediaMarshaler_Expecter{mock: &_m.Mock}
 }
 
-// DefaultHeaders provides a mock function with no fields
+// DefaultHeaders provides a mock function with given fields:
 func (_m *MockMediaMarshaler) DefaultHeaders() http.Header {
 	ret := _m.Called()
 

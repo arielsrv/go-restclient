@@ -23,7 +23,7 @@ func main() {
 		ContentType:    rest.JSON,                              // rest.JSON by default
 		Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
 		ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
-		/*DisableCache:   false,                                  // Last-Modified and ETag headers are enabled by default
+		/*EnableCache:   false,                                  // Last-Modified and ETag headers are enabled by default
 		CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
 			Transport: &http.Transport{
 				IdleConnTimeout:       time.Duration(2000) * time.Millisecond,

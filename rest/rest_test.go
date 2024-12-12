@@ -573,7 +573,7 @@ func TestResponseExceedsRequestOAuth(t *testing.T) {
 func TestNewClient(t *testing.T) {
 	client := rest.NewClient(
 		rest.WithBaseURL(server.URL),
-		rest.WithDisableCache(),
+		rest.WithCache(),
 		rest.WithName("my-client"),
 		rest.WithFollowRedirect(),
 		rest.WithGzip(),

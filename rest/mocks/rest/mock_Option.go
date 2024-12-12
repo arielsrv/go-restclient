@@ -49,7 +49,7 @@ func (_c *MockOption_Execute_Call) Return() *MockOption_Execute_Call {
 }
 
 func (_c *MockOption_Execute_Call) RunAndReturn(run func(*rest.Client)) *MockOption_Execute_Call {
-	_c.Run(run)
+	_c.Call.Return(run)
 	return _c
 }
 
