@@ -75,13 +75,9 @@ func (r *resourceTTLLfuMap) get(url string) (*Response, bool) {
 }
 
 // setNX sets a new value to the cache, if the key does not exist (like Redis SETNX).
-func (r *resourceTTLLfuMap) setNX(url string, response *Response, toBlocking bool) {
+func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
 	if _, hit := r.get(url); hit {
 		return
-	}
-
-	if toBlocking {
-		defer r.lowLevelCache.Wait()
 	}
 
 	cost := response.size()

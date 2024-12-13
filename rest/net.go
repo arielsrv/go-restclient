@@ -216,7 +216,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If Cache enable: Cache SENA
 	if r.EnableCache && slices.Contains(readVerbs, verb) && (cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
-		resourceCache.setNX(cacheURL, response, r.CacheBlockingWrites)
+		resourceCache.setNX(cacheURL, response)
 	}
 
 	return response

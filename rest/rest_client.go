@@ -131,9 +131,6 @@ type Client struct {
 	// Enable internal caching of Responses
 	EnableCache bool
 
-	// Force re-sync lfu entries
-	CacheBlockingWrites bool
-
 	// Disable timeout and default timeout = no timeout
 	DisableTimeout bool
 

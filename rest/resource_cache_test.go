@@ -28,8 +28,7 @@ func TestCacheGetLowCacheMaxSize(t *testing.T) {
 func TestCacheGet(t *testing.T) {
 	c := &rest.Client{BaseURL: server.URL, EnableCache: true}
 
-	for i := range 1000 {
-		t.Log(i)
+	for range 1000 {
 		r := c.Get("/cache/user")
 
 		if r.Err != nil {
@@ -44,48 +43,32 @@ func TestCacheGet(t *testing.T) {
 
 func TestCacheGetEtag(t *testing.T) {
 	c := &rest.Client{
-		BaseURL:     server.URL,
-		EnableCache: true, CacheBlockingWrites: true,
-		Timeout: 10 * time.Second, ConnectTimeout: 10 * time.Second,
+		BaseURL:        server.URL,
+		EnableCache:    true,
+		Timeout:        10 * time.Second,
+		ConnectTimeout: 10 * time.Second,
 	}
 
-	response := c.Get("/cache/etag/user")
-	if response.Err != nil {
-		t.Fatal(response.Err)
-	}
-	if response.StatusCode != http.StatusOK {
-		t.Fatal("Error getting response: ", response.Err)
-	}
-
-	response = c.Get("/cache/etag/user")
-	if response.Err != nil {
-		t.Fatal(response.Err)
-	}
-
-	// Should be Not Modified (304) when the response has not been modified in cURL
-	if response.StatusCode != http.StatusOK {
-		t.Fatal("Expected Status Not Modified")
-	}
-
-	response = c.Get("/cache/etag/user")
-	if response.Err != nil {
-		t.Fatal(response.Err)
-	}
-
-	// Should be Not Modified (304) when the response has not been modified in cURL
-	if response.StatusCode != http.StatusOK {
-		t.Fatal("Expected Status Not Modified")
+	for range 1000 {
+		response := c.Get("/cache/etag/user")
+		if response.Err != nil {
+			t.Fatal(response.Err)
+		}
+		if response.StatusCode != http.StatusOK {
+			t.Fatal("Error getting response: ", response.Err)
+		}
 	}
 }
 
 func TestCacheGetLastModified(t *testing.T) {
 	c := &rest.Client{
-		BaseURL:     server.URL,
-		EnableCache: true, CacheBlockingWrites: true,
-		Timeout: 10 * time.Second, ConnectTimeout: 10 * time.Second,
+		BaseURL:        server.URL,
+		EnableCache:    true,
+		Timeout:        10 * time.Second,
+		ConnectTimeout: 10 * time.Second,
 	}
 
-	for range 100 {
+	for range 1000 {
 		response := c.Get("/cache/lastmodified/user")
 		if response.Err != nil {
 			t.Fatal(response.Err)
@@ -98,28 +81,38 @@ func TestCacheGetLastModified(t *testing.T) {
 }
 
 func TestCacheGetExpires(t *testing.T) {
-	var f [100]*rest.Response
+	c := &rest.Client{
+		BaseURL:        server.URL,
+		EnableCache:    true,
+		Timeout:        10 * time.Second,
+		ConnectTimeout: 10 * time.Second,
+	}
 
-	for i := range f {
-		f[i] = rb.Get("/cache/expires/user")
-
-		if f[i].Response.StatusCode != http.StatusOK {
-			t.Fatal("f Status != OK (200)")
+	for range 1000 {
+		response := c.Get("/cache/expires/user")
+		if response.Err != nil {
+			t.Fatal(response.Err)
+		}
+		if response.StatusCode != http.StatusOK {
+			t.Fatal("Error getting response: ", response.Err)
 		}
 	}
 }
 
 func TestCacheSlowGet(t *testing.T) {
-	var f [1000]*rest.Response
+	c := &rest.Client{BaseURL: server.URL, EnableCache: true}
 
-	for i := range f {
-		f[i] = rb.Get("/cache/user")
+	for range 1000 {
+		r := c.Get("/cache/user")
 
-		if f[i].Response.StatusCode != http.StatusOK {
+		if r.Err != nil {
+			t.Fatal("Error:", r.Err)
+		}
+
+		if r.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
 		}
 
-		// Wait for so we get cache eviction
 		time.Sleep(3 * time.Millisecond)
 	}
 }
