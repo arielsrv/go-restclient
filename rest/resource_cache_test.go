@@ -43,7 +43,12 @@ func TestCacheGet(t *testing.T) {
 }
 
 func TestCacheGetEtag(t *testing.T) {
-	c := &rest.Client{BaseURL: server.URL, EnableCache: true, Timeout: 10 * time.Second, ConnectTimeout: 10 * time.Second}
+	c := &rest.Client{
+		BaseURL:     server.URL,
+		EnableCache: true, CacheBlockingWrites: true,
+		Timeout: 10 * time.Second, ConnectTimeout: 10 * time.Second,
+	}
+
 	response := c.Get("/cache/etag/user")
 	if response.Err != nil {
 		t.Fatal(response.Err)
@@ -61,15 +66,32 @@ func TestCacheGetEtag(t *testing.T) {
 	if response.StatusCode != http.StatusOK {
 		t.Fatal("Expected Status Not Modified")
 	}
+
+	response = c.Get("/cache/etag/user")
+	if response.Err != nil {
+		t.Fatal(response.Err)
+	}
+
+	// Should be Not Modified (304) when the response has not been modified in cURL
+	if response.StatusCode != http.StatusOK {
+		t.Fatal("Expected Status Not Modified")
+	}
 }
 
 func TestCacheGetLastModified(t *testing.T) {
-	var f [100]*rest.Response
+	c := &rest.Client{
+		BaseURL:     server.URL,
+		EnableCache: true, CacheBlockingWrites: true,
+		Timeout: 10 * time.Second, ConnectTimeout: 10 * time.Second,
+	}
 
-	for i := range f {
-		f[i] = rb.Get("/cache/lastmodified/user")
+	for range 100 {
+		response := c.Get("/cache/lastmodified/user")
+		if response.Err != nil {
+			t.Fatal(response.Err)
+		}
 
-		if f[i].Response.StatusCode != http.StatusOK {
+		if response.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
 		}
 	}

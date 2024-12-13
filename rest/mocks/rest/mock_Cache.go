@@ -176,6 +176,38 @@ func (_c *MockCache_SetWithTTL_Call[K, V]) RunAndReturn(run func(K, V, int64, ti
 	return _c
 }
 
+// Wait provides a mock function with given fields:
+func (_m *MockCache[K, V]) Wait() {
+	_m.Called()
+}
+
+// MockCache_Wait_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Wait'
+type MockCache_Wait_Call[K any, V any] struct {
+	*mock.Call
+}
+
+// Wait is a helper method to define mock.On call
+func (_e *MockCache_Expecter[K, V]) Wait() *MockCache_Wait_Call[K, V] {
+	return &MockCache_Wait_Call[K, V]{Call: _e.mock.On("Wait")}
+}
+
+func (_c *MockCache_Wait_Call[K, V]) Run(run func()) *MockCache_Wait_Call[K, V] {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockCache_Wait_Call[K, V]) Return() *MockCache_Wait_Call[K, V] {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockCache_Wait_Call[K, V]) RunAndReturn(run func()) *MockCache_Wait_Call[K, V] {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockCache creates a new instance of MockCache. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockCache[K any, V any](t interface {

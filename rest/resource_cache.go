@@ -13,6 +13,7 @@ type Cache[K any, V any] interface {
 	Set(key K, value V, cost int64) bool
 	SetWithTTL(key K, value V, cost int64, ttl time.Duration) bool
 	Get(key K) (V, bool)
+	Wait()
 }
 
 // resourceTTLLfuMap, is an LRU-TTL Cache, that caches Responses base on headers
@@ -74,9 +75,13 @@ func (r *resourceTTLLfuMap) get(url string) (*Response, bool) {
 }
 
 // setNX sets a new value to the cache, if the key does not exist (like Redis SETNX).
-func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
+func (r *resourceTTLLfuMap) setNX(url string, response *Response, toBlocking bool) {
 	if _, hit := r.get(url); hit {
 		return
+	}
+
+	if toBlocking {
+		defer r.lowLevelCache.Wait()
 	}
 
 	cost := response.size()

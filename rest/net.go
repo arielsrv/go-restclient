@@ -67,7 +67,6 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	apiURL = validURL.String()
 
 	var cacheResponse *Response
-
 	// If Cache enable && operation is read: Cache GET
 	if r.EnableCache && slices.Contains(readVerbs, verb) {
 		if value, hit := resourceCache.get(apiURL); hit {
@@ -217,7 +216,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 	// If Cache enable: Cache SENA
 	if r.EnableCache && slices.Contains(readVerbs, verb) && (cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
-		resourceCache.setNX(cacheURL, response)
+		resourceCache.setNX(cacheURL, response, r.CacheBlockingWrites)
 	}
 
 	return response
