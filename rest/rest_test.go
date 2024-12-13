@@ -445,3 +445,16 @@ func Test_AsyncPatch(t *testing.T) {
 		t.Fatal("Status != OK (200")
 	}
 }
+
+func Test_Basic(t *testing.T) {
+	client := rest.Client{
+		BasicAuth: &rest.BasicAuth{
+			Username: "Juan",
+			Password: "Doe",
+		},
+		UserAgent: "elber",
+	}
+
+	resp := client.Get(server.URL + "/")
+	require.NoError(t, resp.Err)
+}
