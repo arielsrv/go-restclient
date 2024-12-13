@@ -429,6 +429,16 @@ func (r *Client) getConnectionTimeout() time.Duration {
 	}
 }
 
+func (r *Client) asyncNewRequest(ctx context.Context, verb string, url string, body any, headers ...http.Header) <-chan *Response {
+	rChan := make(chan *Response, 1)
+	go func() {
+		defer close(rChan)
+		rChan <- r.newRequest(ctx, verb, url, body, headers...)
+	}()
+
+	return rChan
+}
+
 // setParams sets the request parameters and headers.
 func (r *Client) setParams(request *http.Request, cacheResponse *Response, cacheURL string, paramHeaders ...http.Header) {
 	// Default headers

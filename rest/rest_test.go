@@ -1,7 +1,6 @@
 package rest_test
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -92,60 +91,6 @@ func TestGet_NoCache(t *testing.T) {
 	}
 	if resp.Cached() {
 		t.Fatal("resp.Cached() == true")
-	}
-}
-
-func TestClient_GetChan(t *testing.T) {
-	client := rest.Client{}
-	rChan := make(chan *rest.Response, 1)
-	client.GetChan(server.URL+"/user", rChan)
-	resp := <-rChan
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("Status != OK (200)")
-	}
-}
-
-func TestClient_GetChan_CtxCancel(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-	client := rest.Client{}
-	rChan := make(chan *rest.Response, 1)
-	client.GetChanWithContext(ctx, server.URL+"/user", rChan)
-	resp := <-rChan
-
-	require.Error(t, resp.Err)
-	assert.ErrorContains(t, resp.Err, context.Canceled.Error())
-}
-
-func TestClient_GetChan_CtxTimeout(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 0)
-	cancel()
-	client := rest.Client{}
-	rChan := make(chan *rest.Response, 1)
-	client.GetChanWithContext(ctx, server.URL+"/user", rChan)
-	resp := <-rChan
-
-	require.Error(t, resp.Err)
-	assert.ErrorContains(t, resp.Err, context.DeadlineExceeded.Error())
-}
-
-func TestClient_PostChan(t *testing.T) {
-	client := rest.Client{}
-	rChan := make(chan *rest.Response, 1)
-	client.PostChan(server.URL+"/user", &User{Name: "John"}, rChan)
-	resp := <-rChan
-	if resp.StatusCode != http.StatusCreated {
-		t.Fatal("Status != Created (201)")
-	}
-}
-
-func TestClient_HeadChan(t *testing.T) {
-	client := rest.Client{}
-	rChan := make(chan *rest.Response, 1)
-	client.HeadChan(server.URL+"/user", rChan)
-	resp := <-rChan
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("Status != Created (200)")
 	}
 }
 
@@ -246,35 +191,8 @@ func TestPut(t *testing.T) {
 	}
 }
 
-func TestPut_Chan(t *testing.T) {
-	client := rest.NewClient()
-	rChan := make(chan *rest.Response, 1)
-	go func() {
-		client.PutChan(server.URL+"/user/3", &User{Name: "Pichucha"}, rChan)
-	}()
-	resp := <-rChan
-
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("Status != OK (200")
-	}
-}
-
 func TestPatch(t *testing.T) {
 	resp := rest.Patch(server.URL+"/user/3", &User{Name: "Pichucha"})
-
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("Status != OK (200")
-	}
-}
-
-func TestPatch_Chan(t *testing.T) {
-	client := rest.NewClient()
-	rChan := make(chan *rest.Response, 1)
-
-	go func() {
-		client.PatchChan(server.URL+"/user/3", &User{Name: "Pichucha"}, rChan)
-	}()
-	resp := <-rChan
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")
@@ -289,117 +207,12 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-func TestDelete_Chan(t *testing.T) {
-	client := rest.NewClient()
-	rChan := make(chan *rest.Response, 1)
-	go func() {
-		client.DeleteChan(server.URL+"/user/4", rChan)
-	}()
-	resp := <-rChan
-
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("Status != OK (200")
-	}
-}
-
 func TestOptions(t *testing.T) {
 	resp := rest.Options(server.URL + "/user")
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200")
 	}
-}
-
-func TestOptions_Chan(t *testing.T) {
-	client := rest.NewClient()
-	rChan := make(chan *rest.Response, 1)
-
-	go func() {
-		client.OptionsChan(server.URL+"/user", rChan)
-	}()
-	resp := <-rChan
-
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("Status != OK (200")
-	}
-}
-
-func TestAsyncGet(t *testing.T) {
-	h := make(http.Header)
-	h.Add("X-Custom-Header", "Custom-Value")
-	done := make(chan bool)
-	rest.AsyncGet(server.URL+"/user", func(r *rest.Response) {
-		if r.StatusCode != http.StatusOK {
-			t.Fatal("Status != OK (200)")
-		}
-		done <- true
-	}, h)
-	<-done
-}
-
-func TestAsyncHead(t *testing.T) {
-	rest.AsyncHead(server.URL+"/user", func(r *rest.Response) {
-		if r.StatusCode != http.StatusOK {
-			t.Fatal("Status != OK (200)")
-		}
-	})
-
-	time.Sleep(50 * time.Millisecond)
-}
-
-func TestAsyncPost(t *testing.T) {
-	done := make(chan bool)
-	rest.AsyncPost(server.URL+"/user", &User{Name: "Maria"}, func(r *rest.Response) {
-		if r.StatusCode != http.StatusCreated {
-			t.Fatal("Status != OK (201)")
-		}
-		done <- true
-	})
-	<-done
-}
-
-func TestAsyncPut(t *testing.T) {
-	done := make(chan bool)
-	rest.AsyncPut(server.URL+"/user/3", &User{Name: "Pichucha"}, func(r *rest.Response) {
-		if r.StatusCode != http.StatusOK {
-			t.Fatal("Status != OK (200)")
-		}
-		done <- true
-	})
-	<-done
-}
-
-func TestAsyncPatch(t *testing.T) {
-	done := make(chan bool)
-	rest.AsyncPatch(server.URL+"/user/3", &User{Name: "Pichucha"}, func(r *rest.Response) {
-		if r.StatusCode != http.StatusOK {
-			t.Fatal("Status != OK (200)")
-		}
-		done <- true
-	})
-	<-done
-}
-
-func TestAsyncDelete(t *testing.T) {
-	done := make(chan bool)
-	rest.AsyncDelete(server.URL+"/user/4", func(r *rest.Response) {
-		if r.StatusCode != http.StatusOK {
-			t.Fatal("Status != OK (200)")
-		}
-		done <- true
-	})
-	<-done
-}
-
-func TestAsyncOptions(t *testing.T) {
-	done := make(chan bool)
-	rest.AsyncOptions(server.URL+"/user", func(r *rest.Response) {
-		if r.StatusCode != http.StatusOK {
-			t.Fatal("Status != OK (200)")
-		}
-		done <- true
-	})
-	<-done
 }
 
 func TestHeaders(t *testing.T) {
@@ -570,30 +383,65 @@ func TestResponseExceedsRequestOAuth(t *testing.T) {
 	require.NoError(t, suResponse.Err)
 }
 
-func TestNewClient(t *testing.T) {
-	client := rest.NewClient(
-		rest.WithBaseURL(server.URL),
-		rest.WithCache(),
-		rest.WithName("my-client"),
-		rest.WithFollowRedirect(),
-		rest.WithGzip(),
-		rest.WithTrace(),
-		rest.WithTimeout(10*time.Second),
-		rest.WithConnectTimeout(10*time.Second),
-		rest.WithUserAgent("merluza"),
-		rest.WithBasicAuth(&rest.BasicAuth{
-			Username: "username",
-			Password: "password",
-		}),
-		rest.WithCustomPool(&rest.CustomPool{
-			MaxIdleConnsPerHost: 10,
-		}),
-		rest.WithContentType(rest.JSON),
-		rest.WithOAuth(nil),
-	)
+func TestClient_AsyncGet(t *testing.T) {
+	client := rest.Client{}
+	rChan := client.AsyncGet(server.URL + "/user")
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+}
 
-	resp := client.Get("/users")
+func TestClient_AsyncHead(t *testing.T) {
+	client := rest.Client{}
+	rChan := client.AsyncHead(server.URL + "/user")
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+}
 
-	require.NoError(t, resp.Err)
-	assert.NotNil(t, resp)
+func TestClient_AsyncOptions(t *testing.T) {
+	client := rest.Client{}
+	rChan := client.AsyncOptions(server.URL + "/user")
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+}
+
+func TestClient_AsyncDelete(t *testing.T) {
+	client := rest.Client{}
+	rChan := client.AsyncDelete(server.URL + "/user")
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200)")
+	}
+}
+
+func Test_AsyncPost(t *testing.T) {
+	client := rest.Client{}
+	rChan := client.AsyncPost(server.URL+"/user", &User{Name: "Maria"})
+	resp := <-rChan
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatal("Status != OK (201)")
+	}
+}
+
+func Test_AsyncPut(t *testing.T) {
+	client := rest.Client{}
+	rChan := client.AsyncPut(server.URL+"/user/3", &User{Name: "Pichucha"})
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
+}
+
+func Test_AsyncPatch(t *testing.T) {
+	client := rest.Client{}
+	rChan := client.AsyncPatch(server.URL+"/user/3", &User{Name: "Pichucha"})
+	resp := <-rChan
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Status != OK (200")
+	}
 }

@@ -1,13 +1,6 @@
 package rest
 
-import (
-	"net/http"
-	"sync"
-)
-
-var dfltClient = Client{
-	rwMtx: sync.RWMutex{},
-}
+var dfltClient = Client{}
 
 // Get issues a GET HTTP verb to the specified URL.
 //
@@ -91,74 +84,4 @@ func Head(url string) *Response {
 // Options uses the DefaultBuilder.
 func Options(url string) *Response {
 	return dfltClient.Options(url)
-}
-
-// AsyncGet is the *asynchronous* option for GET.
-// The go routine calling AsyncGet(), will not be blocked.
-//
-// Whenever the Response is ready, the *f* function will be called back.
-//
-// AsyncGet uses the DefaultBuilder.
-func AsyncGet(url string, f func(*Response), headers ...http.Header) {
-	dfltClient.AsyncGet(url, f, headers...)
-}
-
-// AsyncPost is the *asynchronous* option for POST.
-// The go routine calling AsyncPost(), will not be blocked.
-//
-// Whenever the Response is ready, the *f* function will be called back.
-//
-// AsyncPost uses the DefaultBuilder.
-func AsyncPost(url string, body any, f func(*Response), headers ...http.Header) {
-	dfltClient.AsyncPost(url, body, f, headers...)
-}
-
-// AsyncPut is the *asynchronous* option for PUT.
-// The go routine calling AsyncPut(), will not be blocked.
-//
-// Whenever the Response is ready, the *f* function will be called back.
-//
-// AsyncPut uses the DefaultBuilder.
-func AsyncPut(url string, body any, f func(*Response), headers ...http.Header) {
-	dfltClient.AsyncPut(url, body, f, headers...)
-}
-
-// AsyncPatch is the *asynchronous* option for PATCH.
-// The go routine calling AsyncPatch(), will not be blocked.
-//
-// Whenever the Response is ready, the *f* function will be called back.
-//
-// AsyncPatch uses the DefaultBuilder.
-func AsyncPatch(url string, body any, f func(*Response), headers ...http.Header) {
-	dfltClient.AsyncPatch(url, body, f, headers...)
-}
-
-// AsyncDelete is the *asynchronous* option for DELETE.
-// The go routine calling AsyncDelete(), will not be blocked.
-//
-// Whenever the Response is ready, the *f* function will be called back.
-//
-// AsyncDelete uses the DefaultBuilder.
-func AsyncDelete(url string, f func(*Response), headers ...http.Header) {
-	dfltClient.AsyncDelete(url, f, headers...)
-}
-
-// AsyncHead is the *asynchronous* option for HEAD.
-// The go routine calling AsyncHead(), will not be blocked.
-//
-// Whenever the Response is ready, the *f* function will be called back.
-//
-// AsyncHead uses the DefaultBuilder.
-func AsyncHead(url string, f func(*Response), headers ...http.Header) {
-	dfltClient.AsyncHead(url, f, headers...)
-}
-
-// AsyncOptions is the *asynchronous* option for OPTIONS.
-// The go routine calling AsyncOptions(), will not be blocked.
-//
-// Whenever the Response is ready, the *f* function will be called back.
-//
-// AsyncOptions uses the DefaultBuilder.
-func AsyncOptions(url string, f func(*Response), headers ...http.Header) {
-	dfltClient.AsyncOptions(url, f, headers...)
 }

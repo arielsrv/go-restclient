@@ -28,43 +28,23 @@ var (
 )
 
 type AsyncHTTPClient interface {
-	AsyncGet(url string, f func(*Response), headers ...http.Header)
-	AsyncGetWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
-	AsyncPost(url string, body any, f func(*Response), headers ...http.Header)
-	AsyncPostWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header)
-	AsyncPut(url string, body any, f func(*Response), headers ...http.Header)
-	AsyncPutWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header)
-	AsyncPatch(url string, body any, f func(*Response), headers ...http.Header)
-	AsyncPatchWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header)
-	AsyncDelete(url string, f func(*Response), headers ...http.Header)
-	AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
-	AsyncHead(url string, f func(*Response), headers ...http.Header)
-	AsyncHeadWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
-	AsyncOptions(url string, f func(*Response), headers ...http.Header)
-	AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header)
-}
-
-type ChanHTTPClient interface {
-	GetChan(url string, rChan chan<- *Response, headers ...http.Header)
-	GetChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header)
-	PostChan(url string, body any, rChan chan<- *Response, headers ...http.Header)
-	PostChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header)
-	PutChan(url string, body any, rChan chan<- *Response, headers ...http.Header)
-	PutChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header)
-	PatchChan(url string, body any, rChan chan<- *Response, headers ...http.Header)
-	PatchChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header)
-	DeleteChan(url string, rChan chan<- *Response, headers ...http.Header)
-	DeleteChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header)
-	HeadChan(url string, rChan chan<- *Response, headers ...http.Header)
-	HeadChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header)
-	OptionsChan(url string, rChan chan<- *Response, headers ...http.Header)
-	OptionsChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header)
+	AsyncGet(url string, headers ...http.Header) <-chan *Response
+	AsyncGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+	AsyncPost(url string, body any, headers ...http.Header) <-chan *Response
+	AsyncPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
+	AsyncPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
+	AsyncPut(url string, body any, headers ...http.Header) <-chan *Response
+	AsyncPatch(url string, body any, headers ...http.Header) <-chan *Response
+	AsyncPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
+	AsyncDelete(url string, headers ...http.Header) <-chan *Response
+	AsyncDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+	AsyncHead(url string, headers ...http.Header) <-chan *Response
+	AsyncHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+	AsyncOptions(url string, headers ...http.Header) <-chan *Response
+	AsyncOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
 }
 
 type HTTPClient interface {
-	AsyncHTTPClient
-	ChanHTTPClient
-
 	Get(url string, headers ...http.Header) *Response
 	GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response
 	Post(url string, body any, headers ...http.Header) *Response
@@ -116,16 +96,13 @@ type Client struct {
 	// Complete request time out.
 	Timeout time.Duration
 
-	// Connection timeout, it bounds the time spent obtaining a successful connection
+	// ConnectTimeout, it bounds the time spent obtaining a successful connection
 	ConnectTimeout time.Duration
 
 	// ContentType
 	ContentType ContentType
 
-	// Trace logs HTTP requests and responses
-	rwMtx sync.RWMutex
-
-	// clientMtx protects the clientMtxOnce
+	// clientMtxOnce protects the http.Client
 	clientMtxOnce sync.Once
 
 	// Enable internal caching of Responses
@@ -142,113 +119,6 @@ type Client struct {
 
 	// Enable tracing
 	EnableTrace bool
-}
-
-type Option func(*Client)
-
-// NewClient creates a new Client with the given options.
-func NewClient(opts ...Option) *Client {
-	client := &Client{
-		Timeout:        30 * time.Second, // default timeout
-		ConnectTimeout: 10 * time.Second, // default connection timeout
-		ContentType:    JSON,
-		FollowRedirect: true,
-	}
-	for _, opt := range opts {
-		opt(client)
-	}
-	return client
-}
-
-// WithBaseURL sets the BaseURL of the Client.
-func WithBaseURL(baseURL string) Option {
-	return func(c *Client) {
-		c.BaseURL = baseURL
-	}
-}
-
-// WithName sets the name of the Client.
-func WithName(name string) Option {
-	return func(c *Client) {
-		c.Name = name
-	}
-}
-
-// WithUserAgent sets the UserAgent of the Client.
-func WithUserAgent(userAgent string) Option {
-	return func(c *Client) {
-		c.UserAgent = userAgent
-	}
-}
-
-// WithTimeout sets the timeout of the Client.
-func WithTimeout(timeout time.Duration) Option {
-	return func(c *Client) {
-		c.Timeout = timeout
-	}
-}
-
-// WithConnectTimeout sets the connection timeout of the Client.
-func WithConnectTimeout(connectTimeout time.Duration) Option {
-	return func(c *Client) {
-		c.ConnectTimeout = connectTimeout
-	}
-}
-
-// WithBasicAuth sets the BasicAuth credentials for the Client.
-func WithBasicAuth(basicAuth *BasicAuth) Option {
-	return func(c *Client) {
-		c.BasicAuth = basicAuth
-	}
-}
-
-// WithCustomPool sets the custom pool for the Client.
-func WithCustomPool(customPool *CustomPool) Option {
-	return func(c *Client) {
-		c.CustomPool = customPool
-	}
-}
-
-// WithOAuth sets the OAuth credentials for the Client.
-func WithOAuth(oauth *OAuth) Option {
-	return func(c *Client) {
-		c.OAuth = oauth
-	}
-}
-
-// WithCache disables caching in the Client.
-func WithCache() Option {
-	return func(c *Client) {
-		c.EnableCache = true
-	}
-}
-
-// WithContentType sets the Content-Type of the Client.
-func WithContentType(contentType ContentType) Option {
-	return func(c *Client) {
-		c.ContentType = contentType
-	}
-}
-
-// WithFollowRedirect enables or disables following redirects.
-func WithFollowRedirect() Option {
-	return func(c *Client) {
-		c.FollowRedirect = true
-	}
-}
-
-// WithGzip enables or disables gzip compression.
-func WithGzip() Option {
-	return func(c *Client) {
-		c.EnableGzip = true
-	}
-}
-
-// WithTrace enables or disables tracing.
-func WithTrace() Option {
-	return func(c *Client) {
-		c.EnableTrace = true
-	}
 }
 
 type AuthStyle int
@@ -434,320 +304,142 @@ func (r *Client) OptionsWithContext(ctx context.Context, url string, headers ...
 	return r.newRequest(ctx, http.MethodOptions, url, nil, headers...)
 }
 
-// AsyncGet is the *asynchronous* option for GET.
-// The go routine calling AsyncGet(), will not be blocked.
+// AsyncGet issues a GET HTTP verb to the specified URL.
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncGet(url string, f func(*Response), headers ...http.Header) {
-	r.AsyncGetWithContext(context.Background(), url, f, headers...)
+// In Restful, GET is used for "reading" or retrieving a resource.
+// Client should expect a response status code of 200(OK) if resource exists
+// 404(Not Found) if it doesn't, or 400(Bad Request).
+func (r *Client) AsyncGet(url string, headers ...http.Header) <-chan *Response {
+	return r.AsyncGetWithContext(context.Background(), url, headers...)
 }
 
-// AsyncGetWithContext is the *asynchronous* option for GET.
-// The go routine calling AsyncGet(), will not be blocked.
+// AsyncGetWithContext issues a GET HTTP verb to the specified URL.
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncGetWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header) {
-	go doAsyncRequest(r.GetWithContext(ctx, url, headers...), f)
+// In Restful, GET is used for "reading" or retrieving a resource.
+// Client should expect a response status code of 200(OK) if resource exists
+// 404(Not Found) if it doesn't, or 400(Bad Request).
+func (r *Client) AsyncGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
+	return r.asyncNewRequest(ctx, http.MethodGet, url, nil, headers...)
 }
 
-// AsyncPost is the *asynchronous* option for POST.
-// The go routine calling AsyncPost(), will not be blocked.
+// AsyncPost issues a POST HTTP verb to the specified URL.
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncPost(url string, body any, f func(*Response), headers ...http.Header) {
-	r.AsyncPostWithContext(context.Background(), url, body, f, headers...)
+// In Restful, POST is used for "creating" a resource.
+// Client should expect a response status code of 201(Created), 400(Bad Request),
+// 404(Not Found), or 409(Conflict) if resource already exist.
+//
+// Body could be any of the form: string, []byte, struct & map.
+func (r *Client) AsyncPost(url string, body any, headers ...http.Header) <-chan *Response {
+	return r.AsyncPostWithContext(context.Background(), url, body, headers...)
 }
 
-// AsyncPostWithContext is the *asynchronous* option for POST.
-// The go routine calling AsyncPost(), will not be blocked.
+// AsyncPostWithContext issues a POST HTTP verb to the specified URL.
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncPostWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header) {
-	go doAsyncRequest(r.PostWithContext(ctx, url, body, headers...), f)
+// In Restful, POST is used for "creating" a resource.
+// Client should expect a response status code of 201(Created), 400(Bad Request),
+// 404(Not Found), or 409(Conflict) if resource already exist.
+//
+// Body could be any of the form: string, []byte, struct & map.
+func (r *Client) AsyncPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
+	return r.asyncNewRequest(ctx, http.MethodPost, url, body, headers...)
 }
 
-// AsyncPut is the *asynchronous* option for PUT.
-// The go routine calling AsyncPut(), will not be blocked.
+// AsyncPut issues a PUT HTTP verb to the specified URL.
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncPut(url string, body any, f func(*Response), headers ...http.Header) {
-	r.AsyncPutWithContext(context.Background(), url, body, f, headers...)
+// In Restful, PUT is used for "updating" a resource.
+// Client should expect a response status code of 200(OK), 404(Not Found),
+// or 400(Bad Request). 200(OK) could be also 204(No Content)
+//
+// Body could be any of the form: string, []byte, struct & map.
+func (r *Client) AsyncPut(url string, body any, headers ...http.Header) <-chan *Response {
+	return r.AsyncPutWithContext(context.Background(), url, body, headers...)
 }
 
-// AsyncPutWithContext is the *asynchronous* option for PUT.
-// The go routine calling AsyncPut(), will not be blocked.
+// AsyncPutWithContext issues a PUT HTTP verb to the specified URL.
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncPutWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header) {
-	go doAsyncRequest(r.PutWithContext(ctx, url, body, headers...), f)
+// In Restful, PUT is used for "updating" a resource.
+// Client should expect a response status code of 200(OK), 404(Not Found),
+// or 400(Bad Request). 200(OK) could be also 204(No Content)
+//
+// Body could be any of the form: string, []byte, struct & map.
+func (r *Client) AsyncPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
+	return r.asyncNewRequest(ctx, http.MethodPut, url, body, headers...)
 }
 
-// AsyncPatch is the *asynchronous* option for PATCH.
-// The go routine calling AsyncPatch(), will not be blocked.
+// AsyncPatch issues a PUT HTTP verb to the specified URL.
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncPatch(url string, body any, f func(*Response), headers ...http.Header) {
-	r.AsyncPatchWithContext(context.Background(), url, body, f, headers...)
+// In Restful, PUT is used for "updating" a resource.
+// Client should expect a response status code of 200(OK), 404(Not Found),
+// or 400(Bad Request). 200(OK) could be also 204(No Content)
+//
+// Body could be any of the form: string, []byte, struct & map.
+func (r *Client) AsyncPatch(url string, body any, headers ...http.Header) <-chan *Response {
+	return r.AsyncPatchWithContext(context.Background(), url, body, headers...)
 }
 
-// AsyncPatchWithContext is the *asynchronous* option for PATCH.
-// The go routine calling AsyncPatch(), will not be blocked.
+// AsyncPatchWithContext issues a PUT HTTP verb to the specified URL.
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncPatchWithContext(ctx context.Context, url string, body any, f func(*Response), headers ...http.Header) {
-	go doAsyncRequest(r.PatchWithContext(ctx, url, body, headers...), f)
+// In Restful, PUT is used for "updating" a resource.
+// Client should expect a response status code of 200(OK), 404(Not Found),
+// or 400(Bad Request). 200(OK) could be also 204(No Content)
+//
+// Body could be any of the form: string, []byte, struct & map.
+func (r *Client) AsyncPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
+	return r.asyncNewRequest(ctx, http.MethodPatch, url, body, headers...)
 }
 
-// AsyncDelete is the *asynchronous* option for DELETE.
-// The go routine calling AsyncDelete(), will not be blocked.
+// AsyncDelete issues a DELETE HTTP verb to the specified URL
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncDelete(url string, f func(*Response), headers ...http.Header) {
-	r.AsyncDeleteWithContext(context.Background(), url, f, headers...)
+// In Restful, DELETE is used to "delete" a resource.
+// Client should expect a response status code of 200(OK), 404(Not Found),
+// or 400(Bad Request).
+func (r *Client) AsyncDelete(url string, headers ...http.Header) <-chan *Response {
+	return r.AsyncDeleteWithContext(context.Background(), url, headers...)
 }
 
-// AsyncDeleteWithContext is the *asynchronous* option for DELETE.
-// The go routine calling AsyncDelete(), will not be blocked.
+// AsyncDeleteWithContext issues a DELETE HTTP verb to the specified URL
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncDeleteWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header) {
-	go doAsyncRequest(r.DeleteWithContext(ctx, url, headers...), f)
+// In Restful, DELETE is used to "delete" a resource.
+// Client should expect a response status code of 200(OK), 404(Not Found),
+// or 400(Bad Request).
+func (r *Client) AsyncDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
+	return r.asyncNewRequest(ctx, http.MethodDelete, url, nil, headers...)
 }
 
-// AsyncHead is the *asynchronous* option for HEAD.
-// The go routine calling AsyncHead(), will not be blocked.
+// AsyncHead issues a HEAD HTTP verb to the specified URL
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncHead(url string, f func(*Response), headers ...http.Header) {
-	r.AsyncHeadWithContext(context.Background(), url, f, headers...)
+// In Restful, HEAD is used to "read" a resource headers only.
+// Client should expect a response status code of 200(OK) if resource exists,
+// 404(Not Found) if it doesn't, or 400(Bad Request).
+func (r *Client) AsyncHead(url string, headers ...http.Header) <-chan *Response {
+	return r.AsyncHeadWithContext(context.Background(), url, headers...)
 }
 
-// AsyncHeadWithContext is the *asynchronous* option for HEAD.
-// The go routine calling AsyncHead(), will not be blocked.
+// AsyncHeadWithContext issues a HEAD HTTP verb to the specified URL
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncHeadWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header) {
-	go doAsyncRequest(r.HeadWithContext(ctx, url, headers...), f)
+// In Restful, HEAD is used to "read" a resource headers only.
+// Client should expect a response status code of 200(OK) if resource exists,
+// 404(Not Found) if it doesn't, or 400(Bad Request).
+func (r *Client) AsyncHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
+	return r.asyncNewRequest(ctx, http.MethodHead, url, nil, headers...)
 }
 
-// AsyncOptions is the *asynchronous* option for OPTIONS.
-// The go routine calling AsyncOptions(), will not be blocked.
+// AsyncOptions issues a OPTIONS HTTP verb to the specified URL
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncOptions(url string, f func(*Response), headers ...http.Header) {
-	r.AsyncOptionsWithContext(context.Background(), url, f, headers...)
+// In Restful, OPTIONS is used to get information about the resource
+// and supported HTTP verbs.
+// Client should expect a response status code of 200(OK) if resource exists,
+// 404(Not Found) if it doesn't, or 400(Bad Request).
+func (r *Client) AsyncOptions(url string, headers ...http.Header) <-chan *Response {
+	return r.AsyncOptionsWithContext(context.Background(), url, headers...)
 }
 
-// AsyncOptionsWithContext is the *asynchronous* option for OPTIONS.
-// The go routine calling AsyncOptions(), will not be blocked.
+// AsyncOptionsWithContext issues a OPTIONS HTTP verb to the specified URL
 //
-// Whenever the Response is ready, the *f* function will be called back.
-func (r *Client) AsyncOptionsWithContext(ctx context.Context, url string, f func(*Response), headers ...http.Header) {
-	go doAsyncRequest(r.OptionsWithContext(ctx, url, headers...), f)
-}
-
-func doAsyncRequest(r *Response, f func(*Response)) {
-	f(r)
-}
-
-// doChanAsync creates a new request and sends it asynchronously.
-func (r *Client) doChanAsync(ctx context.Context, url string, verb string, body any, rChan chan<- *Response, headers ...http.Header) {
-	go func() {
-		rChan <- r.newRequest(ctx, verb, url, body, headers...)
-	}()
-}
-
-// GetChan sends an asynchronous GET request to the specified URL.
-//
-// Parameters:
-//   - url: The URL to send the GET request to.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) GetChan(url string, rChan chan<- *Response, headers ...http.Header) {
-	r.GetChanWithContext(context.Background(), url, rChan, headers...)
-}
-
-// GetChanWithContext sends an asynchronous GET request to the specified URL with context.
-//
-// Parameters:
-//   - ctx: The context for the request.
-//   - url: The URL to send the GET request to.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) GetChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodGet, nil, rChan, headers...)
-}
-
-// PostChan sends an asynchronous POST request to the specified URL.
-//
-// Parameters:
-//   - url: The URL to send the POST request to.
-//   - body: The body of the POST request.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) PostChan(url string, body any, rChan chan<- *Response, headers ...http.Header) {
-	r.PostChanWithContext(context.Background(), url, body, rChan, headers...)
-}
-
-// PostChanWithContext sends an asynchronous POST request to the specified URL with context.
-//
-// Parameters:
-//   - ctx: The context for the request.
-//   - url: The URL to send the POST request to.
-//   - body: The body of the POST request.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) PostChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodPost, body, rChan, headers...)
-}
-
-// PutChan sends an asynchronous PUT request to the specified URL.
-//
-// Parameters:
-//   - url: The URL to send the PUT request to.
-//   - body: The body of the PUT request.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) PutChan(url string, body any, rChan chan<- *Response, headers ...http.Header) {
-	r.PutChanWithContext(context.Background(), url, body, rChan, headers...)
-}
-
-// PutChanWithContext sends an asynchronous PUT request to the specified URL with context.
-//
-// Parameters:
-//   - ctx: The context for the request.
-//   - url: The URL to send the PUT request to.
-//   - body: The body of the PUT request.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) PutChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodPut, body, rChan, headers...)
-}
-
-// PatchChan sends an asynchronous PATCH request to the specified URL.
-//
-// Parameters:
-//   - url: The URL to send the PATCH request to.
-//   - body: The body of the PATCH request.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) PatchChan(url string, body any, rChan chan<- *Response, headers ...http.Header) {
-	r.PatchChanWithContext(context.Background(), url, body, rChan, headers...)
-}
-
-// PatchChanWithContext sends an asynchronous PATCH request to the specified URL with context.
-//
-// Parameters:
-//   - ctx: The context for the request.
-//   - url: The URL to send the PATCH request to.
-//   - body: The body of the PATCH request.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) PatchChanWithContext(ctx context.Context, url string, body any, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodPatch, body, rChan, headers...)
-}
-
-// DeleteChan sends an asynchronous DELETE request to the specified URL.
-//
-// Parameters:
-//   - url: The URL to send the DELETE request to.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) DeleteChan(url string, rChan chan<- *Response, headers ...http.Header) {
-	r.DeleteChanWithContext(context.Background(), url, rChan, headers...)
-}
-
-// DeleteChanWithContext sends an asynchronous DELETE request to the specified URL with context.
-//
-// Parameters:
-//   - ctx: The context for the request.
-//   - url: The URL to send the DELETE request to.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) DeleteChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodDelete, nil, rChan, headers...)
-}
-
-// HeadChan sends an asynchronous HEAD request to the specified URL.
-//
-// Parameters:
-//   - url: The URL to send the HEAD request to.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) HeadChan(url string, rChan chan<- *Response, headers ...http.Header) {
-	r.HeadChanWithContext(context.Background(), url, rChan, headers...)
-}
-
-// HeadChanWithContext sends an asynchronous HEAD request to the specified URL with context.
-//
-// Parameters:
-//   - ctx: The context for the request.
-//   - url: The URL to send the HEAD request to.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) HeadChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodHead, nil, rChan, headers...)
-}
-
-// OptionsChan sends an asynchronous OPTIONS request to the specified URL.
-//
-// Parameters:
-//   - url: The URL to send the OPTIONS request to.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) OptionsChan(url string, rChan chan<- *Response, headers ...http.Header) {
-	r.OptionsChanWithContext(context.Background(), url, rChan, headers...)
-}
-
-// OptionsChanWithContext sends an asynchronous OPTIONS request to the specified URL with context.
-//
-// Parameters:
-//   - ctx: The context for the request.
-//   - url: The URL to send the OPTIONS request to.
-//   - headers: Optional HTTP headers to include in the request.
-//
-// Returns:
-//
-//	A channel that will receive the Response when it's ready.
-func (r *Client) OptionsChanWithContext(ctx context.Context, url string, rChan chan<- *Response, headers ...http.Header) {
-	r.doChanAsync(ctx, url, http.MethodOptions, nil, rChan, headers...)
+// In Restful, OPTIONS is used to get information about the resource
+// and supported HTTP verbs.
+// Client should expect a response status code of 200(OK) if resource exists,
+// 404(Not Found) if it doesn't, or 400(Bad Request).
+func (r *Client) AsyncOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
+	return r.asyncNewRequest(ctx, http.MethodOptions, url, nil, headers...)
 }

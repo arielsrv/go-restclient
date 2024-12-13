@@ -13,7 +13,6 @@ type Cache[K any, V any] interface {
 	Set(key K, value V, cost int64) bool
 	SetWithTTL(key K, value V, cost int64, ttl time.Duration) bool
 	Get(key K) (V, bool)
-	Wait()
 }
 
 // resourceTTLLfuMap, is an LRU-TTL Cache, that caches Responses base on headers
