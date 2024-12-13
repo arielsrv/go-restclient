@@ -9,10 +9,10 @@ import (
 )
 
 // Cache is an interface for cache implementations.
-type Cache[K any, V any] interface {
+type Cache[K ristretto.Key, V any] interface {
+	Get(key K) (V, bool)
 	Set(key K, value V, cost int64) bool
 	SetWithTTL(key K, value V, cost int64, ttl time.Duration) bool
-	Get(key K) (V, bool)
 }
 
 // resourceTTLLfuMap, is an LRU-TTL Cache, that caches Responses base on headers
@@ -78,13 +78,11 @@ func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
 	if _, hit := r.get(url); hit {
 		return
 	}
-
 	cost := response.size()
 	if ttl := response.ttl; ttl != nil {
 		r.lowLevelCache.SetWithTTL(url, response, cost, time.Until(*ttl))
 		return
 	}
-
 	r.lowLevelCache.Set(url, response, cost)
 }
 
