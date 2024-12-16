@@ -26,6 +26,7 @@ func main() {
 		log.Fatalf("status_code: %d, reason: %s", response.StatusCode, response.String())
 	}
 	fmt.Printf("%s\n", response.String())
+	fmt.Printf("Response cached: %t\n", response.Cached())
 
 	response = client.Get("https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
 	switch {
@@ -35,4 +36,5 @@ func main() {
 		log.Fatalf("status_code: %d, reason: %s", response.StatusCode, response.String())
 	}
 	fmt.Printf("%s\n", response.String())
+	fmt.Printf("Response cached: %t\n", response.Cached())
 }
