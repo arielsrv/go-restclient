@@ -47,7 +47,7 @@ var (
 	// MaxCacheSize is the Maximum Byte Size to be hold by the resourceTTLLfuMap
 	// Default is 128Mb
 	// Type: rest.ByteSize.
-	MaxCacheSize = 128 * MB
+	MaxCacheSize = 256 * MB
 	NumCounters  = 1e5
 	BufferItems  = 64
 )
