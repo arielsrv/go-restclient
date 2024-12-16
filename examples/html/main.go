@@ -14,8 +14,8 @@ func main() {
 		Name:           "html-client",
 		EnableGzip:     true,
 		EnableCache:    true,
-		Timeout:        500 * time.Millisecond,
-		ConnectTimeout: 1000 * time.Millisecond,
+		Timeout:        1000 * time.Millisecond,
+		ConnectTimeout: 2000 * time.Millisecond,
 	}
 
 	response := client.Get("https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")

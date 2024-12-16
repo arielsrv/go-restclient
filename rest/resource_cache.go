@@ -8,8 +8,12 @@ import (
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector/metrics"
 )
 
+type Key interface {
+	uint64 | string | []byte | byte | int | int32 | uint32 | int64
+}
+
 // Cache is an interface for cache implementations.
-type Cache[K ristretto.Key, V any] interface {
+type Cache[K Key, V any] interface {
 	Get(key K) (V, bool)
 	Set(key K, value V, cost int64) bool
 	SetWithTTL(key K, value V, cost int64, ttl time.Duration) bool
