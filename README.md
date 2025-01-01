@@ -1,3 +1,5 @@
+# Golang RESTClient
+
 [![pipeline status](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/badges/main/pipeline.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/commits/main)
 [![coverage report](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/badges/main/coverage.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/commits/main)
 [![release](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/badges/release.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/releases)
@@ -5,12 +7,12 @@
 > This package provides a http client adapter with some features
 
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs.
-- Response Caching, based on response headers (`cache-control`, `last-modified`, `etag`, `expires`) 
-    - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
-      this will consume more memory in your app until the validation time expires.
-    - Allowed formats RFC1123, RFC850, ANSIC
+- Response Caching, based on response headers (`cache-control`, `last-modified`, `etag`, `expires`)
+  - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
+    this will consume more memory in your app until the validation time expires.
+  - Allowed formats RFC1123, RFC850, ANSIC
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default `JSON`.
-    - Including HTTP `RFC7807` [Problems](https://datatracker.ietf.org/doc/html/rfc7807)
+  - Including HTTP `RFC7807` [Problems](https://datatracker.ietf.org/doc/html/rfc7807)
 - Content-Type can be `JSON`, `XML` & `FORM`
 - Request Body can be `string`, `[]byte`, `struct` & `map`
 - FORM sending
@@ -25,27 +27,28 @@
 
 - [RESTClient](#rest-client)
 - [Metrics](#metrics)
-- [Benchmarks](#ben)
+- [Benchmarks](#benchmarks)
 
 ## Rest Client
 
-# Installation
+### Installation
 
 ```shell
 go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 ```
 
-# Examples
+## Examples
+
 - [json](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/basic/main.go?ref_type=heads)
 - [oauth](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/oauth/main.go?ref_type=heads)
 - [ioc](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/ioc/main.go)
 - [caching](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/iskaypet/main.go?ref_type=heads)
-- [xml](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/xml/main.go?ref_type=heads) 
+- [xml](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/xml/main.go?ref_type=heads)
 - [bytes](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/bytes/main.go?ref_type=heads)
 - [form](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/form/main.go?ref_type=heads)
 - [redirect](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/redirect/main.go?ref_type=heads)
 
-# Quickstart
+## Quickstart
 
 ```go
 package main
@@ -277,22 +280,28 @@ func BenchmarkResty_Get(b *testing.B) {
 
 ### resty
 
-    goos: darwin
-    goarch: arm64
-    pkg: gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest
-    cpu: Apple M3 Pro
-    BenchmarkResty_Get
-    BenchmarkResty_Get-10    	       1	1099176917 ns/op
-    PASS
+```text
+goos: darwin
+goarch: arm64
+pkg: gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest
+cpu: Apple M3 Pro
+BenchmarkResty_Get
+BenchmarkResty_Get-10   1   1099176917 ns/op
+PASS
+
+```
 
 ### go-restclient
 
-    goos: darwin
-    goarch: arm64
-    pkg: gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest
-    cpu: Apple M3 Pro
-    BenchmarkGet 
-    BenchmarkGet-10    	       3	 405502875 ns/op
-    PASS
+```text
+goos: darwin
+goarch: arm64
+pkg: gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest
+cpu: Apple M3 Pro
+BenchmarkGet 
+BenchmarkGet-10 3   405502875 ns/op
+PASS
 
-    Hug!
+Hug!
+
+```

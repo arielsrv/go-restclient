@@ -16,6 +16,16 @@ tasks:
       - go install github.com/oligot/go-mod-upgrade@latest
       - go install gotest.tools/gotestsum@latest
 
+  markdown:
+    cmds:
+      - markdownlint-cli2 "**/*.md" "#vendor"
+
+  audit:
+    cmds:
+      - go mod verify
+      - go vet ./...
+      - go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
   lint:
     desc: Use golangci-lint (.golangci.yml).
     cmds:
