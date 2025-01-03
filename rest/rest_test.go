@@ -13,6 +13,12 @@ import (
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
+func TestAuthConstants(t *testing.T) {
+	assert.Equal(t, rest.AuthStyleAutoDetect, rest.AuthStyle(0))
+	assert.Equal(t, rest.AuthStyleInParams, rest.AuthStyle(1))
+	assert.Equal(t, rest.AuthStyleInHeader, rest.AuthStyle(2))
+}
+
 func TestGet(t *testing.T) {
 	resp := rest.Get(server.URL + "/user")
 	if resp.StatusCode != http.StatusOK {
