@@ -1,8 +1,8 @@
 
 # This code is licensed under the terms of the MIT license https://opensource.org/license/mit
-# Copyright (c) 2021 Marat Reymers
+# Copyright (c) 2021-2025 Marat Reymers
 
-## Golden config for golangci-lint v1.62.2
+## Golden config for golangci-lint v1.63.4
 #
 # This is the best config for golangci-lint based on my experience and opinion.
 # It is very strict, but not extremely strict.
@@ -247,6 +247,7 @@ linters:
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
     #- exhaustive # checks exhaustiveness of enum switch statements
+    - exptostd # detects functions from golang.org/x/exp/ that can be replaced by std functions
     - fatcontext # detects nested contexts in loops
     - forbidigo # forbids identifiers
     #- funlen # tool for detection of long functions
@@ -275,6 +276,7 @@ linters:
     - nakedret # finds naked returns in functions greater than a specified function length
     #- nestif # reports deeply nested if statements
     - nilerr # finds the code that returns nil even if it checks that the error is not nil
+    - nilnesserr # reports that it checks for err != nil, but it returns a different nil value error (powered by nilness and nilerr)
     - nilnil # checks that there is no simultaneous return of nil error and an invalid value
     - noctx # finds sending http request without context.Context
     - nolintlint # reports ill-formed or insufficient nolint directives
@@ -300,6 +302,7 @@ linters:
     - unconvert # removes unnecessary type conversions
     - unparam # reports unused function parameters
     - usestdlibvars # detects the possibility to use variables/constants from the Go standard library
+    - usetesting # reports uses of functions with replacement inside the testing package
     - wastedassign # finds wasted assignment statements
     - whitespace # detects leading and trailing whitespace
 
@@ -320,10 +323,10 @@ linters:
     - zerologlint # detects the wrong usage of zerolog that a user forgets to dispatch zerolog.Event
 
     ## disabled
-    - containedctx # detects struct contained context.Context field
+    #- containedctx # detects struct contained context.Context field
     #- contextcheck # [too many false positives] checks the function whether use a non-inherited context
     #- depguard # [replaced by gomodguard] checks if package imports are in a list of acceptable packages
-    - dogsled # checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
+    #- dogsled # checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
     #- dupword # [useless without config] checks for duplicate words in the source code
     #- err113 # [too strict] checks the errors handling expressions
     #- errchkjson # [don't see profit + I'm against of omitting errors like in the first example https://github.com/breml/errchkjson] checks types passed to the json encoding functions. Reports unsupported types and optionally reports occasions, where the check for the returned error can be omitted
@@ -331,14 +334,14 @@ linters:
     #- forcetypeassert # [replaced by errcheck] finds forced type assertions
     #- gofmt # [replaced by goimports] checks whether code was gofmt-ed
     #- gofumpt # [replaced by goimports, gofumports is not available yet] checks whether code was gofumpt-ed
-    - gosmopolitan # reports certain i18n/l10n anti-patterns in your Go codebase
+    #- gosmopolitan # reports certain i18n/l10n anti-patterns in your Go codebase
     #- grouper # analyzes expression groups
     #- importas # enforces consistent import aliases
     #- maintidx # measures the maintainability index of each function
     #- misspell # [useless] finds commonly misspelled English words in comments
     #- nlreturn # [too strict and mostly code is not more readable] checks for a new line before return and branch statements to increase code clarity
     #- paralleltest # [too many false positives] detects missing usage of t.Parallel() method in your Go test
-    - tagliatelle # checks the struct tags
+    #- tagliatelle # checks the struct tags
     - thelper # detects golang test helpers without t.Helper() call and checks the consistency of test helpers
     #- wsl # [too strict and mostly code is not more readable] whitespace linter forces you to use empty lines
 
@@ -364,6 +367,3 @@ issues:
         - gosec
         - noctx
         - wrapcheck
-
-  exclude-dirs:
-    - rest/mocks
