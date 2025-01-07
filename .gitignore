@@ -17,11 +17,10 @@
 
 .idea
 .vscode
-coverage.html
-coverage.out
+coverage.txt
+coverage.xml
+coverage-report.html
+coverage-report.out
 .DS_Store
 report.xml
 gl-code-quality-report.json
-coverage-report.html
-coverage-report.out
-dump.lsif
