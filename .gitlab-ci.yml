@@ -13,7 +13,7 @@ default:
   variables:
     GOMODCACHE: $CI_PROJECT_DIR/.gomodcache
   before_script:
-    - if [ -d "$HOME" ]; then echo "machine gitlab.com login master_token password $CICD_TOKEN" > "$HOME/.netrc"; fi
+    - if [ -d "$HOME" ]; then echo "machine gitlab.com login glpat password $CICD_TOKEN" > "$HOME/.netrc"; fi
     - mkdir -p ${GOMODCACHE}
   cache:
     paths:
