@@ -12,7 +12,6 @@ default:
     - if [ -d "$HOME" ]; then echo "machine gitlab.com login glpat password $CICD_TOKEN" > "$HOME/.netrc"; fi
     - mkdir -p ${GOMODCACHE}
   cache:
-    key: $CI_COMMIT_REF_SLUG
     paths:
       - ${GOMODCACHE}/
 
