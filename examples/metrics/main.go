@@ -24,13 +24,14 @@ func main() {
 		ContentType: rest.JSON,
 		Name:        "gorest-client",
 		Timeout:     time.Duration(5000) * time.Millisecond,
+		EnableCache: true,
 	}
 
 	random := func(min, max int64) int64 {
 		z := max - min + 1
 		n, err := rand.Int(rand.Reader, big.NewInt(z))
 		if err != nil {
-			return 10
+			return 100
 		}
 
 		return n.Int64() + min
