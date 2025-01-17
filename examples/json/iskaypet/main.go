@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -19,10 +18,10 @@ type SiteResponse struct {
 }
 
 type CountryResponse struct {
-	Id                 string `json:"id"`
+	ID                 string `json:"id"`
 	Name               string `json:"name"`
 	Locale             string `json:"locale"`
-	CurrencyId         string `json:"currency_id"`
+	CurrencyID         string `json:"currency_id"`
 	DecimalSeparator   string `json:"decimal_separator"`
 	ThousandsSeparator string `json:"thousands_separator"`
 	TimeZone           string `json:"time_zone"`

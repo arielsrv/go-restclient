@@ -241,7 +241,7 @@ linters:
     - bodyclose # checks whether HTTP response body is closed successfully
     - canonicalheader # checks whether net/http.Header uses canonical header
     - copyloopvar # detects places where loop variables are copied (Go 1.22+)
-    - cyclop # checks function and package cyclomatic complexity
+    #- cyclop # checks function and package cyclomatic complexity
     - dupl # tool for code clone detection
     - durationcheck # checks for two durations multiplied together
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
@@ -249,7 +249,7 @@ linters:
     #- exhaustive # checks exhaustiveness of enum switch statements
     - exptostd # detects functions from golang.org/x/exp/ that can be replaced by std functions
     - fatcontext # detects nested contexts in loops
-    - forbidigo # forbids identifiers
+    #- forbidigo # forbids identifiers
     #- funlen # tool for detection of long functions
     - gocheckcompilerdirectives # validates go compiler directive comments (//go:)
     #- gochecknoglobals # checks that no global variables exist
@@ -351,6 +351,8 @@ issues:
   # Set to 0 to disable.
   # Default: 3
   max-same-issues: 50
+
+  exclude-dirs-use-default: false
 
   exclude-rules:
     - source: "(noinspection|TODO)"

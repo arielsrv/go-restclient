@@ -11,10 +11,7 @@ import (
 )
 
 func main() {
-	// Create a new context with a timeout of 5 seconds
-	// This will automatically cancel the request if it takes longer than 5 seconds to complete
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(5000))
-	defer cancel()
+	ctx := context.Background()
 
 	// Create a new REST client with custom settings
 	client := &rest.Client{

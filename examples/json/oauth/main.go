@@ -7,14 +7,12 @@ import (
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
-	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
-
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
 )
 
 func main() {
@@ -39,7 +37,7 @@ func main() {
 		Data []struct {
 			Type          string `json:"_type"`
 			ResourceState string `json:"_resource_state"`
-			Id            string `json:"id"`
+			ID            string `json:"id"`
 			Link          string `json:"link"`
 		} `json:"data"`
 		Count int `json:"count"`
@@ -64,7 +62,7 @@ func main() {
 
 	for i := range sitesResponse.Data {
 		siteResponse := sitesResponse.Data[i]
-		log.Infof("Site: %s, Link: %s", siteResponse.Id, siteResponse.Link)
+		log.Infof("Site: %s, Link: %s", siteResponse.ID, siteResponse.Link)
 	}
 
 	log.Info("Waiting for 10 seconds before exiting...  (Ctrl+C to stop)")

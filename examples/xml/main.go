@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 

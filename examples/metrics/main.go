@@ -8,15 +8,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
 func main() {
-	router := mux.NewRouter()
-	router.Handle("/metrics", promhttp.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 
 	// Create a new REST client with custom settings
 	client := &rest.Client{
@@ -28,14 +25,14 @@ func main() {
 		EnableCache:    true,
 	}
 
-	random := func(min, max int64) int64 {
-		z := max - min + 1
+	random := func(minValue int64, maxValue int64) int64 {
+		z := maxValue - minValue + 1
 		n, err := rand.Int(rand.Reader, big.NewInt(z))
 		if err != nil {
 			return 100
 		}
 
-		return n.Int64() + min
+		return n.Int64() + minValue
 	}
 
 	go func() {
@@ -49,8 +46,13 @@ func main() {
 		}
 	}()
 
+	server := &http.Server{
+		Addr:              ":8081",
+		ReadHeaderTimeout: 5000 * time.Millisecond,
+	}
+
 	fmt.Printf("server started, metrics on http://localhost:8081/metrics\n")
-	if err := http.ListenAndServe(":8081", router); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		panic(err)
 	}
 }

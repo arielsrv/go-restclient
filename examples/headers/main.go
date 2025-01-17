@@ -66,7 +66,7 @@ type HTTPResponse struct {
 		SecFetchMode    string `json:"Sec-Fetch-Mode"`
 		SecFetchSite    string `json:"Sec-Fetch-Site"`
 		UserAgent       string `json:"User-Agent"`
-		XAmznTraceId    string `json:"X-Amzn-Trace-Id"`
+		XAmznTraceID    string `json:"X-Amzn-Trace-Id"`
 	} `json:"headers"`
 	Method  string `json:"method"`
 	Origin  string `json:"origin"`

@@ -8,15 +8,11 @@ import (
 	"os"
 	"time"
 
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
 func main() {
-	// Create a new context with a timeout of 5 seconds
-	// This will automatically cancel the request if it takes longer than 5 seconds to complete
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(5000))
-	defer cancel()
-
 	// Create a new REST client with custom settings
 	client := &rest.Client{
 		Name:           "example-client",                       // required for logging and tracing
@@ -30,10 +26,10 @@ func main() {
 	values.Set("key1", "value1")
 	values.Set("key2", "value2")
 
-	response := client.PostWithContext(ctx, "/post", values)
+	response := client.PostWithContext(context.Background(), "/post", values)
 	if response.Err != nil {
 		fmt.Printf("Error: %v\n", response.Err)
-		os.Exit(1)
+		log.Fatal()
 	}
 
 	// Check status code and handle errors accordingly or response.IsOk()
@@ -65,9 +61,9 @@ type FormResponse struct {
 		ContentType    string `json:"Content-Type"`
 		Host           string `json:"Host"`
 		UserAgent      string `json:"User-Agent"`
-		XAmznTraceId   string `json:"X-Amzn-Trace-Id"`
+		XAmznTraceID   string `json:"X-Amzn-Trace-Id"`
 	} `json:"headers"`
-	Json   interface{} `json:"json"`
+	JSON   interface{} `json:"json"`
 	Origin string      `json:"origin"`
-	Url    string      `json:"url"`
+	URL    string      `json:"url"`
 }

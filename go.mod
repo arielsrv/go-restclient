@@ -4,7 +4,6 @@ go 1.23.5
 
 require (
 	github.com/dgraph-io/ristretto/v2 v2.1.0
-	github.com/gorilla/mux v1.8.1
 	github.com/prometheus/client_golang v1.20.5
 	github.com/stretchr/testify v1.10.0
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22

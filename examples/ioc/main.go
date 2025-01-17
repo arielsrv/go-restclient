@@ -60,7 +60,7 @@ func (r SitesClient) GetSites(ctx context.Context) ([]SiteResponse, error) {
 	apiURL := "/sites"
 
 	headers := make(http.Header)
-	headers.Set("x-api-key", "your-api-key")
+	headers.Set("X-Api-Key", "your-api-key")
 
 	response := r.httpClient.GetWithContext(ctx, apiURL, headers)
 	if response.Err != nil {
