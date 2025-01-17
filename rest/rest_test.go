@@ -342,12 +342,12 @@ func TestResponseExceedsRequestTimeout(t *testing.T) {
 	restClient.Timeout = 1 * time.Millisecond
 	restClient.ContentType = rest.JSON
 
-	suResponse := restClient.Get(server.URL + "/slow/user")
+	response := restClient.Get(server.URL + "/slow/user")
 
 	suResponseErrIsTimeoutExceeded := func() bool {
 		expected := "timeout awaiting response headers"
-		if suResponse.Err != nil {
-			return strings.Contains(suResponse.Err.Error(), expected)
+		if response.Err != nil {
+			return strings.Contains(response.Err.Error(), expected)
 		}
 		return false
 	}
@@ -356,7 +356,7 @@ func TestResponseExceedsRequestTimeout(t *testing.T) {
 		t.Fatalf("Timeouts configuration should get an error after connect")
 	}
 
-	require.Error(t, suResponse.VerifyIsOkOrError())
+	require.Error(t, response.VerifyIsOkOrError())
 }
 
 func TestResponse_InvalidContentType(t *testing.T) {

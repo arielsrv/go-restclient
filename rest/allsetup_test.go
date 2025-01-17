@@ -104,7 +104,7 @@ func slowUsersCache(writer http.ResponseWriter, req *http.Request) {
 }
 
 func slowUsers(writer http.ResponseWriter, req *http.Request) {
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 	allUsers(writer, req)
 }
 
