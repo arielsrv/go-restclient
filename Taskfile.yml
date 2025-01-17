@@ -6,6 +6,7 @@ env:
   BUILD_FOLDER: build
   COVERAGE_OUT_FILE: coverage.out
   COVERAGE_HTML_FILE: coverage.html
+  GOEXPERIMENT: nocoverageredesign
 
 tasks:
   setup:
