@@ -2,7 +2,7 @@
 # and https://github.com/DavidAnson/markdownlint-cli2
 
 config:
-  # forematter metadata seems to trigger this
+  # formatter metadata seems to trigger this
   single-title: false
 
   # hard tabs are used when pasting go example code into files
