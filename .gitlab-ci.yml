@@ -53,3 +53,4 @@ bundle:
   allow_failure: false
   only:
     - branches
+    - merge_request
