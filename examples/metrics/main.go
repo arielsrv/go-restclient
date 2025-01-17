@@ -20,11 +20,12 @@ func main() {
 
 	// Create a new REST client with custom settings
 	client := &rest.Client{
-		BaseURL:     "https://httpbin.org",
-		ContentType: rest.JSON,
-		Name:        "gorest-client",
-		Timeout:     time.Duration(5000) * time.Millisecond,
-		EnableCache: true,
+		BaseURL:        "https://httpbin.org",
+		ContentType:    rest.JSON,
+		Name:           "gorest-client",
+		ConnectTimeout: time.Duration(1000) * time.Millisecond,
+		Timeout:        time.Duration(500) * time.Millisecond,
+		EnableCache:    true,
 	}
 
 	random := func(min, max int64) int64 {
@@ -39,15 +40,16 @@ func main() {
 
 	go func() {
 		for {
-			response := client.GetWithContext(context.Background(), fmt.Sprintf("/cache/%d", random(1, 100)))
+			apiURL := fmt.Sprintf("/cache/%d", random(1, 100))
+			response := client.GetWithContext(context.Background(), apiURL)
 			if response.Err != nil {
-				fmt.Printf("Error: %v\n", response.Err)
+				fmt.Printf("error: %v\n", response.Err)
 				continue
 			}
 		}
 	}()
 
-	fmt.Printf("server started, metrics on http://localhost:8081/metrics")
+	fmt.Printf("server started, metrics on http://localhost:8081/metrics\n")
 	if err := http.ListenAndServe(":8081", router); err != nil {
 		panic(err)
 	}
