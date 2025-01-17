@@ -47,7 +47,7 @@ bundle:
 
     # Linter
     - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-    - GOGC=off golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number --verbose
+    - GOGC=off golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
 
   artifacts:
     when: always
