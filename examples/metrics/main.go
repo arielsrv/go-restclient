@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -40,7 +41,7 @@ func main() {
 			apiURL := fmt.Sprintf("/cache/%d", random(1, 100))
 			response := client.GetWithContext(context.Background(), apiURL)
 			if response.Err != nil {
-				fmt.Printf("error: %v\n", response.Err)
+				log.Error(response.Err)
 				continue
 			}
 		}
@@ -51,8 +52,8 @@ func main() {
 		ReadHeaderTimeout: 5000 * time.Millisecond,
 	}
 
-	fmt.Printf("server started, metrics on http://localhost:8081/metrics\n")
+	log.Info("server started, metrics on http://localhost:8081/metrics")
 	if err := server.ListenAndServe(); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
