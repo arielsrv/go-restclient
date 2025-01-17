@@ -25,7 +25,7 @@ bundle:
 
     # Build
     - echo -e "\033[1;34m> Build\033[0m"
-    - go build ./...
+    - go build ./... -v
 
     # Test Report
     - echo -e "\033[1;34m> Test Report\033[0m"
