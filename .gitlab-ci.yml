@@ -22,11 +22,6 @@ bundle:
   extends: .go-cache
   stage: release
   script:
-    - |
-      go install gotest.tools/gotestsum@latest &
-      go install github.com/boumenot/gocover-cobertura@latest &
-      go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest &
-      wait
 
     # Build
     - echo -e "\033[1;34m> Build\033[0m"
@@ -34,6 +29,7 @@ bundle:
 
     # Test Report
     - echo -e "\033[1;34m> Test Report\033[0m"
+    - go install gotest.tools/gotestsum@latest
     - gotestsum --junitfile report.xml --format testname
 
     # Coverage Badge
@@ -45,11 +41,13 @@ bundle:
     # Coverage Report
     - echo -e "\033[1;34m> Coverage Report\033[0m"
     - go test ./... -coverprofile=coverage.txt -covermode count
+    - go install github.com/boumenot/gocover-cobertura@latest
     - gocover-cobertura <coverage.txt >coverage.xml
     - echo -e "\033[1;34m> Linter\033[0m"
 
     # Linter
-    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+    - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    - GOGC=off golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
 
   artifacts:
     when: always
