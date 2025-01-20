@@ -47,10 +47,7 @@ func main() {
 		}
 	}()
 
-	server := &http.Server{
-		Addr:              ":8081",
-		ReadHeaderTimeout: 5000 * time.Millisecond,
-	}
+	server := &http.Server{Addr: ":8081", ReadHeaderTimeout: 5000 * time.Millisecond}
 
 	log.Info("server started, metrics on http://localhost:8081/metrics")
 	if err := server.ListenAndServe(); err != nil {
