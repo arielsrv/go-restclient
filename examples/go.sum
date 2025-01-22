@@ -109,6 +109,8 @@ gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.22 h1:6tB8F6Iv0v
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.22/go.mod h1:FnHZRVS658+kQpblyf4cccqeCix8FATthxAmuqwalBw=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.25 h1:WM7Rx2AD9TOhD+X4X5BUV67v1/X3rF/mCel5jLEHcNo=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.25/go.mod h1:/eHkirAvDzGM/PilnuxE/l5bP4K9KnBAX9huyoqoII4=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.26 h1:tvAN+Ss8x/z5eHjncKBJs+5Em1kw1tP9JdoLxwfuRLA=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.26/go.mod h1:/eHkirAvDzGM/PilnuxE/l5bP4K9KnBAX9huyoqoII4=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16 h1:FD1Rid6SVTsJumTvADOeBtVEHhfxSgTmiE5k0aDKu9U=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16/go.mod h1:qUJJhYcPYFN3bfVcAVuBO55ZpgjbzUaLPHIZmA/owWg=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=

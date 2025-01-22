@@ -5,7 +5,7 @@ go 1.23.5
 require (
 	github.com/prometheus/client_golang v1.20.5
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.25
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.26
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.34.0
 	go.opentelemetry.io/otel/sdk v1.34.0
