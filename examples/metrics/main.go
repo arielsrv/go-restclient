@@ -17,7 +17,7 @@ import (
 func init() {
 	numCPU := runtime.NumCPU() - 1
 	runtime.GOMAXPROCS(numCPU)
-	log.Infof("Using %d CPU cores", numCPU)
+	log.Infof("using %d CPU cores", numCPU)
 }
 
 func main() {
