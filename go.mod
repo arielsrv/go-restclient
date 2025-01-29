@@ -5,7 +5,7 @@ go 1.23.5
 require (
 	github.com/dgraph-io/ristretto/v2 v2.1.0
 	github.com/stretchr/testify v1.10.0
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.26
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.20
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.59.0

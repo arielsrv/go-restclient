@@ -96,8 +96,8 @@ github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOf
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8=
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
-gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22 h1:2VGkC01H0ikWPAjixEFERqyM/sDMwxGJPzDfmlZm8Mg=
-gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.22/go.mod h1:wSRcQDeJ7V5iZpna6gbAMMthW+iqTxbfcDeVEcL1nas=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.26 h1:siwhMwY7Gao8l/vxGScObNpqGvGd5bzY/n2rR8Yp9BI=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.26/go.mod h1:S12LQ0basuoWOYZ0aHMuBQmp7/ufwhtLHEnnYeVai2w=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.20 h1:vgqzd/H7QHlO3APJ4N1myMryqUBIjc4zPyFRSbBW2Lo=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.20/go.mod h1:j30bXKcdO32ikzimWvJ5jb4VLk0MVtNJPlIwtFBDeE8=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16 h1:FD1Rid6SVTsJumTvADOeBtVEHhfxSgTmiE5k0aDKu9U=
