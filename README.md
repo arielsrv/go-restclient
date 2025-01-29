@@ -8,11 +8,11 @@
 
 - GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS HTTP verbs.
 - Response Caching, based on response headers (`cache-control`, `last-modified`, `etag`, `expires`)
-  - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
-    this will consume more memory in your app until the validation time expires.
-  - Allowed formats RFC1123, RFC850, ANSIC
+    - SFCC uses caching strategies to avoid making an HTTP request if it's not necessary; however,
+      this will consume more memory in your app until the validation time expires.
+    - Allowed formats RFC1123, RFC850, ANSIC
 - Automatic marshal and unmarshal for JSON and XML Content-Type. Default `JSON`.
-  - Including HTTP `RFC7807` [Problems](https://datatracker.ietf.org/doc/html/rfc7807)
+    - Including HTTP `RFC7807` [Problems](https://datatracker.ietf.org/doc/html/rfc7807)
 - Content-Type can be `JSON`, `XML` & `FORM`
 - Request Body can be `string`, `[]byte`, `struct` & `map`
 - FORM sending
@@ -47,6 +47,7 @@ go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 - [bytes](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/bytes/main.go?ref_type=heads)
 - [form](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/form/main.go?ref_type=heads)
 - [redirect](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/redirect/main.go?ref_type=heads)
+- [recommendations-api](https://gitlab.com/iskaypetcom/digital/products/recommendations-api/-/blob/main/src/app/clients/reviews_client.go?ref_type=heads#L30)
 
 ## Quickstart
 
@@ -228,7 +229,7 @@ environment
 
 Dashboard
 
-- [dev](https://monitoring.dev.dp.iskaypet.com/d/6shkc-L4kk/http-clients?orgId=1)
+- [Grafana](https://iskaylog.grafana.net/d/ddmgmir2jckxsb/http-clients?orgId=1&from=now-1h&to=now&timezone=Europe%2FMadrid&var-environment=$__all&var-application=$__all&var-client_name=$__all&refresh=5s)
 
 [prometheus]: images/metrics.png
 
