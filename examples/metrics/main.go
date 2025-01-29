@@ -6,12 +6,19 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"runtime"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
+
+func init() {
+	numCPU := runtime.NumCPU() - 1
+	runtime.GOMAXPROCS(numCPU)
+	log.Infof("Using %d CPU cores", numCPU)
+}
 
 func main() {
 	http.Handle("/metrics", promhttp.Handler())
