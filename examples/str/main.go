@@ -2,6 +2,7 @@ package main
 
 import (
 	"cmp"
+	"fmt"
 	"iter"
 	"slices"
 )
@@ -58,6 +59,6 @@ func main() {
 	numbers.Sort()
 
 	for item := range numbers.All() {
-		println(item) // Output: 1 2 3 4 5 6 7 8 9
+		fmt.Println(item) // Output: 1 2 3 4 5 6 7 8 9
 	}
 }
