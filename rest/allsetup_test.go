@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"io"
-	"math/rand"
+	"math/rand/v2"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -49,7 +49,7 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
+	rand.NewChaCha8([32]byte([]byte("ABCDEFGHIJKLMNOPQRSTUVWXYZ123456")))
 
 	users = make([]User, len(userList))
 	for i, n := range userList {
@@ -132,7 +132,7 @@ func authToken(writer http.ResponseWriter, _ *http.Request) {
 func usersCache(writer http.ResponseWriter, req *http.Request) {
 	// Get
 	if req.Method == http.MethodGet {
-		c := rand.Intn(2) + 1
+		c := rand.IntN(2) + 1
 		b, _ := json.Marshal(users)
 
 		writer.Header().Set("Content-Type", "application/json")
@@ -144,7 +144,7 @@ func usersCache(writer http.ResponseWriter, req *http.Request) {
 func usersCacheWithExpires(writer http.ResponseWriter, req *http.Request) {
 	// Get
 	if req.Method == http.MethodGet {
-		c := rand.Intn(2) + 1
+		c := rand.IntN(2) + 1
 		b, _ := json.Marshal(users)
 
 		expires := time.Now().Add(time.Duration(c) * time.Second)
