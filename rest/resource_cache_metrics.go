@@ -2,6 +2,7 @@ package rest
 
 import (
 	"fmt"
+	"weak"
 
 	"github.com/dgraph-io/ristretto/v2"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector/metrics"
@@ -14,7 +15,7 @@ type CounterFunc func() uint64
 type RecordValueFunc func() float64
 
 // registerMetrics records the cache's metrics to Prometheus.
-func registerMetrics(cache *ristretto.Cache[string, *Response]) {
+func registerMetrics(cache *ristretto.Cache[string, weak.Pointer[Response]]) {
 	// config
 	recordValue("num_counters", NumCounters)
 	recordValue("max_cost_bytes", float64(cache.MaxCost()))

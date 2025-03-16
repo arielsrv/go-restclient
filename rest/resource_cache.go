@@ -2,6 +2,7 @@ package rest
 
 import (
 	"time"
+	"weak"
 
 	"github.com/dgraph-io/ristretto/v2"
 )
@@ -22,7 +23,7 @@ type Cache[K Key, V any] interface {
 var resourceCache *resourceTTLLfuMap
 
 type resourceTTLLfuMap struct {
-	lowLevelCache Cache[string, *Response]
+	lowLevelCache Cache[string, weak.Pointer[Response]]
 }
 
 // ByteSize is a helper for configuring MaxCacheSize.
@@ -52,7 +53,7 @@ var (
 
 // init initializes the resourceTTLLfuMap with a Ristretto cache.
 func init() {
-	cache, _ := ristretto.NewCache(&ristretto.Config[string, *Response]{
+	cache, _ := ristretto.NewCache(&ristretto.Config[string, weak.Pointer[Response]]{
 		MaxCost:     int64(MaxCacheSize), // maximum cost of cache (128Mb).
 		NumCounters: int64(NumCounters),  // number of keys to track frequency of (100K).
 		BufferItems: int64(BufferItems),  // number of keys per Get buffer.
@@ -68,8 +69,8 @@ func init() {
 
 // get retrieves a Response from the cache, if it exists.
 func (r *resourceTTLLfuMap) get(url string) (*Response, bool) {
-	if value, hit := r.lowLevelCache.Get(url); hit {
-		return value, hit
+	if weakPtr, hit := r.lowLevelCache.Get(url); hit && weakPtr.Value() != nil {
+		return weakPtr.Value(), hit
 	}
 
 	return nil, false
@@ -82,8 +83,8 @@ func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
 	}
 	cost := response.size()
 	if ttl := response.ttl; ttl != nil {
-		r.lowLevelCache.SetWithTTL(url, response, cost, time.Until(*ttl))
+		r.lowLevelCache.SetWithTTL(url, weak.Make(response), cost, time.Until(*ttl))
 		return
 	}
-	r.lowLevelCache.Set(url, response, cost)
+	r.lowLevelCache.Set(url, weak.Make(response), cost)
 }
