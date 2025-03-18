@@ -38,6 +38,11 @@
 go get gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient@latest
 ```
 
+### Live example
+```shell
+APP_NAME=example go run gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/examples/metrics@latest
+```
+
 ## Examples
 
 - [json](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/blob/main/examples/json/basic/main.go?ref_type=heads)
