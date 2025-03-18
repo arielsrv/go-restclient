@@ -130,6 +130,8 @@ gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.30 h1:ApFATYg0m8
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.30/go.mod h1:0dGiGLxW9vQeuTkHPqD8Rg7MMM+iVu9qEub3qR5qCLc=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.32 h1:eOQkjUm8jEELGANgbHySyi1J6rt7tzABFRWd7wkcTrU=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.32/go.mod h1:kG47HhqyFjcyoJePeX++PYuFZsNLWvLbqUt7594XeXs=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.34 h1:LEsAzgvSV+y9tQ2qErolQwCOOOU2UgaAWmaXFalfLNg=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.34/go.mod h1:fItac7zyPsaPc8O5tpG6GuCahL9sNJeILsp0DI597f4=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16 h1:FD1Rid6SVTsJumTvADOeBtVEHhfxSgTmiE5k0aDKu9U=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.16/go.mod h1:qUJJhYcPYFN3bfVcAVuBO55ZpgjbzUaLPHIZmA/owWg=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
@@ -180,6 +182,7 @@ golang.org/x/sys v0.29.0 h1:TPYlXGxvx1MGTn2GiZDhnjPA9wZzZeGKHHmKhHYvgaU=
 golang.org/x/sys v0.29.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
 golang.org/x/sys v0.30.0 h1:QjkSwP/36a20jFYWkSue1YwXzLmsV5Gfq7Eiy72C1uc=
 golang.org/x/sys v0.30.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
+golang.org/x/sys v0.31.0/go.mod h1:BJP2sWEmIv4KK5OTEluFJCKSidICx8ciO85XgH3Ak8k=
 golang.org/x/text v0.16.0 h1:a94ExnEXNtEwYLGJSIUxnWoxoRz/ZcCsV63ROupILh4=
 golang.org/x/text v0.16.0/go.mod h1:GhwF1Be+LQoKShO3cGOHzqOgRrGaYc9AvblQOmPVHnI=
 golang.org/x/text v0.21.0/go.mod h1:4IBbMaMmOPCJ8SecivzSH54+73PCFmPWxNTLm+vZkEQ=
@@ -189,6 +192,7 @@ google.golang.org/protobuf v1.34.2/go.mod h1:qYOHts0dSfpeUzUFpOMr/WGzszTmLH+DiWn
 google.golang.org/protobuf v1.36.1 h1:yBPeRvTftaleIgM3PZ/WBIZ7XM/eEYAaEyCwvyjq/gk=
 google.golang.org/protobuf v1.36.1/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
 google.golang.org/protobuf v1.36.4/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
+google.golang.org/protobuf v1.36.5/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c h1:Hei/4ADfdWqJk1ZMxUNpqntNwaWcugrBjAiHlqqRiVk=
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c/go.mod h1:JHkPIbrfpd72SG/EVd6muEfDQjcINNoR0C8j2r3qZ4Q=
