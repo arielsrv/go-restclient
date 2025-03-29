@@ -106,7 +106,7 @@ func TestSlowGet(t *testing.T) {
 	for i := range f {
 		f[i] = rb.Get("/slow/user")
 
-		if f[i].Response.StatusCode != http.StatusOK {
+		if f[i].StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
 		}
 	}

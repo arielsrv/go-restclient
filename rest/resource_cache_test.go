@@ -19,7 +19,7 @@ func TestCacheGetLowCacheMaxSize(t *testing.T) {
 	for i := range f {
 		f[i] = rb.Get("/cache/user")
 
-		if f[i].Response.StatusCode != http.StatusOK {
+		if f[i].StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
 		}
 	}

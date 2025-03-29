@@ -38,8 +38,8 @@ func (r *Response) size() int64 {
 	size += int64(unsafe.Sizeof(r.lastModified))
 
 	if r.Response != nil {
-		size += int64(len(r.Response.Proto))
-		size += int64(len(r.Response.Status))
+		size += int64(len(r.Proto))
+		size += int64(len(r.Status))
 	}
 
 	return size
