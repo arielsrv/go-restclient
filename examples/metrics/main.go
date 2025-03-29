@@ -52,6 +52,7 @@ func main() {
 				log.Error(response.Err)
 				continue
 			}
+			log.Infof("GET %s, Status: %d", apiURL, response.StatusCode)
 		}
 	}()
 
