@@ -46,7 +46,7 @@ release:
 
     # Linter  [artifacts:reports:codequality]
     - echo -e "\033[1;34m> Linter\033[0m"
-    - go tool golangci-lint run --out-format code-climate:gl-code-quality-report.json,line-number
+    - go tool golangci-lint run
 
   artifacts:
     when: always

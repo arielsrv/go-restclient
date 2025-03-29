@@ -214,9 +214,16 @@ linters:
         path: _test\.go
 issues:
   max-same-issues: 50
+  exclude-dirs-use-default: false
 formatters:
   enable:
     - gci
     - goimports
   exclusions:
     generated: lax
+output:
+  formats:
+    code-climate:
+      path: 'gl-code-quality-report.json'
+    text:
+      path: stdout
