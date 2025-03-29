@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -10,15 +11,17 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	client := &rest.Client{
 		Name:           "html-client",
-		EnableGzip:     true,
-		EnableCache:    true,
 		Timeout:        1000 * time.Millisecond,
 		ConnectTimeout: 2000 * time.Millisecond,
+		EnableGzip:     true,
+		EnableCache:    true,
 	}
 
-	response := client.Get("https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
+	response := client.GetWithContext(ctx, "https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
 	switch {
 	case response.Err != nil:
 		log.Fatal(response.Err)
@@ -28,7 +31,8 @@ func main() {
 	fmt.Printf("%s\n", response.String())
 	fmt.Printf("Response cached: %t\n", response.Cached())
 
-	response = client.Get("https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
+	// server response with 304 Not Modified so client should not make a new request and return cached response
+	response = client.GetWithContext(ctx, "https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
 	switch {
 	case response.Err != nil:
 		log.Fatal(response.Err)
