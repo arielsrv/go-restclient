@@ -139,7 +139,7 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 
 		// Metrics
 		metrics.Collector.Prometheus().
-			IncrementCounter("__go_restclient_request_error",
+			IncrementCounter("__go_restclient_requests_error",
 				metrics.Tags{
 					"client_name": r.Name,
 					"error_type":  errorType,
