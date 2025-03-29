@@ -28,8 +28,8 @@ func main() {
 		BaseURL:        "https://httpbin.org",
 		ContentType:    rest.JSON,
 		Name:           "gorest-client",
-		ConnectTimeout: time.Duration(1000) * time.Millisecond,
-		Timeout:        time.Duration(500) * time.Millisecond,
+		ConnectTimeout: time.Duration(2000) * time.Millisecond,
+		Timeout:        time.Duration(1000) * time.Millisecond,
 		EnableCache:    true,
 	}
 
@@ -44,6 +44,7 @@ func main() {
 	}
 
 	go func() {
+		log.Infof("simulating API requests...")
 		for {
 			apiURL := fmt.Sprintf("/cache/%d", random(1, 100))
 			response := client.GetWithContext(context.Background(), apiURL)
