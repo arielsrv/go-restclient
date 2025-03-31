@@ -29,6 +29,7 @@
 - [RESTClient](#rest-client)
 - [Metrics](#metrics)
 - [Benchmarks](#benchmarks)
+- [Connections](#connections)
 
 ## Rest Client
 
@@ -314,3 +315,30 @@ PASS
 Hug!
 
 ```
+
+## Connections
+
+In most cases, if you have many parallel requests within your application to a remote host, it is recommended to set the
+maximum number of connections to more than 2 to avoid having too many TIME_WAIT states and ensure persistent
+connections.
+
+Unlike other languages, in Golang, it is not as easy to check connections in its HTTP clients. However, we can either
+test locally by increasing the values in the transport layer or monitor through Grafana dashboards how response times
+decrease with persistent connections.
+
+Example below
+
+```go
+Transport: &http.Transport{
+    MaxIdleConns:        100,
+    MaxConnsPerHost:     100,
+    MaxIdleConnsPerHost: 100,
+},
+```
+
+CPU usage and latency will likely decrease significantly—give it a try!d
+
+
+
+
+
