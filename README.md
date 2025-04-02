@@ -30,6 +30,7 @@
 - [Metrics](#metrics)
 - [Benchmarks](#benchmarks)
 - [Connections](#connections)
+- [Roadmap](#roadmap)
 
 ## Rest Client
 
@@ -338,7 +339,8 @@ Transport: &http.Transport{
 
 CPU usage and latency will likely decrease significantly—give it a try!d
 
+## Roadmap
 
-
-
-
+- Configurable non-http-rfc distributed cache support [KeyValueStore](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-kvs-client) ignoring response
+- Configurable encoder/decoder compatible for [JSON](https://github.com/goccy/go-json)
+- Custom Interceptors as pipelines.  
