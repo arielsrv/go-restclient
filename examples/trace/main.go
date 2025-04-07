@@ -26,12 +26,13 @@ func main() {
 	ctx := context.Background()
 	app, err := tracing.New(
 		ctx,
-		tracing.WithAppName("example"),
+		tracing.WithAppName("MyExample"),
 		tracing.WithProtocol(tracing.
 			NewGRPCProtocol("localhost:4317")))
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer func(app *tracing.App, ctx context.Context) {
 		shutdownErr := app.Shutdown(ctx)
 		if shutdownErr != nil {
@@ -66,7 +67,7 @@ func main() {
 		log.Infof("simulating API requests...")
 		for {
 			apiURL := fmt.Sprintf("/cache/%d", random(100, 1000))
-			txnCtx, txn := tracing.NewTransaction(ctx, "MyService")
+			txnCtx, txn := tracing.NewTransaction(ctx, "MyHTTPRequest")
 			response := client.GetWithContext(txnCtx, apiURL)
 			if response.Err != nil {
 				txn.NoticeError(response.Err)

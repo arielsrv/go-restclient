@@ -461,7 +461,7 @@ func (r *Client) setParams(request *http.Request, cacheResponse *Response, cache
 			return r.UserAgent
 		}
 
-		return fmt.Sprintf("%s/%s", r.Name, "go-restclient")
+		return "go-restclient/1.0.0 (iskaypet-sre; +https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient)"
 	}())
 
 	// Encoding
