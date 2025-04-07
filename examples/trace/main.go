@@ -66,11 +66,12 @@ func main() {
 		log.Infof("simulating API requests...")
 		for {
 			apiURL := fmt.Sprintf("/cache/%d", random(100, 1000))
-			childCtx, txn := tracing.NewTransaction(ctx, "MyService")
-			response := client.GetWithContext(childCtx, apiURL)
+			txnCtx, txn := tracing.NewTransaction(ctx, "MyService")
+			response := client.GetWithContext(txnCtx, apiURL)
 			if response.Err != nil {
 				txn.NoticeError(response.Err)
 				log.Error(response.Err)
+				txn.End()
 				continue
 			}
 			log.Infof("GET %s, Status: %d", apiURL, response.StatusCode)
