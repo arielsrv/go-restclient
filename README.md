@@ -224,8 +224,11 @@ __go_restclient_durations_seconds_count{client_name="gorest-client"} 24
 __go_restclient_requests_total{client_name="gorest-client",status_code="200"} 24
 ```
 
+Prometheus
 ![prometheus]
-![otel]
+
+OTEL
+![img.png](img.png)
 
 Requisites
 
