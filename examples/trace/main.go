@@ -54,8 +54,8 @@ func main() {
 
 	random := func(minValue int64, maxValue int64) int64 {
 		z := maxValue - minValue + 1
-		n, err := rand.Int(rand.Reader, big.NewInt(z))
-		if err != nil {
+		n, rErr := rand.Int(rand.Reader, big.NewInt(z))
+		if rErr != nil {
 			return 100
 		}
 
