@@ -9,6 +9,7 @@ require (
 	go.opentelemetry.io/otel v1.35.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.35.0
 	go.opentelemetry.io/otel/sdk v1.35.0
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.4
 )
 
 require (
