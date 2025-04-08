@@ -229,7 +229,6 @@ Prometheus
 
 OTEL
 ![img.png](img.png)
-
 Requisites
 
 - Make sure you have **prometheus collector endpoint** turned on in your application
