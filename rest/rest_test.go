@@ -464,3 +464,12 @@ func Test_Basic(t *testing.T) {
 	resp := client.Get(server.URL + "/")
 	require.NoError(t, resp.Err)
 }
+
+func Test_RawClient(t *testing.T) {
+	client := rest.Client{}
+	rawClient := client.RawClient(t.Context())
+	require.NotNil(t, rawClient)
+	require.NotNil(t, rawClient.Transport)
+	require.NotNil(t, rawClient.Timeout)
+	require.NotNil(t, rawClient.CheckRedirect)
+}

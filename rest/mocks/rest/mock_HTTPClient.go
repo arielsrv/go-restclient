@@ -919,6 +919,54 @@ func (_c *MockHTTPClient_PutWithContext_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
+// RawClient provides a mock function with given fields: ctx
+func (_m *MockHTTPClient) RawClient(ctx context.Context) *http.Client {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RawClient")
+	}
+
+	var r0 *http.Client
+	if rf, ok := ret.Get(0).(func(context.Context) *http.Client); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Client)
+		}
+	}
+
+	return r0
+}
+
+// MockHTTPClient_RawClient_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RawClient'
+type MockHTTPClient_RawClient_Call struct {
+	*mock.Call
+}
+
+// RawClient is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockHTTPClient_Expecter) RawClient(ctx interface{}) *MockHTTPClient_RawClient_Call {
+	return &MockHTTPClient_RawClient_Call{Call: _e.mock.On("RawClient", ctx)}
+}
+
+func (_c *MockHTTPClient_RawClient_Call) Run(run func(ctx context.Context)) *MockHTTPClient_RawClient_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockHTTPClient_RawClient_Call) Return(_a0 *http.Client) *MockHTTPClient_RawClient_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHTTPClient_RawClient_Call) RunAndReturn(run func(context.Context) *http.Client) *MockHTTPClient_RawClient_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockHTTPClient creates a new instance of MockHTTPClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockHTTPClient(t interface {

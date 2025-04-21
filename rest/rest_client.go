@@ -59,6 +59,7 @@ type HTTPClient interface {
 	HeadWithContext(ctx context.Context, url string, headers ...http.Header) *Response
 	Options(url string, headers ...http.Header) *Response
 	OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	RawClient(ctx context.Context) *http.Client
 }
 
 // Client  is the baseline for creating requests
@@ -442,4 +443,9 @@ func (r *Client) AsyncOptions(url string, headers ...http.Header) <-chan *Respon
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (r *Client) AsyncOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response {
 	return r.asyncNewRequest(ctx, http.MethodOptions, url, nil, headers...)
+}
+
+// RawClient returns the underlying http.Client used by the RESTClient.
+func (r *Client) RawClient(ctx context.Context) *http.Client {
+	return r.onceHTTPClient(ctx)
 }

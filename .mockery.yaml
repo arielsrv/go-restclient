@@ -1,14 +1,13 @@
+# This is the configuration file for mockery, a tool for generating Go mocks.
+all: true
+dir: src/resources/mocks/{{.InterfaceDirRelative}}
+log-level: Warn
 filename: "mock_{{.InterfaceName}}.go"
-dir: "rest/mocks/{{.InterfaceDirRelative}}"
-mockname: "Mock{{.InterfaceName}}"
-outpkg: "mocks"
-all: True
-disable-version-string: True
-with-expecter: True
+template: testify
+template-data:
+  unroll-variadic: True
+force-file-write: True
 packages:
   gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest:
     config:
-      recursive: True
-log-level: Warn
-issue-845-fix: True
-resolve-type-alias: False
+      recursive: true
