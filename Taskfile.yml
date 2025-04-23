@@ -9,6 +9,7 @@ env:
   GOEXPERIMENT: nocoverageredesign
 
 tasks:
+  
   markdown:
     cmds:
       - markdownlint-cli2 "**/*.md" "#vendor"
