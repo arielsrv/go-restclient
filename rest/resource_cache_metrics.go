@@ -57,5 +57,6 @@ func recordValue(metricName string, value float64) {
 
 // recordValueFunc records a Prometheus gauge using a function.
 func recordValueFunc(metricName string, recordValueFunc RecordValueFunc) {
-	metrics.Collector.Prometheus().RecordValueFunc(buildMetricName(metricName), metrics.RecordValueFunc(recordValueFunc))
+	metrics.Collector.Prometheus().
+		RecordValueFunc(buildMetricName(metricName), metrics.RecordValueFunc(recordValueFunc))
 }

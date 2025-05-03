@@ -56,7 +56,13 @@ const (
 )
 
 // newRequest creates a new REST client with default configuration.
-func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, body any, headers ...http.Header) *Response {
+func (r *Client) newRequest(
+	ctx context.Context,
+	verb string,
+	apiURL string,
+	body any,
+	headers ...http.Header,
+) *Response {
 	validURL, err := url.Parse(fmt.Sprintf("%s%s", r.BaseURL, apiURL))
 	if err != nil {
 		return &Response{
@@ -215,7 +221,8 @@ func (r *Client) newRequest(ctx context.Context, verb string, apiURL string, bod
 	response.revalidate = !cacheHeaders.TTL && (cacheHeaders.LastModified || cacheHeaders.ETag)
 
 	// If Cache enable: Cache SENA
-	if r.EnableCache && slices.Contains(readVerbs, verb) && (cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
+	if r.EnableCache && slices.Contains(readVerbs, verb) &&
+		(cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
 		resourceCache.setNX(cacheURL, response)
 	}
 
@@ -429,7 +436,13 @@ func (r *Client) getConnectionTimeout() time.Duration {
 	}
 }
 
-func (r *Client) asyncNewRequest(ctx context.Context, verb string, url string, body any, headers ...http.Header) <-chan *Response {
+func (r *Client) asyncNewRequest(
+	ctx context.Context,
+	verb string,
+	url string,
+	body any,
+	headers ...http.Header,
+) <-chan *Response {
 	rChan := make(chan *Response, 1)
 	go func() {
 		defer close(rChan)
@@ -440,7 +453,12 @@ func (r *Client) asyncNewRequest(ctx context.Context, verb string, url string, b
 }
 
 // setParams sets the request parameters and headers.
-func (r *Client) setParams(request *http.Request, cacheResponse *Response, cacheURL string, paramHeaders ...http.Header) {
+func (r *Client) setParams(
+	request *http.Request,
+	cacheResponse *Response,
+	cacheURL string,
+	paramHeaders ...http.Header,
+) {
 	// Default headers
 	request.Header.Set(ConnectionHeader, "keep-alive")
 	request.Header.Set(CacheControlHeader, "no-cache")

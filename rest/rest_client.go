@@ -341,7 +341,12 @@ func (r *Client) AsyncPost(url string, body any, headers ...http.Header) <-chan 
 // 404(Not Found), or 409(Conflict) if resource already exist.
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (r *Client) AsyncPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
+func (r *Client) AsyncPostWithContext(
+	ctx context.Context,
+	url string,
+	body any,
+	headers ...http.Header,
+) <-chan *Response {
 	return r.asyncNewRequest(ctx, http.MethodPost, url, body, headers...)
 }
 
@@ -363,7 +368,12 @@ func (r *Client) AsyncPut(url string, body any, headers ...http.Header) <-chan *
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (r *Client) AsyncPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
+func (r *Client) AsyncPutWithContext(
+	ctx context.Context,
+	url string,
+	body any,
+	headers ...http.Header,
+) <-chan *Response {
 	return r.asyncNewRequest(ctx, http.MethodPut, url, body, headers...)
 }
 
@@ -385,7 +395,12 @@ func (r *Client) AsyncPatch(url string, body any, headers ...http.Header) <-chan
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
-func (r *Client) AsyncPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response {
+func (r *Client) AsyncPatchWithContext(
+	ctx context.Context,
+	url string,
+	body any,
+	headers ...http.Header,
+) <-chan *Response {
 	return r.asyncNewRequest(ctx, http.MethodPatch, url, body, headers...)
 }
 
