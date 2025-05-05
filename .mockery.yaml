@@ -1,6 +1,6 @@
 # This is the configuration file for mockery, a tool for generating Go mocks.
 all: true
-dir: src/resources/mocks/{{.InterfaceDirRelative}}
+dir: rest/mocks/{{.InterfaceDirRelative}}
 log-level: Warn
 filename: "mock_{{.InterfaceName}}.go"
 template: testify
