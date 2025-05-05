@@ -21,24 +21,26 @@ func main() {
 		EnableCache:    true,
 	}
 
-	response := client.GetWithContext(ctx, "https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
+	response1 := client.GetWithContext(ctx, "https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
 	switch {
-	case response.Err != nil:
-		log.Fatal(response.Err)
-	case response.StatusCode != http.StatusOK:
-		log.Fatalf("status_code: %d, reason: %s", response.StatusCode, response.String())
+	case response1.Err != nil:
+		log.Fatal(response1.Err)
+	case response1.StatusCode != http.StatusOK:
+		log.Fatalf("status_code: %d, reason: %s", response1.StatusCode, response1.String())
 	}
-	fmt.Printf("%s\n", response.String())
-	fmt.Printf("Response cached: %t\n", response.Cached())
+	fmt.Printf("Response cached: %t\n", response1.Cached())
+
+	// Simulate a delay to allow the cache to expire
+	time.Sleep(time.Millisecond * 100)
 
 	// server response with 304 Not Modified so client should not make a new request and return cached response
-	response = client.GetWithContext(ctx, "https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
+	response2 := client.GetWithContext(ctx, "https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
 	switch {
-	case response.Err != nil:
-		log.Fatal(response.Err)
-	case response.StatusCode != http.StatusOK:
-		log.Fatalf("status_code: %d, reason: %s", response.StatusCode, response.String())
+	case response2.Err != nil:
+		log.Fatal(response2.Err)
+	case response2.StatusCode != http.StatusOK:
+		log.Fatalf("status_code: %d, reason: %s", response2.StatusCode, response2.String())
 	}
-	fmt.Printf("%s\n", response.String())
-	fmt.Printf("Response cached: %t\n", response.Cached())
+
+	fmt.Printf("Response cached: %t\n", response2.Cached())
 }
