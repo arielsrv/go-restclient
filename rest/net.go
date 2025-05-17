@@ -26,12 +26,21 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
+// HTTP method categorization for internal use.
 var (
-	readVerbs                = []string{http.MethodGet, http.MethodHead, http.MethodOptions}
-	contentVerbs             = []string{http.MethodPost, http.MethodPut, http.MethodPatch}
+	// readVerbs contains HTTP methods that are considered "read" operations.
+	// These methods are eligible for caching.
+	readVerbs = []string{http.MethodGet, http.MethodHead, http.MethodOptions}
+
+	// contentVerbs contains HTTP methods that typically include a request body.
+	contentVerbs = []string{http.MethodPost, http.MethodPut, http.MethodPatch}
+
+	// defaultCheckRedirectFunc is the default function used to handle HTTP redirects.
 	defaultCheckRedirectFunc func(request *http.Request, via []*http.Request) error
 )
 
+// maxAge is a regular expression used to extract the max-age or s-maxage value
+// from a Cache-Control header.
 var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
 // timeFormats is a list of time.Parse formats to use when parsing HTTP date headers.
@@ -41,21 +50,54 @@ var timeFormats = []string{
 	time.ANSIC,   // "Mon Jan  2 15:04:05 2006"
 }
 
+// HTTP header constants used throughout the package.
 const (
-	UserAgentHeader       = "User-Agent"
-	ConnectionHeader      = "Connection"
-	CacheControlHeader    = "Cache-Control"
-	XOriginalURLHeader    = "X-Original-Url"
-	ETagHeader            = "ETag"
-	LastModifiedHeader    = "Last-Modified"
-	ExpiresHeader         = "Expires"
-	AcceptEncodingHeader  = "Accept-Encoding"
+	// UserAgentHeader is the header name for the User-Agent.
+	UserAgentHeader = "User-Agent"
+
+	// ConnectionHeader is the header name for the Connection.
+	ConnectionHeader = "Connection"
+
+	// CacheControlHeader is the header name for Cache-Control directives.
+	CacheControlHeader = "Cache-Control"
+
+	// XOriginalURLHeader is a custom header used to track the original URL when using a mockup server.
+	XOriginalURLHeader = "X-Original-Url"
+
+	// ETagHeader is the header name for the ETag value.
+	ETagHeader = "ETag"
+
+	// LastModifiedHeader is the header name for the Last-Modified timestamp.
+	LastModifiedHeader = "Last-Modified"
+
+	// ExpiresHeader is the header name for the Expires timestamp.
+	ExpiresHeader = "Expires"
+
+	// AcceptEncodingHeader is the header name for the Accept-Encoding value.
+	AcceptEncodingHeader = "Accept-Encoding"
+
+	// ContentEncodingHeader is the header name for the Content-Encoding value.
 	ContentEncodingHeader = "Content-Encoding"
+
+	// IfModifiedSinceHeader is the header name for the If-Modified-Since timestamp.
 	IfModifiedSinceHeader = "If-Modified-Since"
-	IfNoneMatchHeader     = "If-None-Match"
+
+	// IfNoneMatchHeader is the header name for the If-None-Match value.
+	IfNoneMatchHeader = "If-None-Match"
 )
 
-// newRequest creates a new REST client with default configuration.
+// newRequest creates a new HTTP request and returns the response.
+// It handles URL validation, caching, content type marshaling, mockup server redirection,
+// tracing, metrics collection, and response processing.
+//
+// Parameters:
+//   - ctx: The context for the request, which can be used for cancellation and tracing.
+//   - verb: The HTTP method to use (GET, POST, etc.).
+//   - apiURL: The URL to request, which will be appended to the client's BaseURL.
+//   - body: The request body, which will be marshaled according to the client's ContentType.
+//   - headers: Optional additional headers to include in the request.
+//
+// Returns a Response object containing the response or any error that occurred.
 func (r *Client) newRequest(
 	ctx context.Context,
 	verb string,
@@ -230,12 +272,16 @@ func (r *Client) newRequest(
 }
 
 // handleGZip checks if GZip compression is enabled for the given request and response.
+// Returns true if the response is gzip-encoded and the client is configured to handle it.
 func (r *Client) handleGZip(request *http.Request, response *http.Response) bool {
 	return (r.EnableGzip ||
 		request.Header.Get(AcceptEncodingHeader) == "gzip") && response.Header.Get(ContentEncodingHeader) == "gzip"
 }
 
 // setContentReader creates a reader from the given body and content type.
+// It marshals the body according to the specified content type and returns an io.Reader.
+// If body is nil, it returns http.NoBody.
+// Returns an error if the content type is not supported or if marshaling fails.
 func setContentReader(body any, contentType ContentType) (io.Reader, error) {
 	if body != nil {
 		mediaContent, found := contentMarshalers[contentType]
@@ -255,6 +301,8 @@ func setContentReader(body any, contentType ContentType) (io.Reader, error) {
 }
 
 // setRespReader creates a reader from the given request and response.
+// It handles gzip decompression if necessary.
+// Returns an io.ReadCloser for reading the response body.
 func (r *Client) setRespReader(request *http.Request, response *http.Response) (io.ReadCloser, error) {
 	if !r.handleGZip(request, response) {
 		return response.Body, nil
@@ -273,7 +321,9 @@ func (r *Client) setRespReader(request *http.Request, response *http.Response) (
 	return reader, nil
 }
 
-// setProblems sets the problem field in the response if the response content type is a problem.
+// setProblem sets the Problem field in the response if the response content type
+// indicates it's a problem response (contains "problem" in the Content-Type).
+// It attempts to deserialize the response body into the Problem field.
 func setProblem(result *Response) {
 	contentType := result.Header.Get(CanonicalContentTypeHeader)
 	if strings.Contains(contentType, "problem") {
@@ -283,7 +333,14 @@ func setProblem(result *Response) {
 	}
 }
 
-// checkMockup checks if the request URL should be mocked up.
+// checkMockup checks if the request URL should be redirected to a mockup server.
+// If mockup mode is enabled, it replaces the scheme and host of the URL with
+// those of the mockup server, while preserving the original URL for caching.
+//
+// Returns:
+//   - The URL to use for the request (may be modified for mockup)
+//   - The original URL to use for caching
+//   - Any error that occurred during URL parsing
 func checkMockup(reqURL string) (string, string, error) {
 	cacheURL := reqURL
 
@@ -303,9 +360,19 @@ func checkMockup(reqURL string) (string, string, error) {
 }
 
 // onceHTTPClient sets up the HTTP client for the given request builder.
+// It initializes the client only once per Client instance using sync.Once,
+// configuring transport, tracing, OAuth, and default headers.
+//
+// The client is configured with:
+//   - Custom transport settings
+//   - OpenTelemetry tracing if enabled
+//   - OAuth2 client credentials if provided
+//   - Default headers
+//   - Redirect handling based on FollowRedirect setting
+//
+// Returns the configured http.Client.
 func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
-	// This will be executed only once
-	// per request builder
+	// This will be executed only once per request builder
 	r.clientMtxOnce.Do(func() {
 		tr := r.setupTransport()
 
@@ -357,7 +424,13 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 	return r.Client
 }
 
-// setupTransport sets up the transport for the client.
+// setupTransport sets up the HTTP transport for the client.
+// It configures connection pooling, timeouts, and proxy settings.
+//
+// If a CustomPool is provided, it uses that for transport configuration.
+// Otherwise, it uses the default transport shared across all clients.
+//
+// Returns the configured http.RoundTripper to use for HTTP requests.
 func (r *Client) setupTransport() http.RoundTripper {
 	transportOnce.Do(func() {
 		if dfltTransport == nil {
@@ -407,12 +480,18 @@ func (r *Client) setupTransport() http.RoundTripper {
 	return currentTransport
 }
 
-// getDialContext returns a context.DialContext that applies the configured timeouts.
+// getDialContext returns a context.DialContext function that applies the configured connection timeout.
+// This is used by the HTTP transport to establish network connections.
 func (r *Client) getDialContext() func(ctx context.Context, network string, address string) (net.Conn, error) {
 	return (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext
 }
 
-// getRequestTimeout returns the configured request timeout.
+// getRequestTimeout returns the configured request timeout duration.
+// It considers the DisableTimeout flag and the Timeout setting, falling back to DefaultTimeout if needed.
+// Returns:
+//   - 0 if timeouts are disabled
+//   - r.Timeout if it's greater than 0
+//   - DefaultTimeout otherwise
 func (r *Client) getRequestTimeout() time.Duration {
 	switch {
 	case r.DisableTimeout:
@@ -424,7 +503,12 @@ func (r *Client) getRequestTimeout() time.Duration {
 	}
 }
 
-// getConnectionTimeout returns the configured connection timeout.
+// getConnectionTimeout returns the configured connection timeout duration.
+// It considers the DisableTimeout flag and the ConnectTimeout setting, falling back to DefaultConnectTimeout if needed.
+// Returns:
+//   - 0 if timeouts are disabled
+//   - r.ConnectTimeout if it's greater than 0
+//   - DefaultConnectTimeout otherwise
 func (r *Client) getConnectionTimeout() time.Duration {
 	switch {
 	case r.DisableTimeout:
@@ -436,6 +520,18 @@ func (r *Client) getConnectionTimeout() time.Duration {
 	}
 }
 
+// asyncNewRequest performs an asynchronous HTTP request and returns a channel that will receive the response.
+// This allows for non-blocking HTTP requests where the response can be processed later.
+//
+// Parameters:
+//   - ctx: The context for the request
+//   - verb: The HTTP method to use
+//   - url: The URL to request
+//   - body: The request body
+//   - headers: Optional additional headers
+//
+// Returns a channel that will receive the Response when the request completes.
+// The channel is buffered with size 1 and will be closed after the response is sent.
 func (r *Client) asyncNewRequest(
 	ctx context.Context,
 	verb string,
@@ -453,6 +549,16 @@ func (r *Client) asyncNewRequest(
 }
 
 // setParams sets the request parameters and headers.
+// It configures various HTTP headers for the request, including:
+//   - Default headers (Connection, Cache-Control)
+//   - Mockup server headers if enabled
+//   - Authentication headers (Basic Auth)
+//   - User-Agent
+//   - Content negotiation headers (Accept, Content-Type)
+//   - Compression headers (Accept-Encoding)
+//   - Cache validation headers (If-None-Match, If-Modified-Since)
+//   - Client default headers
+//   - Custom headers provided as parameters
 func (r *Client) setParams(
 	request *http.Request,
 	cacheResponse *Response,
@@ -521,7 +627,12 @@ func (r *Client) setParams(
 	}
 }
 
-// setTTL sets the TTL (Time To Live) for the response.
+// setTTL sets the TTL (Time To Live) for the response based on cache headers.
+// It checks for:
+//   - max-age or s-maxage in Cache-Control header
+//   - Expires header
+//
+// Returns true if a TTL was successfully set, false otherwise.
 func setTTL(response *Response) bool {
 	// Cache-Control Header
 	cacheControl := maxAge.FindStringSubmatch(response.Header.Get(CacheControlHeader))
@@ -553,7 +664,9 @@ func setTTL(response *Response) bool {
 	return false
 }
 
-// setLastModified sets the Last-Modified header in the response.
+// setLastModified parses and sets the Last-Modified timestamp from the response headers.
+// It tries to parse the timestamp using various time formats.
+// Returns true if the Last-Modified header was successfully parsed and set, false otherwise.
 func setLastModified(response *Response) bool {
 	lastModifiedValue := response.Header.Get(LastModifiedHeader)
 	if lastModifiedValue == "" {
@@ -571,7 +684,8 @@ func setLastModified(response *Response) bool {
 	return false
 }
 
-// setETag sets the ETag header in the response.
+// setETag extracts and sets the ETag value from the response headers.
+// Returns true if an ETag was found, false otherwise.
 func setETag(response *Response) bool {
 	response.etag = response.Header.Get(ETagHeader)
 
@@ -579,6 +693,9 @@ func setETag(response *Response) bool {
 }
 
 // buildTags builds the tags for the Prometheus metrics.
+// It creates a map of tags with client name, event type, event subtype,
+// application name, environment, and service type.
+// These tags are used to categorize and filter metrics in Prometheus.
 func buildTags(clientName, eventType, eventSubType string) metrics.Tags {
 	return metrics.Tags{
 		"client_name":   clientName,
