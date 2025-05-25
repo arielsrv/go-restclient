@@ -59,7 +59,11 @@ type HTTPClient interface {
 	HeadWithContext(ctx context.Context, url string, headers ...http.Header) *Response
 	Options(url string, headers ...http.Header) *Response
 	OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+}
+
+type HTTPExporter interface {
 	RawClient(ctx context.Context) *http.Client
+	Do(*http.Request) (*http.Response, error)
 }
 
 // Client  is the baseline for creating requests
@@ -463,4 +467,9 @@ func (r *Client) AsyncOptionsWithContext(ctx context.Context, url string, header
 // RawClient returns the underlying http.Client used by the RESTClient.
 func (r *Client) RawClient(ctx context.Context) *http.Client {
 	return r.onceHTTPClient(ctx)
+}
+
+// Do execute a REST request.
+func (r *Client) Do(req *http.Request) (*http.Response, error) {
+	return r.RawClient(req.Context()).Do(req)
 }
