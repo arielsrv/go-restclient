@@ -115,6 +115,8 @@ gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.28 h1:A7RvXpiEASep3dk
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.28/go.mod h1:Zd46EcIBKIrcaDUCQSotfUUEgg7gkGIGTo9gDgT5gGw=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.34 h1:eW1mDYGQaYOhUOf8zZTENNwXECBwJX59GAxOerk4jGg=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.34/go.mod h1:xex8I85c8JS465xTLDwvwlvOvmfmQCXEklwK2hfgf28=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.36 h1:izmFepY6MYBUe2H2f14n6lGb5GhHUB3kwnyG3QMpY7I=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.36/go.mod h1:xex8I85c8JS465xTLDwvwlvOvmfmQCXEklwK2hfgf28=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.36 h1:wjm4KfF2KbqF7DbRoTpio2gp/k2CURj0SNtUtBBR0C4=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.36/go.mod h1:i9v3yKC2MMbo/bKwAbstbtY9sJOy/oJHz1ah4MXJ5lQ=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.40 h1:HHszHXBDUQPjNcSR9I9snOWksUnCo21a3pH/1obfLuQ=
@@ -131,14 +133,18 @@ gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.52 h1:bcqUhze60i
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.52/go.mod h1:W/xVeAvc/1kmpkUdirAUZrNlAYqOfQ/40qp0y92/3Lo=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.54 h1:mhCvANCvnriFOe0hvF5roFBZbi+F49s/RzAg+mgQelA=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.54/go.mod h1:W/xVeAvc/1kmpkUdirAUZrNlAYqOfQ/40qp0y92/3Lo=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.56 h1:4UF7tkAqzDAzsfPvISvBVw7XQYKrdWgGHJ8P6KI4xEs=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.56/go.mod h1:5D6TDQBpQy9LPi9VkXVSg3bYIBzjJwOuUmMO5LWGbuw=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.20 h1:9O9qWfiH409bzEsZApHg6JN/pJkYp+DT+VwNzbIbyAw=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.20/go.mod h1:cax7bWttFVqunEjzQTRNvW7IIf3vVNE8nifw4fAlP5I=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
 go.opentelemetry.io/auto/sdk v1.1.0/go.mod h1:3wSPjt5PWp2RhlCcmmOial7AvC4DQqZb7a7wCow3W8A=
 go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.60.0 h1:0tY123n7CdWMem7MOVdKOt0YfshufLCwfE5Bob+hQuM=
 go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.60.0/go.mod h1:CosX/aS4eHnG9D7nESYpV753l4j9q5j3SL/PUYd2lR8=
+go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.61.0/go.mod h1:HfvuU0kW9HewH14VCOLImqKvUgONodURG7Alj/IrnGI=
 go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0 h1:sbiXRNDSWJOTobXh5HyQKjq6wUC5tNybqjIqDpAY4CU=
 go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0/go.mod h1:69uWxva0WgAA/4bu2Yy70SLDBwZXuQ6PbBpbsa5iZrQ=
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0/go.mod h1:UHB22Z8QsdRDrnAtX4PntOl36ajSxcdUMt1sF7Y6E7Q=
 go.opentelemetry.io/otel v1.35.0 h1:xKWKPxrxB6OtMCbmMY021CqC45J+3Onta9MqjhnusiQ=
 go.opentelemetry.io/otel v1.35.0/go.mod h1:UEqy8Zp11hpkUrL73gSlELM0DupHoiq72dR+Zqel/+Y=
 go.opentelemetry.io/otel v1.36.0 h1:UumtzIklRBY6cI/lllNZlALOF5nNIzJVb16APdvgTXg=
@@ -165,6 +171,7 @@ go.opentelemetry.io/otel/sdk v1.36.0 h1:b6SYIuLRs88ztox4EyrvRti80uXIFy+Sqzoh9kFU
 go.opentelemetry.io/otel/sdk v1.36.0/go.mod h1:+lC+mTgD+MUWfjJubi2vvXWcVxyr9rmlshZni72pXeY=
 go.opentelemetry.io/otel/sdk/metric v1.35.0 h1:1RriWBmCKgkeHEhM7a2uMjMUfP7MsOF5JpUCaEqEI9o=
 go.opentelemetry.io/otel/sdk/metric v1.35.0/go.mod h1:is6XYCUMpcKi+ZsOvfluY5YstFnhW0BidkR+gL+qN+w=
+go.opentelemetry.io/otel/sdk/metric v1.36.0/go.mod h1:qTNOhFDfKRwX0yXOqJYegL5WRaW376QbB7P4Pb0qva4=
 go.opentelemetry.io/otel/trace v1.35.0 h1:dPpEfJu1sDIqruz7BHFG3c7528f6ddfSWfFDVt/xgMs=
 go.opentelemetry.io/otel/trace v1.35.0/go.mod h1:WUk7DtFp1Aw2MkvqGdwiXYDZZNvA/1J8o6xRXLrIkyc=
 go.opentelemetry.io/otel/trace v1.36.0 h1:ahxWNuqZjpdiFAyrIoQ4GIiAIhxAunQR6MUoKrsNd4w=
