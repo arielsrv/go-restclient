@@ -13,7 +13,7 @@ import (
 var dfltTransport http.RoundTripper
 
 // Sync once to set default client and dfltTransport to default Request Builder.
-var transportOnce sync.Once
+var transportMtxOnce sync.Once
 
 var (
 	// DefaultTimeout is the default timeout for all clients.

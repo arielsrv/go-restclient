@@ -432,52 +432,49 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 //
 // Returns the configured http.RoundTripper to use for HTTP requests.
 func (r *Client) setupTransport() http.RoundTripper {
-	transportOnce.Do(func() {
-		if dfltTransport == nil {
-			dfltTransport = &http.Transport{
-				MaxIdleConnsPerHost:   http.DefaultMaxIdleConnsPerHost,
-				Proxy:                 http.ProxyFromEnvironment,
-				DialContext:           r.getDialContext(),
-				ResponseHeaderTimeout: r.getRequestTimeout(),
-			}
+	transportMtxOnce.Do(func() {
+		dfltTransport = &http.Transport{
+			MaxIdleConnsPerHost:   http.DefaultMaxIdleConnsPerHost,
+			Proxy:                 http.ProxyFromEnvironment,
+			DialContext:           r.getDialContext(),
+			ResponseHeaderTimeout: r.getRequestTimeout(),
 		}
-
 		defaultCheckRedirectFunc = http.Client{}.CheckRedirect
 	})
 
-	currentTransport := dfltTransport
-
-	if customPool := r.CustomPool; customPool != nil {
-		if customPool.Transport == nil {
-			currentTransport = &http.Transport{
-				MaxIdleConnsPerHost:   r.CustomPool.MaxIdleConnsPerHost,
-				DialContext:           r.getDialContext(),
-				ResponseHeaderTimeout: r.getRequestTimeout(),
-			}
-
-			// Set Proxy
-			if customPool.Proxy != "" {
-				if proxy, err := url.Parse(customPool.Proxy); err == nil {
-					if transport, ok := currentTransport.(*http.Transport); ok {
-						transport.Proxy = http.ProxyURL(proxy)
-					}
-				}
-			}
-			customPool.Transport = currentTransport
-		} else {
-			customPoolTransport, ok := customPool.Transport.(*http.Transport)
-			if !ok {
-				// If custom dfltTransport is not http.Transport, timeouts will not be overwritten.
-				currentTransport = customPool.Transport
-			} else {
-				customPoolTransport.DialContext = r.getDialContext()
-				customPoolTransport.ResponseHeaderTimeout = r.getRequestTimeout()
-				currentTransport = customPoolTransport
-			}
-		}
+	// If there's no CustomPool, use the default transport
+	if r.CustomPool == nil {
+		return dfltTransport
 	}
 
-	return currentTransport
+	// If the CustomPool already has a transport, update timeouts if it's *http.Transport
+	if transport, ok := r.CustomPool.Transport.(*http.Transport); ok {
+		transport.DialContext = r.getDialContext()
+		transport.ResponseHeaderTimeout = r.getRequestTimeout()
+		return transport
+	}
+
+	// Create a new custom transport if none is set yet
+	if r.CustomPool.Transport == nil {
+		transport := &http.Transport{
+			MaxIdleConnsPerHost:   r.CustomPool.MaxIdleConnsPerHost,
+			DialContext:           r.getDialContext(),
+			ResponseHeaderTimeout: r.getRequestTimeout(),
+		}
+
+		// If a proxy is defined, parse and set it
+		if proxyURL := r.CustomPool.Proxy; proxyURL != "" {
+			if parsed, err := url.Parse(proxyURL); err == nil {
+				transport.Proxy = http.ProxyURL(parsed)
+			}
+		}
+
+		r.CustomPool.Transport = transport
+		return transport
+	}
+
+	// If a non-http.Transport is already set
+	return r.CustomPool.Transport
 }
 
 // getDialContext returns a context.DialContext function that applies the configured connection timeout.
