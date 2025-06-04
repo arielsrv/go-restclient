@@ -473,3 +473,12 @@ func Test_RawClient(t *testing.T) {
 	require.NotNil(t, rawClient.Timeout)
 	require.NotNil(t, rawClient.CheckRedirect)
 }
+
+func Test_Do(t *testing.T) {
+	client := rest.Client{}
+	request, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.URL+"/", nil)
+	require.NoError(t, err)
+	response, err := client.Do(request)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, response.StatusCode)
+}
