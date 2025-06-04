@@ -21,10 +21,6 @@ var (
 	// DefaultConnectTimeout is the time it takes to make a connection
 	// Type: time.Duration.
 	DefaultConnectTimeout = 1500 * time.Millisecond
-	// DefaultMaxIdleConnsPerHost is the default maximum idle connections to have
-	// per Host for all clients, that use *any* RESTClient that don't set
-	// a CustomPool.
-	DefaultMaxIdleConnsPerHost = 2
 )
 
 type AsyncHTTPClient interface {

@@ -72,8 +72,8 @@ type MockHTTPClient_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - url
-//   - headers
+//   - url string
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) Delete(url interface{}, headers ...interface{}) *MockHTTPClient_Delete_Call {
 	return &MockHTTPClient_Delete_Call{Call: _e.mock.On("Delete",
 		append([]interface{}{url}, headers...)...)}
@@ -81,13 +81,22 @@ func (_e *MockHTTPClient_Expecter) Delete(url interface{}, headers ...interface{
 
 func (_c *MockHTTPClient_Delete_Call) Run(run func(url string, headers ...http.Header)) *MockHTTPClient_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []http.Header
 		variadicArgs := make([]http.Header, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -135,9 +144,9 @@ type MockHTTPClient_DeleteWithContext_Call struct {
 }
 
 // DeleteWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) DeleteWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockHTTPClient_DeleteWithContext_Call {
 	return &MockHTTPClient_DeleteWithContext_Call{Call: _e.mock.On("DeleteWithContext",
 		append([]interface{}{ctx, url}, headers...)...)}
@@ -145,13 +154,27 @@ func (_e *MockHTTPClient_Expecter) DeleteWithContext(ctx interface{}, url interf
 
 func (_c *MockHTTPClient_DeleteWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockHTTPClient_DeleteWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -199,8 +222,8 @@ type MockHTTPClient_Get_Call struct {
 }
 
 // Get is a helper method to define mock.On call
-//   - url
-//   - headers
+//   - url string
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) Get(url interface{}, headers ...interface{}) *MockHTTPClient_Get_Call {
 	return &MockHTTPClient_Get_Call{Call: _e.mock.On("Get",
 		append([]interface{}{url}, headers...)...)}
@@ -208,13 +231,22 @@ func (_e *MockHTTPClient_Expecter) Get(url interface{}, headers ...interface{}) 
 
 func (_c *MockHTTPClient_Get_Call) Run(run func(url string, headers ...http.Header)) *MockHTTPClient_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []http.Header
 		variadicArgs := make([]http.Header, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -262,9 +294,9 @@ type MockHTTPClient_GetWithContext_Call struct {
 }
 
 // GetWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) GetWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockHTTPClient_GetWithContext_Call {
 	return &MockHTTPClient_GetWithContext_Call{Call: _e.mock.On("GetWithContext",
 		append([]interface{}{ctx, url}, headers...)...)}
@@ -272,13 +304,27 @@ func (_e *MockHTTPClient_Expecter) GetWithContext(ctx interface{}, url interface
 
 func (_c *MockHTTPClient_GetWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockHTTPClient_GetWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -326,8 +372,8 @@ type MockHTTPClient_Head_Call struct {
 }
 
 // Head is a helper method to define mock.On call
-//   - url
-//   - headers
+//   - url string
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) Head(url interface{}, headers ...interface{}) *MockHTTPClient_Head_Call {
 	return &MockHTTPClient_Head_Call{Call: _e.mock.On("Head",
 		append([]interface{}{url}, headers...)...)}
@@ -335,13 +381,22 @@ func (_e *MockHTTPClient_Expecter) Head(url interface{}, headers ...interface{})
 
 func (_c *MockHTTPClient_Head_Call) Run(run func(url string, headers ...http.Header)) *MockHTTPClient_Head_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []http.Header
 		variadicArgs := make([]http.Header, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -389,9 +444,9 @@ type MockHTTPClient_HeadWithContext_Call struct {
 }
 
 // HeadWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) HeadWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockHTTPClient_HeadWithContext_Call {
 	return &MockHTTPClient_HeadWithContext_Call{Call: _e.mock.On("HeadWithContext",
 		append([]interface{}{ctx, url}, headers...)...)}
@@ -399,13 +454,27 @@ func (_e *MockHTTPClient_Expecter) HeadWithContext(ctx interface{}, url interfac
 
 func (_c *MockHTTPClient_HeadWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockHTTPClient_HeadWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -453,8 +522,8 @@ type MockHTTPClient_Options_Call struct {
 }
 
 // Options is a helper method to define mock.On call
-//   - url
-//   - headers
+//   - url string
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) Options(url interface{}, headers ...interface{}) *MockHTTPClient_Options_Call {
 	return &MockHTTPClient_Options_Call{Call: _e.mock.On("Options",
 		append([]interface{}{url}, headers...)...)}
@@ -462,13 +531,22 @@ func (_e *MockHTTPClient_Expecter) Options(url interface{}, headers ...interface
 
 func (_c *MockHTTPClient_Options_Call) Run(run func(url string, headers ...http.Header)) *MockHTTPClient_Options_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []http.Header
 		variadicArgs := make([]http.Header, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -516,9 +594,9 @@ type MockHTTPClient_OptionsWithContext_Call struct {
 }
 
 // OptionsWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) OptionsWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockHTTPClient_OptionsWithContext_Call {
 	return &MockHTTPClient_OptionsWithContext_Call{Call: _e.mock.On("OptionsWithContext",
 		append([]interface{}{ctx, url}, headers...)...)}
@@ -526,13 +604,27 @@ func (_e *MockHTTPClient_Expecter) OptionsWithContext(ctx interface{}, url inter
 
 func (_c *MockHTTPClient_OptionsWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockHTTPClient_OptionsWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -580,9 +672,9 @@ type MockHTTPClient_Patch_Call struct {
 }
 
 // Patch is a helper method to define mock.On call
-//   - url
-//   - body
-//   - headers
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) Patch(url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_Patch_Call {
 	return &MockHTTPClient_Patch_Call{Call: _e.mock.On("Patch",
 		append([]interface{}{url, body}, headers...)...)}
@@ -590,13 +682,27 @@ func (_e *MockHTTPClient_Expecter) Patch(url interface{}, body interface{}, head
 
 func (_c *MockHTTPClient_Patch_Call) Run(run func(url string, body any, headers ...http.Header)) *MockHTTPClient_Patch_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 any
+		if args[1] != nil {
+			arg1 = args[1].(any)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), args[1].(any), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -644,10 +750,10 @@ type MockHTTPClient_PatchWithContext_Call struct {
 }
 
 // PatchWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - body
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) PatchWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_PatchWithContext_Call {
 	return &MockHTTPClient_PatchWithContext_Call{Call: _e.mock.On("PatchWithContext",
 		append([]interface{}{ctx, url, body}, headers...)...)}
@@ -655,13 +761,32 @@ func (_e *MockHTTPClient_Expecter) PatchWithContext(ctx interface{}, url interfa
 
 func (_c *MockHTTPClient_PatchWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockHTTPClient_PatchWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 any
+		if args[2] != nil {
+			arg2 = args[2].(any)
+		}
+		var arg3 []http.Header
 		variadicArgs := make([]http.Header, len(args)-3)
 		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), args[2].(any), variadicArgs...)
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
 	})
 	return _c
 }
@@ -709,9 +834,9 @@ type MockHTTPClient_Post_Call struct {
 }
 
 // Post is a helper method to define mock.On call
-//   - url
-//   - body
-//   - headers
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) Post(url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_Post_Call {
 	return &MockHTTPClient_Post_Call{Call: _e.mock.On("Post",
 		append([]interface{}{url, body}, headers...)...)}
@@ -719,13 +844,27 @@ func (_e *MockHTTPClient_Expecter) Post(url interface{}, body interface{}, heade
 
 func (_c *MockHTTPClient_Post_Call) Run(run func(url string, body any, headers ...http.Header)) *MockHTTPClient_Post_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 any
+		if args[1] != nil {
+			arg1 = args[1].(any)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), args[1].(any), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -773,10 +912,10 @@ type MockHTTPClient_PostWithContext_Call struct {
 }
 
 // PostWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - body
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) PostWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_PostWithContext_Call {
 	return &MockHTTPClient_PostWithContext_Call{Call: _e.mock.On("PostWithContext",
 		append([]interface{}{ctx, url, body}, headers...)...)}
@@ -784,13 +923,32 @@ func (_e *MockHTTPClient_Expecter) PostWithContext(ctx interface{}, url interfac
 
 func (_c *MockHTTPClient_PostWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockHTTPClient_PostWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 any
+		if args[2] != nil {
+			arg2 = args[2].(any)
+		}
+		var arg3 []http.Header
 		variadicArgs := make([]http.Header, len(args)-3)
 		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), args[2].(any), variadicArgs...)
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
 	})
 	return _c
 }
@@ -838,9 +996,9 @@ type MockHTTPClient_Put_Call struct {
 }
 
 // Put is a helper method to define mock.On call
-//   - url
-//   - body
-//   - headers
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) Put(url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_Put_Call {
 	return &MockHTTPClient_Put_Call{Call: _e.mock.On("Put",
 		append([]interface{}{url, body}, headers...)...)}
@@ -848,13 +1006,27 @@ func (_e *MockHTTPClient_Expecter) Put(url interface{}, body interface{}, header
 
 func (_c *MockHTTPClient_Put_Call) Run(run func(url string, body any, headers ...http.Header)) *MockHTTPClient_Put_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 any
+		if args[1] != nil {
+			arg1 = args[1].(any)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), args[1].(any), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -902,10 +1074,10 @@ type MockHTTPClient_PutWithContext_Call struct {
 }
 
 // PutWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - body
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockHTTPClient_Expecter) PutWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockHTTPClient_PutWithContext_Call {
 	return &MockHTTPClient_PutWithContext_Call{Call: _e.mock.On("PutWithContext",
 		append([]interface{}{ctx, url, body}, headers...)...)}
@@ -913,13 +1085,32 @@ func (_e *MockHTTPClient_Expecter) PutWithContext(ctx interface{}, url interface
 
 func (_c *MockHTTPClient_PutWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockHTTPClient_PutWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 any
+		if args[2] != nil {
+			arg2 = args[2].(any)
+		}
+		var arg3 []http.Header
 		variadicArgs := make([]http.Header, len(args)-3)
 		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), args[2].(any), variadicArgs...)
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
 	})
 	return _c
 }

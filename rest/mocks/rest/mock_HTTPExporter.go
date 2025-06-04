@@ -72,14 +72,20 @@ type MockHTTPExporter_Do_Call struct {
 }
 
 // Do is a helper method to define mock.On call
-//   - request
+//   - request *http.Request
 func (_e *MockHTTPExporter_Expecter) Do(request interface{}) *MockHTTPExporter_Do_Call {
 	return &MockHTTPExporter_Do_Call{Call: _e.mock.On("Do", request)}
 }
 
 func (_c *MockHTTPExporter_Do_Call) Run(run func(request *http.Request)) *MockHTTPExporter_Do_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*http.Request))
+		var arg0 *http.Request
+		if args[0] != nil {
+			arg0 = args[0].(*http.Request)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }
@@ -119,14 +125,20 @@ type MockHTTPExporter_RawClient_Call struct {
 }
 
 // RawClient is a helper method to define mock.On call
-//   - ctx
+//   - ctx context.Context
 func (_e *MockHTTPExporter_Expecter) RawClient(ctx interface{}) *MockHTTPExporter_RawClient_Call {
 	return &MockHTTPExporter_RawClient_Call{Call: _e.mock.On("RawClient", ctx)}
 }
 
 func (_c *MockHTTPExporter_RawClient_Call) Run(run func(ctx context.Context)) *MockHTTPExporter_RawClient_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }

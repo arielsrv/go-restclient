@@ -72,14 +72,20 @@ type MockCache_Get_Call[K rest.Key, V any] struct {
 }
 
 // Get is a helper method to define mock.On call
-//   - key
+//   - key K
 func (_e *MockCache_Expecter[K, V]) Get(key interface{}) *MockCache_Get_Call[K, V] {
 	return &MockCache_Get_Call[K, V]{Call: _e.mock.On("Get", key)}
 }
 
 func (_c *MockCache_Get_Call[K, V]) Run(run func(key K)) *MockCache_Get_Call[K, V] {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(K))
+		var arg0 K
+		if args[0] != nil {
+			arg0 = args[0].(K)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }
@@ -117,16 +123,32 @@ type MockCache_Set_Call[K rest.Key, V any] struct {
 }
 
 // Set is a helper method to define mock.On call
-//   - key
-//   - value
-//   - cost
+//   - key K
+//   - value V
+//   - cost int64
 func (_e *MockCache_Expecter[K, V]) Set(key interface{}, value interface{}, cost interface{}) *MockCache_Set_Call[K, V] {
 	return &MockCache_Set_Call[K, V]{Call: _e.mock.On("Set", key, value, cost)}
 }
 
 func (_c *MockCache_Set_Call[K, V]) Run(run func(key K, value V, cost int64)) *MockCache_Set_Call[K, V] {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(K), args[1].(V), args[2].(int64))
+		var arg0 K
+		if args[0] != nil {
+			arg0 = args[0].(K)
+		}
+		var arg1 V
+		if args[1] != nil {
+			arg1 = args[1].(V)
+		}
+		var arg2 int64
+		if args[2] != nil {
+			arg2 = args[2].(int64)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
 	})
 	return _c
 }
@@ -164,17 +186,38 @@ type MockCache_SetWithTTL_Call[K rest.Key, V any] struct {
 }
 
 // SetWithTTL is a helper method to define mock.On call
-//   - key
-//   - value
-//   - cost
-//   - ttl
+//   - key K
+//   - value V
+//   - cost int64
+//   - ttl time.Duration
 func (_e *MockCache_Expecter[K, V]) SetWithTTL(key interface{}, value interface{}, cost interface{}, ttl interface{}) *MockCache_SetWithTTL_Call[K, V] {
 	return &MockCache_SetWithTTL_Call[K, V]{Call: _e.mock.On("SetWithTTL", key, value, cost, ttl)}
 }
 
 func (_c *MockCache_SetWithTTL_Call[K, V]) Run(run func(key K, value V, cost int64, ttl time.Duration)) *MockCache_SetWithTTL_Call[K, V] {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(K), args[1].(V), args[2].(int64), args[3].(time.Duration))
+		var arg0 K
+		if args[0] != nil {
+			arg0 = args[0].(K)
+		}
+		var arg1 V
+		if args[1] != nil {
+			arg1 = args[1].(V)
+		}
+		var arg2 int64
+		if args[2] != nil {
+			arg2 = args[2].(int64)
+		}
+		var arg3 time.Duration
+		if args[3] != nil {
+			arg3 = args[3].(time.Duration)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
 	})
 	return _c
 }

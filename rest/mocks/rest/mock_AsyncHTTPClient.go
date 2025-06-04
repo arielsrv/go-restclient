@@ -72,8 +72,8 @@ type MockAsyncHTTPClient_AsyncDelete_Call struct {
 }
 
 // AsyncDelete is a helper method to define mock.On call
-//   - url
-//   - headers
+//   - url string
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncDelete(url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncDelete_Call {
 	return &MockAsyncHTTPClient_AsyncDelete_Call{Call: _e.mock.On("AsyncDelete",
 		append([]interface{}{url}, headers...)...)}
@@ -81,13 +81,22 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncDelete(url interface{}, headers ...
 
 func (_c *MockAsyncHTTPClient_AsyncDelete_Call) Run(run func(url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncDelete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []http.Header
 		variadicArgs := make([]http.Header, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -135,9 +144,9 @@ type MockAsyncHTTPClient_AsyncDeleteWithContext_Call struct {
 }
 
 // AsyncDeleteWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncDeleteWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncDeleteWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncDeleteWithContext_Call{Call: _e.mock.On("AsyncDeleteWithContext",
 		append([]interface{}{ctx, url}, headers...)...)}
@@ -145,13 +154,27 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncDeleteWithContext(ctx interface{}, 
 
 func (_c *MockAsyncHTTPClient_AsyncDeleteWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncDeleteWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -199,8 +222,8 @@ type MockAsyncHTTPClient_AsyncGet_Call struct {
 }
 
 // AsyncGet is a helper method to define mock.On call
-//   - url
-//   - headers
+//   - url string
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncGet(url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncGet_Call {
 	return &MockAsyncHTTPClient_AsyncGet_Call{Call: _e.mock.On("AsyncGet",
 		append([]interface{}{url}, headers...)...)}
@@ -208,13 +231,22 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncGet(url interface{}, headers ...int
 
 func (_c *MockAsyncHTTPClient_AsyncGet_Call) Run(run func(url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncGet_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []http.Header
 		variadicArgs := make([]http.Header, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -262,9 +294,9 @@ type MockAsyncHTTPClient_AsyncGetWithContext_Call struct {
 }
 
 // AsyncGetWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncGetWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncGetWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncGetWithContext_Call{Call: _e.mock.On("AsyncGetWithContext",
 		append([]interface{}{ctx, url}, headers...)...)}
@@ -272,13 +304,27 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncGetWithContext(ctx interface{}, url
 
 func (_c *MockAsyncHTTPClient_AsyncGetWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncGetWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -326,8 +372,8 @@ type MockAsyncHTTPClient_AsyncHead_Call struct {
 }
 
 // AsyncHead is a helper method to define mock.On call
-//   - url
-//   - headers
+//   - url string
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncHead(url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncHead_Call {
 	return &MockAsyncHTTPClient_AsyncHead_Call{Call: _e.mock.On("AsyncHead",
 		append([]interface{}{url}, headers...)...)}
@@ -335,13 +381,22 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncHead(url interface{}, headers ...in
 
 func (_c *MockAsyncHTTPClient_AsyncHead_Call) Run(run func(url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncHead_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []http.Header
 		variadicArgs := make([]http.Header, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -389,9 +444,9 @@ type MockAsyncHTTPClient_AsyncHeadWithContext_Call struct {
 }
 
 // AsyncHeadWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncHeadWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncHeadWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncHeadWithContext_Call{Call: _e.mock.On("AsyncHeadWithContext",
 		append([]interface{}{ctx, url}, headers...)...)}
@@ -399,13 +454,27 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncHeadWithContext(ctx interface{}, ur
 
 func (_c *MockAsyncHTTPClient_AsyncHeadWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncHeadWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -453,8 +522,8 @@ type MockAsyncHTTPClient_AsyncOptions_Call struct {
 }
 
 // AsyncOptions is a helper method to define mock.On call
-//   - url
-//   - headers
+//   - url string
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncOptions(url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncOptions_Call {
 	return &MockAsyncHTTPClient_AsyncOptions_Call{Call: _e.mock.On("AsyncOptions",
 		append([]interface{}{url}, headers...)...)}
@@ -462,13 +531,22 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncOptions(url interface{}, headers ..
 
 func (_c *MockAsyncHTTPClient_AsyncOptions_Call) Run(run func(url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncOptions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []http.Header
 		variadicArgs := make([]http.Header, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -516,9 +594,9 @@ type MockAsyncHTTPClient_AsyncOptionsWithContext_Call struct {
 }
 
 // AsyncOptionsWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncOptionsWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncOptionsWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncOptionsWithContext_Call{Call: _e.mock.On("AsyncOptionsWithContext",
 		append([]interface{}{ctx, url}, headers...)...)}
@@ -526,13 +604,27 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncOptionsWithContext(ctx interface{},
 
 func (_c *MockAsyncHTTPClient_AsyncOptionsWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncOptionsWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -580,9 +672,9 @@ type MockAsyncHTTPClient_AsyncPatch_Call struct {
 }
 
 // AsyncPatch is a helper method to define mock.On call
-//   - url
-//   - body
-//   - headers
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncPatch(url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPatch_Call {
 	return &MockAsyncHTTPClient_AsyncPatch_Call{Call: _e.mock.On("AsyncPatch",
 		append([]interface{}{url, body}, headers...)...)}
@@ -590,13 +682,27 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncPatch(url interface{}, body interfa
 
 func (_c *MockAsyncHTTPClient_AsyncPatch_Call) Run(run func(url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPatch_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 any
+		if args[1] != nil {
+			arg1 = args[1].(any)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), args[1].(any), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -644,10 +750,10 @@ type MockAsyncHTTPClient_AsyncPatchWithContext_Call struct {
 }
 
 // AsyncPatchWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - body
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncPatchWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPatchWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncPatchWithContext_Call{Call: _e.mock.On("AsyncPatchWithContext",
 		append([]interface{}{ctx, url, body}, headers...)...)}
@@ -655,13 +761,32 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncPatchWithContext(ctx interface{}, u
 
 func (_c *MockAsyncHTTPClient_AsyncPatchWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPatchWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 any
+		if args[2] != nil {
+			arg2 = args[2].(any)
+		}
+		var arg3 []http.Header
 		variadicArgs := make([]http.Header, len(args)-3)
 		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), args[2].(any), variadicArgs...)
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
 	})
 	return _c
 }
@@ -709,9 +834,9 @@ type MockAsyncHTTPClient_AsyncPost_Call struct {
 }
 
 // AsyncPost is a helper method to define mock.On call
-//   - url
-//   - body
-//   - headers
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncPost(url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPost_Call {
 	return &MockAsyncHTTPClient_AsyncPost_Call{Call: _e.mock.On("AsyncPost",
 		append([]interface{}{url, body}, headers...)...)}
@@ -719,13 +844,27 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncPost(url interface{}, body interfac
 
 func (_c *MockAsyncHTTPClient_AsyncPost_Call) Run(run func(url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPost_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 any
+		if args[1] != nil {
+			arg1 = args[1].(any)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), args[1].(any), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -773,10 +912,10 @@ type MockAsyncHTTPClient_AsyncPostWithContext_Call struct {
 }
 
 // AsyncPostWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - body
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncPostWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPostWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncPostWithContext_Call{Call: _e.mock.On("AsyncPostWithContext",
 		append([]interface{}{ctx, url, body}, headers...)...)}
@@ -784,13 +923,32 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncPostWithContext(ctx interface{}, ur
 
 func (_c *MockAsyncHTTPClient_AsyncPostWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPostWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 any
+		if args[2] != nil {
+			arg2 = args[2].(any)
+		}
+		var arg3 []http.Header
 		variadicArgs := make([]http.Header, len(args)-3)
 		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), args[2].(any), variadicArgs...)
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
 	})
 	return _c
 }
@@ -838,9 +996,9 @@ type MockAsyncHTTPClient_AsyncPut_Call struct {
 }
 
 // AsyncPut is a helper method to define mock.On call
-//   - url
-//   - body
-//   - headers
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncPut(url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPut_Call {
 	return &MockAsyncHTTPClient_AsyncPut_Call{Call: _e.mock.On("AsyncPut",
 		append([]interface{}{url, body}, headers...)...)}
@@ -848,13 +1006,27 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncPut(url interface{}, body interface
 
 func (_c *MockAsyncHTTPClient_AsyncPut_Call) Run(run func(url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPut_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 any
+		if args[1] != nil {
+			arg1 = args[1].(any)
+		}
+		var arg2 []http.Header
 		variadicArgs := make([]http.Header, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(string), args[1].(any), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -902,10 +1074,10 @@ type MockAsyncHTTPClient_AsyncPutWithContext_Call struct {
 }
 
 // AsyncPutWithContext is a helper method to define mock.On call
-//   - ctx
-//   - url
-//   - body
-//   - headers
+//   - ctx context.Context
+//   - url string
+//   - body any
+//   - headers ...http.Header
 func (_e *MockAsyncHTTPClient_Expecter) AsyncPutWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPutWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncPutWithContext_Call{Call: _e.mock.On("AsyncPutWithContext",
 		append([]interface{}{ctx, url, body}, headers...)...)}
@@ -913,13 +1085,32 @@ func (_e *MockAsyncHTTPClient_Expecter) AsyncPutWithContext(ctx interface{}, url
 
 func (_c *MockAsyncHTTPClient_AsyncPutWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPutWithContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 any
+		if args[2] != nil {
+			arg2 = args[2].(any)
+		}
+		var arg3 []http.Header
 		variadicArgs := make([]http.Header, len(args)-3)
 		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(http.Header)
 			}
 		}
-		run(args[0].(context.Context), args[1].(string), args[2].(any), variadicArgs...)
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
 	})
 	return _c
 }

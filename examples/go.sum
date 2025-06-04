@@ -77,8 +77,10 @@ github.com/prometheus/procfs v0.15.1/go.mod h1:fB45yRUv8NstnjriLhBQLuOUt+WW4BsoG
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
 github.com/rs/xid v1.5.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
+github.com/rs/xid v1.6.0/go.mod h1:7XoLgs4eV+QndskICGsho+ADou8ySMSjJKDIan90Nz0=
 github.com/rs/zerolog v1.33.0 h1:1cU2KZkvPxNyfgEmhHAz/1A9Bz+llsdYzklWFzgp0r8=
 github.com/rs/zerolog v1.33.0/go.mod h1:/7mN4D5sKwJLZQ2b/znpjC3/GQWY/xaDXUM0kKWRHss=
+github.com/rs/zerolog v1.34.0/go.mod h1:bJsvje4Z08ROH4Nhs5iH600c3IkWhwp44iRc54W6wYQ=
 github.com/sagikazarmark/locafero v0.7.0 h1:5MqpDsTGNDhY8sGp0Aowyf0qKsPrhewaLSsFaodPcyo=
 github.com/sagikazarmark/locafero v0.7.0/go.mod h1:2za3Cg5rMaTMoG/2Ulr9AwtFaIppKXTRYnozin4aB5k=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
@@ -98,6 +100,8 @@ github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.26 h1:siwhMwY7Gao8l/vxGScObNpqGvGd5bzY/n2rR8Yp9BI=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.26/go.mod h1:S12LQ0basuoWOYZ0aHMuBQmp7/ufwhtLHEnnYeVai2w=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.32 h1:/TWHpL3X51oRJnXqICi94kVJiY1bhe/CVVFLBBrkQUk=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.32/go.mod h1:jY4vD+Q/gfel7wXmQLPDtu337WMRfIqqBEAZXCi7P4w=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.24 h1:lRWutfwDu/DW18UYwXjwsg6ub7uG3z/2gwSwaSAW4RA=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.24/go.mod h1:YbNKnfv+jmrLNG8yLn1TIVvEmSazNeXQFjYOv6IzxJk=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.26/go.mod h1:QjnzAE8RRjccnHWLx1i2iQ6tZS0MCgv2ziTCA9nJLWk=
@@ -117,6 +121,8 @@ gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.34 h1:eW1mDYGQaYOhUOf
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.34/go.mod h1:xex8I85c8JS465xTLDwvwlvOvmfmQCXEklwK2hfgf28=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.36 h1:izmFepY6MYBUe2H2f14n6lGb5GhHUB3kwnyG3QMpY7I=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.36/go.mod h1:xex8I85c8JS465xTLDwvwlvOvmfmQCXEklwK2hfgf28=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.38 h1:lDYW2OYBNUK+/RDoEe3KQhF6RT0CnTu4vxRGl7zRPic=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.38/go.mod h1:WEYYPIFFv5hCX0HumP8MEmRlAxKduBYTZrVY3yoLJq4=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.36 h1:wjm4KfF2KbqF7DbRoTpio2gp/k2CURj0SNtUtBBR0C4=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.36/go.mod h1:i9v3yKC2MMbo/bKwAbstbtY9sJOy/oJHz1ah4MXJ5lQ=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.40 h1:HHszHXBDUQPjNcSR9I9snOWksUnCo21a3pH/1obfLuQ=
@@ -135,6 +141,8 @@ gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.54 h1:mhCvANCvnr
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.54/go.mod h1:W/xVeAvc/1kmpkUdirAUZrNlAYqOfQ/40qp0y92/3Lo=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.56 h1:4UF7tkAqzDAzsfPvISvBVw7XQYKrdWgGHJ8P6KI4xEs=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.56/go.mod h1:5D6TDQBpQy9LPi9VkXVSg3bYIBzjJwOuUmMO5LWGbuw=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.58 h1:kMxTG409rpcK0HliksMDD5bKrCjCPWMy5kmC6YOfktQ=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.58/go.mod h1:5D6TDQBpQy9LPi9VkXVSg3bYIBzjJwOuUmMO5LWGbuw=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.20 h1:9O9qWfiH409bzEsZApHg6JN/pJkYp+DT+VwNzbIbyAw=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.20/go.mod h1:cax7bWttFVqunEjzQTRNvW7IIf3vVNE8nifw4fAlP5I=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
@@ -214,6 +222,7 @@ google.golang.org/grpc v1.71.1 h1:ffsFWr7ygTUscGPI0KKK6TLrGz0476KUvvsbqWK0rPI=
 google.golang.org/grpc v1.71.1/go.mod h1:H0GRtasmQOh9LkFoCPDu3ZrwUtD1YGE+b2vYBYd/8Ec=
 google.golang.org/grpc v1.72.0/go.mod h1:wH5Aktxcg25y1I3w7H69nHfXdOG3UiadoBtjh3izSDM=
 google.golang.org/grpc v1.72.1/go.mod h1:wH5Aktxcg25y1I3w7H69nHfXdOG3UiadoBtjh3izSDM=
+google.golang.org/grpc v1.72.2/go.mod h1:wH5Aktxcg25y1I3w7H69nHfXdOG3UiadoBtjh3izSDM=
 google.golang.org/protobuf v1.36.5 h1:tPhr+woSbjfYvY6/GPufUoYizxw1cF/yFoxJ2fmpwlM=
 google.golang.org/protobuf v1.36.5/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
 google.golang.org/protobuf v1.36.6/go.mod h1:jduwjTPXsFjZGTmRluh+L6NjiWu7pchiJ2/5YcXBHnY=

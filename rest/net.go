@@ -435,7 +435,7 @@ func (r *Client) setupTransport() http.RoundTripper {
 	transportOnce.Do(func() {
 		if dfltTransport == nil {
 			dfltTransport = &http.Transport{
-				MaxIdleConnsPerHost:   DefaultMaxIdleConnsPerHost,
+				MaxIdleConnsPerHost:   http.DefaultMaxIdleConnsPerHost,
 				Proxy:                 http.ProxyFromEnvironment,
 				DialContext:           r.getDialContext(),
 				ResponseHeaderTimeout: r.getRequestTimeout(),

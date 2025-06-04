@@ -4,9 +4,9 @@ go 1.24.3
 
 require (
 	github.com/prometheus/client_golang v1.22.0
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.26
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.36
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.56
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.32
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.38
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.58
 	go.opentelemetry.io/otel v1.36.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.36.0
 	go.opentelemetry.io/otel/sdk v1.36.0
@@ -34,7 +34,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
-	github.com/rs/zerolog v1.33.0 // indirect
+	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
@@ -61,7 +61,7 @@ require (
 	golang.org/x/text v0.25.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250519155744-55703ea1f237 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
-	google.golang.org/grpc v1.72.1 // indirect
+	google.golang.org/grpc v1.72.2 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

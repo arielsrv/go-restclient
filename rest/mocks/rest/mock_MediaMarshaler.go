@@ -118,14 +118,20 @@ type MockMediaMarshaler_Marshal_Call struct {
 }
 
 // Marshal is a helper method to define mock.On call
-//   - body
+//   - body any
 func (_e *MockMediaMarshaler_Expecter) Marshal(body interface{}) *MockMediaMarshaler_Marshal_Call {
 	return &MockMediaMarshaler_Marshal_Call{Call: _e.mock.On("Marshal", body)}
 }
 
 func (_c *MockMediaMarshaler_Marshal_Call) Run(run func(body any)) *MockMediaMarshaler_Marshal_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(any))
+		var arg0 any
+		if args[0] != nil {
+			arg0 = args[0].(any)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }
