@@ -5,8 +5,8 @@ go 1.24.3
 require (
 	github.com/prometheus/client_golang v1.22.0
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.32
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.38
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.58
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.40
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.60
 	go.opentelemetry.io/otel v1.36.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.36.0
 	go.opentelemetry.io/otel/sdk v1.36.0
@@ -58,7 +58,7 @@ require (
 	golang.org/x/text v0.25.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250519155744-55703ea1f237 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
-	google.golang.org/grpc v1.72.2 // indirect
+	google.golang.org/grpc v1.73.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

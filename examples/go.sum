@@ -95,8 +95,12 @@ gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.26 h1:rzT
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.26/go.mod h1:QjnzAE8RRjccnHWLx1i2iQ6tZS0MCgv2ziTCA9nJLWk=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.38 h1:lDYW2OYBNUK+/RDoEe3KQhF6RT0CnTu4vxRGl7zRPic=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.38/go.mod h1:WEYYPIFFv5hCX0HumP8MEmRlAxKduBYTZrVY3yoLJq4=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.40 h1:FEXw+vL2m5lq908DhAexSl3oywOk95ifksDr1MkPsYA=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.40/go.mod h1:j8YaGJ6T+0pm4OWzj1J/dmgGSg44bxRrcyw7owH2r0s=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.58 h1:kMxTG409rpcK0HliksMDD5bKrCjCPWMy5kmC6YOfktQ=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.58/go.mod h1:5D6TDQBpQy9LPi9VkXVSg3bYIBzjJwOuUmMO5LWGbuw=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.60 h1:XuaabsTtRZ6VrVtPm91V4451rk8lEqLjdL+eUndHOTM=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.60/go.mod h1:bGxCndoDYtOWzWsPEZaRepxdosJa9vBDctWJtMakS5g=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.20 h1:9O9qWfiH409bzEsZApHg6JN/pJkYp+DT+VwNzbIbyAw=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.20/go.mod h1:cax7bWttFVqunEjzQTRNvW7IIf3vVNE8nifw4fAlP5I=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
@@ -144,6 +148,7 @@ google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 h1:
 google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237/go.mod h1:qQ0YXyHHx3XkvlzUtpXDkS29lDSafHMZBAZDc03LQ3A=
 google.golang.org/grpc v1.72.2 h1:TdbGzwb82ty4OusHWepvFWGLgIbNo1/SUynEN0ssqv8=
 google.golang.org/grpc v1.72.2/go.mod h1:wH5Aktxcg25y1I3w7H69nHfXdOG3UiadoBtjh3izSDM=
+google.golang.org/grpc v1.73.0/go.mod h1:50sbHOUqWoCQGI8V2HQLJM0B+LMlIUjNSZmow7EVBQc=
 google.golang.org/protobuf v1.36.6 h1:z1NpPI8ku2WgiWnf+t9wTPsn6eP1L7ksHUlkfLvd9xY=
 google.golang.org/protobuf v1.36.6/go.mod h1:jduwjTPXsFjZGTmRluh+L6NjiWu7pchiJ2/5YcXBHnY=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

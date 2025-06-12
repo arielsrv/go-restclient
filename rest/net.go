@@ -372,19 +372,14 @@ func checkMockup(reqURL string) (string, string, error) {
 //
 // Returns the configured http.Client.
 func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
-	// This will be executed only once per request builder
 	r.clientMtxOnce.Do(func() {
 		tr := r.setupTransport()
 
-		r.Client = &http.Client{
-			Transport: tr,
+		if r.EnableTrace {
+			tr = otelhttp.NewTransport(tr)
 		}
 
-		if r.EnableTrace {
-			r.Client = &http.Client{
-				Transport: otelhttp.NewTransport(r.Client.Transport),
-			}
-		}
+		baseClient := &http.Client{Transport: tr}
 
 		if r.OAuth != nil {
 			oauth := &clientcredentials.Config{
@@ -395,15 +390,19 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 				Scopes:         r.OAuth.Scopes,
 				EndpointParams: r.OAuth.EndpointParams,
 			}
-
-			r.Client = oauth.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
+			ctxWithClient := context.WithValue(ctx, oauth2.HTTPClient, baseClient)
+			baseClient = oauth.Client(ctxWithClient)
 		}
 
+		r.Client = baseClient
+
+		// Headers por defecto
 		for key, value := range r.DefaultHeaders {
 			r.defaultHeaders.Store(key, value)
 		}
 	})
 
+	// Redirect handling
 	if !r.FollowRedirect {
 		r.Client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
 			return errors.New("avoided redirect attempt")
@@ -412,13 +411,13 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 		r.Client.CheckRedirect = defaultCheckRedirectFunc
 	}
 
+	// Default name
 	if r.Name == "" {
-		r.Name = func() string {
-			if hostname, err := os.Hostname(); err == nil {
-				return hostname
-			}
-			return "undefined"
-		}()
+		if hostname, err := os.Hostname(); err == nil {
+			r.Name = hostname
+		} else {
+			r.Name = "undefined"
+		}
 	}
 
 	return r.Client
