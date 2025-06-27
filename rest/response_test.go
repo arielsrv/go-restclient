@@ -1,9 +1,12 @@
 package rest_test
 
 import (
+	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -241,4 +244,42 @@ func TestFillUp_Detection(t *testing.T) {
 	require.Error(t, err)
 	require.Empty(t, user)
 	require.Contains(t, err.Error(), "unsupported content type: text/plain")
+}
+
+func TestClient_GetWithContext_ConcurrentResponses(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"ok":true}`)
+	}))
+	defer srv.Close()
+
+	client := &rest.Client{
+		BaseURL:     srv.URL,
+		ContentType: rest.JSON,
+	}
+
+	const n = 100
+	var wg sync.WaitGroup
+	errs := make(chan error, n)
+
+	for range n {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp := client.GetWithContext(t.Context(), "/")
+			if resp.Err != nil {
+				errs <- fmt.Errorf("request error: %w", resp.Err)
+				return
+			}
+			if resp.String() != `{"ok":true}` {
+				errs <- fmt.Errorf("unexpected response: %q", resp.String())
+			}
+		}()
+	}
+	wg.Wait()
+	close(errs)
+
+	for err := range errs {
+		t.Error(err)
+	}
 }

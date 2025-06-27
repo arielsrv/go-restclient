@@ -373,14 +373,14 @@ func checkMockup(reqURL string) (string, string, error) {
 // Returns the configured http.Client.
 func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 	r.clientMtxOnce.Do(func() {
-		tr := r.setupTransport()
+		r.clientMtx.Lock()
+		defer r.clientMtx.Unlock()
 
+		tr := r.setupTransport()
 		if r.EnableTrace {
 			tr = otelhttp.NewTransport(tr)
 		}
-
 		baseClient := &http.Client{Transport: tr}
-
 		if r.OAuth != nil {
 			oauth := &clientcredentials.Config{
 				ClientID:       r.OAuth.ClientID,
@@ -393,33 +393,33 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 			ctxWithClient := context.WithValue(ctx, oauth2.HTTPClient, baseClient)
 			baseClient = oauth.Client(ctxWithClient)
 		}
-
 		r.Client = baseClient
 
-		// Headers por defecto
+		// Redirect handling
+		if !r.FollowRedirect {
+			r.Client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
+				return errors.New("avoided redirect attempt")
+			}
+		} else {
+			r.Client.CheckRedirect = defaultCheckRedirectFunc
+		}
+
+		// Default name
+		if r.Name == "" {
+			if hostname, err := os.Hostname(); err == nil {
+				r.Name = hostname
+			} else {
+				r.Name = "undefined"
+			}
+		}
+
 		for key, value := range r.DefaultHeaders {
 			r.defaultHeaders.Store(key, value)
 		}
 	})
 
-	// Redirect handling
-	if !r.FollowRedirect {
-		r.Client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
-			return errors.New("avoided redirect attempt")
-		}
-	} else {
-		r.Client.CheckRedirect = defaultCheckRedirectFunc
-	}
-
-	// Default name
-	if r.Name == "" {
-		if hostname, err := os.Hostname(); err == nil {
-			r.Name = hostname
-		} else {
-			r.Name = "undefined"
-		}
-	}
-
+	r.clientMtx.Lock()
+	defer r.clientMtx.Unlock()
 	return r.Client
 }
 

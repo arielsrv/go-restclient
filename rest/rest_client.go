@@ -103,7 +103,8 @@ type Client struct {
 	// ContentType
 	ContentType ContentType
 
-	// clientMtxOnce protects the http.Client
+	// clientMtx protects the http.Client
+	clientMtx     sync.Mutex
 	clientMtxOnce sync.Once
 
 	// Enable internal caching of Responses
