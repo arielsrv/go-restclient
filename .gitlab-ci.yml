@@ -10,7 +10,6 @@ variables:
   GOTESTSUM_CACHE: $CI_PROJECT_DIR/gotestsum/.cache
   CGO_ENABLED: 0
   GOEXPERIMENT: nocoverageredesign
-  GOFLAGS: "-mod=mod"
   GORACE: "halt_on_error=1"
   GOTESTSUM_FORMAT: "testname"
   GOLANGCI_LINT_TIMEOUT: "5m"
