@@ -27,7 +27,7 @@ release:
     - go mod download
 
     # Build
-    - go build ./...
+    - go build -v ./...
 
     # Test Report [artifacts:reports:junit]
     - echo -e "\033[1;34m> Test Report\033[0m"
