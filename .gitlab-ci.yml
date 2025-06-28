@@ -52,7 +52,7 @@ build:
 
     # 🧪 Optimized tests with race detection and coverage
     - echo "🧪 Running comprehensive tests..."
-    - go test -race -v -timeout=10m -coverprofile=coverage.out -covermode=atomic ./...
+    - CGO_ENABLED=1 go test -race -v -timeout=10m -coverprofile=coverage.out -covermode=atomic ./...
     - echo "✅ Tests completed"
 
     # 📊 Optimized coverage reports
@@ -69,7 +69,7 @@ build:
 
     # 🔍 Optimized linting
     - echo "🔍 Running code quality checks..."
-    - go tool golangci-lint run --timeout=${GOLANGCI_LINT_TIMEOUT} --out-format=json > gl-code-quality-report.json || true
+    - go tool golangci-lint run --timeout=${GOLANGCI_LINT_TIMEOUT} || true
     - echo "✅ Code quality checks completed"
     - echo "✅ All checks completed successfully"
 
