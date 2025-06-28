@@ -157,8 +157,7 @@ release:
     - test-report
     - build
   script:
-    - echo "🚀 Release validation completed"
-    - echo "Coverage: $(grep 'total:' coverage-func.txt | awk '{print $3}')"
+    - echo "Release validation completed successfully"
   only:
     - main
     - merge_request
