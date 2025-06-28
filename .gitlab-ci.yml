@@ -26,103 +26,38 @@ variables:
       - ${GOTESTSUM_CACHE}/
 
 stages:
-  - prepare
-  - test
-  - quality
-  - report
+  - package
 
-# Prepare dependencies
-prepare:
+build:
   extends: .go-cache
-  stage: prepare
+  stage: package
   script:
+    # Download
     - go mod download
     - go mod verify
-  artifacts:
-    paths:
-      - ${GOMODCACHE}/
-    expire_in: 1 hour
 
-# Run tests with race detection
-test:
-  extends: .go-cache
-  stage: test
-  needs:
-    - prepare
-  script:
-    - echo "🧪 Running tests with race detection..."
-    - go test -race -v -timeout=10m ./... -json | tee test-results.json
-    - go test -race -v -timeout=10m ./... -coverprofile=coverage.out
-    - go tool cover -func=coverage.out | tee coverage-func.txt
-    - echo "✅ Tests completed successfully"
-  artifacts:
-    when: always
-    paths:
-      - test-results.json
-      - coverage.out
-      - coverage-func.txt
-    expire_in: 1 week
-  coverage: "/\\(statements\\)\\s+\\d+.?\\d+%/"
+    # Build
+    - go build -v -ldflags="-s -w" ./...
 
-# Run benchmarks
-benchmark:
-  extends: .go-cache
-  stage: test
-  needs:
-    - prepare
-  script:
-    - echo "🏃 Running benchmarks..."
-    - go test -bench=. -benchmem -v ./rest/... | tee benchmark-results.txt
-    - echo "✅ Benchmarks completed"
-  artifacts:
-    when: always
-    paths:
-      - benchmark-results.txt
-    expire_in: 1 week
-
-# Run linter
-lint:
-  extends: .go-cache
-  stage: quality
-  needs:
-    - prepare
-  script:
-    - echo "🔍 Running linter..."
-    - golangci-lint run --timeout=5m --out-format=json > gl-code-quality-report.json || true
-    - echo "✅ Linting completed"
-  artifacts:
-    when: always
-    reports:
-      codequality: gl-code-quality-report.json
-    paths:
-      - gl-code-quality-report.json
-    expire_in: 1 week
-
-# Security scan
-security:
-  extends: .go-cache
-  stage: quality
-  needs:
-    - prepare
-  script:
-    - echo "🔒 Running security scan..."
-    - go list -json -deps ./... | nancy sleuth
-    - echo "✅ Security scan completed"
-  allow_failure: true
-
-# Generate test reports
-test-report:
-  extends: .go-cache
-  stage: report
-  needs:
-    - test
-    - benchmark
-  script:
-    - echo "📊 Generating test reports..."
+    # Test Report [artifacts:reports:junit]
+    - echo -e "\033[1;34m> Test Report\033[0m"
     - go tool gotestsum --junitfile report.xml --format testname
-    - go tool cover -html=coverage.out -o coverage-report.html
-    - go tool gocover-cobertura <coverage.out >coverage.xml
-    - echo "✅ Reports generated"
+
+    # Coverage Badge
+    - echo -e "\033[1;34m> Coverage Badge\033[0m"
+    - GOEXPERIMENT=nocoverageredesign CGO_ENABLED=0 go test ./... -coverprofile=coverage-report.out
+    - go tool cover -html=coverage-report.out -o coverage-report.html
+    - go tool cover -func=coverage-report.out
+
+    # Coverage Report [artifacts:reports:coverage_reports]
+    - echo -e "\033[1;34m> Coverage Report\033[0m"
+    - GOEXPERIMENT=nocoverageredesign go test ./... -coverprofile=coverage.txt -covermode count
+    - go tool gocover-cobertura <coverage.txt >coverage.xml
+
+    # Linter  [artifacts:reports:codequality]
+    - echo -e "\033[1;34m> Linter\033[0m"
+    - go tool golangci-lint run
+
   artifacts:
     when: always
     reports:
@@ -130,35 +65,12 @@ test-report:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+      codequality: gl-code-quality-report.json
     paths:
       - coverage-report.html
-      - coverage.xml
-      - report.xml
-    expire_in: 1 month
-
-# Build and verify
-build:
-  extends: .go-cache
-  stage: report
-  needs:
-    - test
-    - lint
-  script:
-    - echo "🔨 Building project..."
-    - go build -v -ldflags="-s -w" ./...
-    - echo "✅ Build completed successfully"
+      - gl-code-quality-report.json
+  coverage: "/\\(statements\\)\\s+\\d+.?\\d+%/"
   allow_failure: false
-
-# Release job (only for main branch and merge requests)
-release:
-  extends: .go-cache
-  stage: report
-  needs:
-    - test-report
-    - build
-  script:
-    - echo "Release validation completed successfully"
   only:
     - main
     - merge_request
-  allow_failure: false
