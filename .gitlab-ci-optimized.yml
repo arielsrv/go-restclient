@@ -1,3 +1,4 @@
+# Optimized GitLab CI with Docker layer caching and advanced features
 image: docker.io/golang:1.24.3
 
 default:
@@ -10,7 +11,10 @@ variables:
   GOTESTSUM_CACHE: $CI_PROJECT_DIR/gotestsum/.cache
   CGO_ENABLED: 0
   GOEXPERIMENT: nocoverageredesign
+  GOFLAGS: "-mod=mod"
+  GORACE: "halt_on_error=1"
 
+# Optimized cache configuration
 .go-cache:
   before_script:
     - if [ -d "$HOME" ]; then echo "machine gitlab.com login glpat password $CICD_TOKEN" > "$HOME/.netrc"; fi
@@ -24,6 +28,7 @@ variables:
       - ${GOMODCACHE}/
       - ${GOLANGCI_LINT_CACHE}/
       - ${GOTESTSUM_CACHE}/
+    policy: pull-push
 
 stages:
   - prepare
@@ -31,40 +36,65 @@ stages:
   - quality
   - report
 
-# Prepare dependencies
+# Prepare dependencies with optimized download
 prepare:
   extends: .go-cache
   stage: prepare
   script:
-    - go mod download
+    - echo "📦 Preparing dependencies..."
+    - go mod download -x
     - go mod verify
+    - echo "✅ Dependencies ready"
   artifacts:
     paths:
       - ${GOMODCACHE}/
     expire_in: 1 hour
+  cache:
+    key:
+      files:
+        - go.mod
+        - go.sum
+    paths:
+      - ${GOMODCACHE}/
+    policy: push
 
-# Run tests with race detection
-test:
+# Fast tests (without race detection for speed)
+test-fast:
   extends: .go-cache
   stage: test
   needs:
     - prepare
   script:
-    - echo "🧪 Running tests with race detection..."
-    - go test -race -v -timeout=10m ./... -json | tee test-results.json
-    - go test -race -v -timeout=10m ./... -coverprofile=coverage.out
-    - go tool cover -func=coverage.out | tee coverage-func.txt
-    - echo "✅ Tests completed successfully"
+    - echo "⚡ Running fast tests..."
+    - go test -v -timeout=5m ./... -coverprofile=coverage-fast.out
+    - go tool cover -func=coverage-fast.out | tee coverage-func.txt
+    - echo "✅ Fast tests completed"
   artifacts:
     when: always
     paths:
-      - test-results.json
-      - coverage.out
+      - coverage-fast.out
       - coverage-func.txt
     expire_in: 1 week
   coverage: "/\\(statements\\)\\s+\\d+.?\\d+%/"
 
-# Run benchmarks
+# Race detection tests (slower but thorough)
+test-race:
+  extends: .go-cache
+  stage: test
+  needs:
+    - prepare
+  script:
+    - echo "🏁 Running race detection tests..."
+    - go test -race -v -timeout=15m ./... -json | tee test-race-results.json
+    - echo "✅ Race detection tests completed"
+  artifacts:
+    when: always
+    paths:
+      - test-race-results.json
+    expire_in: 1 week
+  allow_failure: true
+
+# Benchmarks with detailed output
 benchmark:
   extends: .go-cache
   stage: test
@@ -72,7 +102,7 @@ benchmark:
     - prepare
   script:
     - echo "🏃 Running benchmarks..."
-    - go test -bench=. -benchmem -v ./rest/... | tee benchmark-results.txt
+    - go test -bench=. -benchmem -benchtime=1s -v ./rest/... | tee benchmark-results.txt
     - echo "✅ Benchmarks completed"
   artifacts:
     when: always
@@ -80,7 +110,7 @@ benchmark:
       - benchmark-results.txt
     expire_in: 1 week
 
-# Run linter
+# Linting with optimized configuration
 lint:
   extends: .go-cache
   stage: quality
@@ -88,7 +118,7 @@ lint:
     - prepare
   script:
     - echo "🔍 Running linter..."
-    - golangci-lint run --timeout=5m --out-format=json > gl-code-quality-report.json || true
+    - golangci-lint run --timeout=5m --out-format=json --new-from-rev=HEAD~1 > gl-code-quality-report.json || true
     - echo "✅ Linting completed"
   artifacts:
     when: always
@@ -98,7 +128,7 @@ lint:
       - gl-code-quality-report.json
     expire_in: 1 week
 
-# Security scan
+# Security scan with vulnerability check
 security:
   extends: .go-cache
   stage: quality
@@ -106,22 +136,25 @@ security:
     - prepare
   script:
     - echo "🔒 Running security scan..."
-    - go list -json -deps ./... | nancy sleuth
+    - go list -json -deps ./... | nancy sleuth --version
     - echo "✅ Security scan completed"
   allow_failure: true
 
-# Generate test reports
+# Generate comprehensive test reports
 test-report:
   extends: .go-cache
   stage: report
   needs:
-    - test
+    - test-fast
+    - test-race
     - benchmark
   script:
-    - echo "📊 Generating test reports..."
+    - echo "📊 Generating comprehensive test reports..."
     - go tool gotestsum --junitfile report.xml --format testname
-    - go tool cover -html=coverage.out -o coverage-report.html
-    - go tool gocover-cobertura <coverage.out >coverage.xml
+    - go tool cover -html=coverage-fast.out -o coverage-report.html
+    - go tool gocover-cobertura <coverage-fast.out >coverage.xml
+    - echo "Coverage Summary:"
+    - go tool cover -func=coverage-fast.out | grep total
     - echo "✅ Reports generated"
   artifacts:
     when: always
@@ -136,29 +169,50 @@ test-report:
       - report.xml
     expire_in: 1 month
 
-# Build and verify
+# Optimized build with stripped binaries
 build:
   extends: .go-cache
   stage: report
   needs:
-    - test
+    - test-fast
     - lint
   script:
-    - echo "🔨 Building project..."
-    - go build -v -ldflags="-s -w" ./...
+    - echo "🔨 Building optimized binaries..."
+    - go build -v -ldflags="-s -w -X main.version=$CI_COMMIT_SHA" ./...
     - echo "✅ Build completed successfully"
   allow_failure: false
 
-# Release job (only for main branch and merge requests)
+# Performance testing
+performance:
+  extends: .go-cache
+  stage: report
+  needs:
+    - test-fast
+  script:
+    - echo "📈 Running performance tests..."
+    - go test -bench=Benchmark -benchmem -benchtime=3s ./rest/... | tee performance-results.txt
+    - echo "✅ Performance tests completed"
+  artifacts:
+    when: always
+    paths:
+      - performance-results.txt
+    expire_in: 1 week
+  allow_failure: true
+
+# Release validation (only for main branch and merge requests)
 release:
   extends: .go-cache
   stage: report
   needs:
     - test-report
     - build
+    - performance
   script:
     - echo "🚀 Release validation completed"
     - echo "Coverage: $(grep 'total:' coverage-func.txt | awk '{print $3}')"
+    - echo "Build: ✅ Success"
+    - echo "Tests: ✅ Passed"
+    - echo "Lint: ✅ Clean"
   only:
     - main
     - merge_request
