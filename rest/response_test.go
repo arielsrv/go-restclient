@@ -2118,7 +2118,7 @@ func TestClient_GetWithContext_ResponseMethods(t *testing.T) {
 		w.Header().Set("Cache-Control", "max-age=60")
 		w.Header().Set("ETag", `"test-etag"`)
 		w.Header().Set("Last-Modified", time.Now().Format(http.TimeFormat))
-		fmt.Fprint(w, `{"test":"data"}`)
+		_, _ = fmt.Fprint(w, `{"test":"data"}`)
 	}))
 	defer srv.Close()
 
