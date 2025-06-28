@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -1612,12 +1613,9 @@ func TestClient_GetWithContext_CacheEvictionAndConcurrency(t *testing.T) {
 	}
 }
 
-// TestClient_GetWithContext_ExtremeConcurrencyStress tests extreme concurrency
-// scenarios to find race conditions and maximize coverage.
-func TestClient_GetWithContext_ExtremeConcurrencyStress(t *testing.T) {
-	// Create a server that returns different responses based on various factors
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Simulate different response scenarios
+// createExtremeConcurrencyServer creates a test server that handles various response scenarios.
+func createExtremeConcurrencyServer() *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 		method := r.Method
 		contentType := r.Header.Get("Accept")
@@ -1630,12 +1628,12 @@ func TestClient_GetWithContext_ExtremeConcurrencyStress(t *testing.T) {
 			statusCode = http.StatusInternalServerError
 			response = `{"error":"internal server error"}`
 		case "/timeout":
-			time.Sleep(200 * time.Millisecond) // Simulate slow response
+			time.Sleep(200 * time.Millisecond)
 			statusCode = http.StatusOK
 			response = `{"status":"slow response"}`
 		case "/large":
 			statusCode = http.StatusOK
-			response = `{"data":"` + strings.Repeat("x", 50000) + `"}` // Very large response
+			response = `{"data":"` + strings.Repeat("x", 50000) + `"}`
 		case "/redirect":
 			statusCode = http.StatusMovedPermanently
 			w.Header().Set("Location", "/final")
@@ -1670,16 +1668,18 @@ func TestClient_GetWithContext_ExtremeConcurrencyStress(t *testing.T) {
 			fmt.Fprint(w, response)
 		}
 	}))
-	defer srv.Close()
+}
 
-	client := &rest.Client{
-		BaseURL:        srv.URL,
-		Timeout:        time.Duration(50) * time.Millisecond, // Very short timeout
+// createExtremeConcurrencyClient creates a client configured for extreme concurrency testing.
+func createExtremeConcurrencyClient(baseURL string) *rest.Client {
+	return &rest.Client{
+		BaseURL:        baseURL,
+		Timeout:        time.Duration(50) * time.Millisecond,
 		ConnectTimeout: time.Duration(50) * time.Millisecond,
 		EnableTrace:    true,
 		EnableCache:    true,
-		EnableGzip:     false, // Disable gzip to avoid issues
-		FollowRedirect: false, // Test redirect handling
+		EnableGzip:     false,
+		FollowRedirect: false,
 		CustomPool: &rest.CustomPool{
 			Transport: &http.Transport{
 				MaxIdleConns:        100,
@@ -1688,19 +1688,105 @@ func TestClient_GetWithContext_ExtremeConcurrencyStress(t *testing.T) {
 			},
 		},
 	}
+}
 
-	const n = 1000 // Reduced concurrency to avoid overwhelming
+// isExpectedError checks if an error is expected in extreme concurrency tests.
+func isExpectedError(err error, method, path string) bool {
+	if err == nil {
+		return false
+	}
+
+	errStr := err.Error()
+	return strings.Contains(errStr, "timeout") ||
+		strings.Contains(errStr, "context") ||
+		strings.Contains(errStr, "connection") ||
+		(strings.Contains(errStr, "redirect") && (method != "GET" || path == "/final"))
+}
+
+// executeRequest executes a single request based on method and parameters.
+func executeRequest(
+	ctx context.Context,
+	client *rest.Client,
+	method, path, contentType string,
+) (*rest.Response, error) {
+	var headers http.Header
+	if contentType != "" {
+		headers = http.Header{"Accept": {contentType}}
+	}
+
+	var body interface{}
+	if method == "POST" || method == "PUT" || method == "PATCH" {
+		body = map[string]interface{}{
+			"test":      "data",
+			"timestamp": time.Now().UnixNano(),
+		}
+	}
+
+	var resp *rest.Response
+	switch method {
+	case "GET":
+		resp = client.GetWithContext(ctx, path, headers)
+	case "POST":
+		resp = client.PostWithContext(ctx, path, body, headers)
+	case "PUT":
+		resp = client.PutWithContext(ctx, path, body, headers)
+	case "PATCH":
+		resp = client.PatchWithContext(ctx, path, body, headers)
+	case "DELETE":
+		resp = client.DeleteWithContext(ctx, path, headers)
+	case "HEAD":
+		resp = client.HeadWithContext(ctx, path, headers)
+	case "OPTIONS":
+		resp = client.OptionsWithContext(ctx, path, headers)
+	}
+
+	return resp, resp.Err
+}
+
+// testConcurrentResponseAccess tests concurrent access to response methods.
+func testConcurrentResponseAccess(resp *rest.Response) {
+	var wg sync.WaitGroup
+	wg.Add(5)
+
+	go func() {
+		defer wg.Done()
+		_ = resp.String()
+	}()
+
+	go func() {
+		defer wg.Done()
+		_ = resp.IsOk()
+	}()
+
+	go func() {
+		defer wg.Done()
+		_ = resp.VerifyIsOkOrError()
+	}()
+
+	go func() {
+		defer wg.Done()
+		_ = resp.Cached()
+	}()
+
+	go func() {
+		defer wg.Done()
+		var result map[string]interface{}
+		_ = resp.FillUp(&result)
+	}()
+
+	wg.Wait()
+}
+
+func TestClient_GetWithContext_ExtremeConcurrencyStress(t *testing.T) {
+	srv := createExtremeConcurrencyServer()
+	defer srv.Close()
+
+	client := createExtremeConcurrencyClient(srv.URL)
+
+	const n = 1000
 	paths := []string{
-		"/",
-		"/error",
-		"/timeout",
-		"/large",
-		"/redirect",
-		"/problem",
-		"/xml",
-		"/form",
-		"/empty",
-		"/headers",
+		"/", "/error", "/timeout", "/large", "/redirect",
+		"/problem", "/xml", "/form", "/empty", "/headers",
 	}
 	methods := []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
 	contentTypes := []string{"application/json", "application/xml", "text/plain", ""}
@@ -1720,50 +1806,13 @@ func TestClient_GetWithContext_ExtremeConcurrencyStress(t *testing.T) {
 					contentType := contentType
 
 					group.Go(func() error {
-						var resp *rest.Response
-						var headers http.Header
-
-						if contentType != "" {
-							headers = http.Header{"Accept": {contentType}}
-						}
-
-						// Add random body for POST/PUT/PATCH
-						var body interface{}
-						if method == "POST" || method == "PUT" || method == "PATCH" {
-							body = map[string]interface{}{
-								"test":      "data",
-								"timestamp": time.Now().UnixNano(),
+						resp, err := executeRequest(ctx, client, method, path, contentType)
+						if err != nil {
+							if isExpectedError(err, method, path) {
+								return nil
 							}
-						}
-
-						switch method {
-						case "GET":
-							resp = client.GetWithContext(ctx, path, headers)
-						case "POST":
-							resp = client.PostWithContext(ctx, path, body, headers)
-						case "PUT":
-							resp = client.PutWithContext(ctx, path, body, headers)
-						case "PATCH":
-							resp = client.PatchWithContext(ctx, path, body, headers)
-						case "DELETE":
-							resp = client.DeleteWithContext(ctx, path, headers)
-						case "HEAD":
-							resp = client.HeadWithContext(ctx, path, headers)
-						case "OPTIONS":
-							resp = client.OptionsWithContext(ctx, path, headers)
-						}
-
-						if resp.Err != nil {
-							// Some errors are expected (timeouts, etc.)
-							if strings.Contains(resp.Err.Error(), "timeout") ||
-								strings.Contains(resp.Err.Error(), "context") ||
-								strings.Contains(resp.Err.Error(), "connection") ||
-								(strings.Contains(resp.Err.Error(), "redirect") && (method != "GET" || path == "/final")) {
-								return nil // Expected error
-							}
-							// Only send unexpected errors to the channel
-							errs <- fmt.Errorf("%s %s error: %w", method, path, resp.Err)
-							return resp.Err
+							errs <- fmt.Errorf("%s %s error: %w", method, path, err)
+							return err
 						}
 
 						responses <- resp
@@ -1776,7 +1825,6 @@ func TestClient_GetWithContext_ExtremeConcurrencyStress(t *testing.T) {
 
 	err := group.Wait()
 	if err != nil && strings.Contains(err.Error(), "redirect") && strings.Contains(err.Error(), "/final") {
-		// Ignorar error esperado de redirect en /final
 		err = nil
 	}
 	require.NoError(t, err)
@@ -1790,7 +1838,6 @@ func TestClient_GetWithContext_ExtremeConcurrencyStress(t *testing.T) {
 
 	for err := range errs {
 		errorCount++
-		// Don't log expected redirect errors for /final
 		if !strings.Contains(err.Error(), "redirect") || !strings.Contains(err.Error(), "/final") {
 			t.Logf("Error: %v", err)
 		}
@@ -1799,38 +1846,7 @@ func TestClient_GetWithContext_ExtremeConcurrencyStress(t *testing.T) {
 	for resp := range responses {
 		responseCount++
 		statusCodes[resp.StatusCode]++
-
-		// Test concurrent access to response methods
-		var wg sync.WaitGroup
-		wg.Add(5)
-
-		go func() {
-			defer wg.Done()
-			_ = resp.String()
-		}()
-
-		go func() {
-			defer wg.Done()
-			_ = resp.IsOk()
-		}()
-
-		go func() {
-			defer wg.Done()
-			_ = resp.VerifyIsOkOrError()
-		}()
-
-		go func() {
-			defer wg.Done()
-			_ = resp.Cached()
-		}()
-
-		go func() {
-			defer wg.Done()
-			var result map[string]interface{}
-			_ = resp.FillUp(&result)
-		}()
-
-		wg.Wait()
+		testConcurrentResponseAccess(resp)
 	}
 
 	t.Logf("Extreme concurrency test results:")

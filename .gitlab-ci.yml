@@ -37,7 +37,7 @@ build:
     - go mod verify
 
     # Build
-    - go build -v -ldflags="-s -w" ./...
+    - go build -ldflags="-s -w" ./...
 
     # Test Report [artifacts:reports:junit]
     - echo -e "\033[1;34m> Test Report\033[0m"
