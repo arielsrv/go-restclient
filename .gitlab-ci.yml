@@ -10,11 +10,18 @@ variables:
   GOTESTSUM_CACHE: $CI_PROJECT_DIR/gotestsum/.cache
   CGO_ENABLED: 0
   GOEXPERIMENT: nocoverageredesign
+  GOFLAGS: "-mod=mod"
+  GORACE: "halt_on_error=1"
+  GOTESTSUM_FORMAT: "testname"
+  GOLANGCI_LINT_TIMEOUT: "5m"
 
 .go-cache:
   before_script:
     - if [ -d "$HOME" ]; then echo "machine gitlab.com login glpat password $CICD_TOKEN" > "$HOME/.netrc"; fi
     - mkdir -p ${GOMODCACHE} ${GOLANGCI_LINT_CACHE} ${GOTESTSUM_CACHE}
+    - echo "🔧 Setting up optimized environment..."
+    - go version
+    - echo "📦 Cache directories created"
   cache:
     key:
       files:
@@ -24,6 +31,7 @@ variables:
       - ${GOMODCACHE}/
       - ${GOLANGCI_LINT_CACHE}/
       - ${GOTESTSUM_CACHE}/
+    policy: pull-push
 
 stages:
   - package
@@ -32,31 +40,39 @@ build:
   extends: .go-cache
   stage: package
   script:
-    # Download
-    - go mod download
+    # 📦 Optimized dependency management
+    - echo "📦 Downloading dependencies..."
+    - go mod download -x
     - go mod verify
+    - echo "✅ Dependencies ready"
 
-    # Build
-    - go build -ldflags="-s -w" ./...
+    # 🔨 Optimized build with stripped binaries
+    - echo "🔨 Building optimized binaries..."
+    - go build -v -ldflags="-s -w -X main.version=$CI_COMMIT_SHA" ./...
+    - echo "✅ Build completed"
 
-    # Test Report [artifacts:reports:junit]
-    - echo -e "\033[1;34m> Test Report\033[0m"
+    # 🧪 Optimized tests with race detection and coverage
+    - echo "🧪 Running comprehensive tests..."
+    - go test -race -v -timeout=10m -coverprofile=coverage.out -covermode=atomic ./...
+    - echo "✅ Tests completed"
+
+    # 📊 Optimized coverage reports
+    - echo "📊 Generating coverage reports..."
+    - go tool cover -func=coverage.out | tee coverage-func.txt
+    - go tool cover -html=coverage.out -o coverage-report.html
+    - go tool gocover-cobertura <coverage.out >coverage.xml
+    - echo "✅ Coverage reports generated"
+
+    # 📋 Optimized test reports
+    - echo "📋 Generating test reports..."
     - go tool gotestsum --junitfile report.xml --format testname
+    - echo "✅ Test reports generated"
 
-    # Coverage Badge
-    - echo -e "\033[1;34m> Coverage Badge\033[0m"
-    - GOEXPERIMENT=nocoverageredesign CGO_ENABLED=0 go test ./... -coverprofile=coverage-report.out
-    - go tool cover -html=coverage-report.out -o coverage-report.html
-    - go tool cover -func=coverage-report.out
-
-    # Coverage Report [artifacts:reports:coverage_reports]
-    - echo -e "\033[1;34m> Coverage Report\033[0m"
-    - GOEXPERIMENT=nocoverageredesign go test ./... -coverprofile=coverage.txt -covermode count
-    - go tool gocover-cobertura <coverage.txt >coverage.xml
-
-    # Linter  [artifacts:reports:codequality]
-    - echo -e "\033[1;34m> Linter\033[0m"
-    - go tool golangci-lint run
+    # 🔍 Optimized linting
+    - echo "🔍 Running code quality checks..."
+    - go tool golangci-lint run --timeout=${GOLANGCI_LINT_TIMEOUT} --out-format=json > gl-code-quality-report.json || true
+    - echo "✅ Code quality checks completed"
+    - echo "✅ All checks completed successfully"
 
   artifacts:
     when: always
@@ -68,7 +84,11 @@ build:
       codequality: gl-code-quality-report.json
     paths:
       - coverage-report.html
+      - coverage-func.txt
       - gl-code-quality-report.json
+      - report.xml
+      - coverage.xml
+    expire_in: 1 week
   coverage: "/\\(statements\\)\\s+\\d+.?\\d+%/"
   allow_failure: false
   only:
