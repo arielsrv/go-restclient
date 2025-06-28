@@ -58,8 +58,8 @@ const (
 
 var (
 	// MaxCacheSize is the maximum byte size to be held by the resourceTTLLfuMap.
-	// Default is 1GB.
-	MaxCacheSize = 1 * GB
+	// Default is 256Mb.
+	MaxCacheSize = 256 * MB
 
 	// NumCounters is the number of keys to track frequency of (100K).
 	NumCounters = 1e5
@@ -70,10 +70,10 @@ var (
 
 // init initializes the resourceTTLLfuMap with a Ristretto cache.
 // It configures the cache with the specified MaxCacheSize, NumCounters, and BufferItems,
-// and enables metrics collection.
+// and enables a metrics collection.
 func init() {
 	cache, _ := ristretto.NewCache(&ristretto.Config[string, weak.Pointer[Response]]{
-		MaxCost:     int64(MaxCacheSize), // maximum cost of cache (1GB by default)
+		MaxCost:     int64(MaxCacheSize), // maximum cost of cache (256Mb by default)
 		NumCounters: int64(NumCounters),  // number of keys to track frequency of (100K)
 		BufferItems: int64(BufferItems),  // number of keys per Get buffer
 		Metrics:     true,                // enable metrics collection
