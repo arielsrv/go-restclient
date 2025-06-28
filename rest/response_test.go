@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
-	"sync"
 	"testing"
+	"time"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/stretchr/testify/require"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
@@ -254,29 +256,42 @@ func TestClient_GetWithContext_ConcurrentResponses(t *testing.T) {
 	defer srv.Close()
 
 	client := &rest.Client{
-		BaseURL:     srv.URL,
-		ContentType: rest.JSON,
+		BaseURL:        srv.URL,
+		Timeout:        time.Duration(100) * time.Millisecond,
+		ConnectTimeout: time.Duration(100) * time.Millisecond,
+		EnableTrace:    true,
+		CustomPool: &rest.CustomPool{
+			Transport: &http.Transport{
+				MaxIdleConns:        2,
+				MaxConnsPerHost:     2,
+				MaxIdleConnsPerHost: 2,
+			},
+		},
 	}
 
-	const n = 100
-	var wg sync.WaitGroup
+	const n = 1000
+
 	errs := make(chan error, n)
 
+	group, ctx := errgroup.WithContext(t.Context())
 	for range n {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			resp := client.GetWithContext(t.Context(), "/")
+		group.Go(func() error {
+			resp := client.GetWithContext(ctx, "/", http.Header{
+				"X-Test": {"123"},
+			})
 			if resp.Err != nil {
 				errs <- fmt.Errorf("request error: %w", resp.Err)
-				return
+				return resp.Err
 			}
 			if resp.String() != `{"ok":true}` {
-				errs <- fmt.Errorf("unexpected response: %q", resp.String())
+				err := fmt.Errorf("unexpected response: %q", resp.String())
+				errs <- err
+				return err
 			}
-		}()
+			return nil
+		})
 	}
-	wg.Wait()
+	require.NoError(t, group.Wait())
 	close(errs)
 
 	for err := range errs {
