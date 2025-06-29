@@ -255,14 +255,329 @@ client := &rest.Client{
 
 Explore comprehensive examples in the `examples/` directory:
 
-- [Basic JSON](examples/json/basic/main.go) - Simple JSON requests
-- [OAuth2](examples/json/oauth/main.go) - OAuth2 client credentials flow
-- [Caching](examples/json/iskaypet/main.go) - Response caching strategies
-- [XML](examples/xml/main.go) - XML request/response handling
-- [Form Data](examples/form/main.go) - Form data submission
-- [File Upload](examples/bytes/main.go) - File upload handling
-- [Metrics](examples/metrics/main.go) - Metrics collection
-- [Tracing](examples/trace/main.go) - Request tracing
+### Basic Usage
+
+#### Simple JSON Requests
+```go
+// examples/json/basic/main.go
+client := &rest.Client{
+    Name:        "example-client",
+    BaseURL:     "https://gorest.co.in/public/v2",
+    ContentType: rest.JSON,
+    Timeout:     2 * time.Second,
+}
+
+response := client.Get("/users")
+if response.Err != nil {
+    log.Fatal(response.Err)
+}
+
+var users []User
+if err := response.FillUp(&users); err != nil {
+    log.Fatal(err)
+}
+```
+
+#### Using Generics for Type Safety
+```go
+// examples/json/generics/main.go
+type UserResponse struct {
+    Name   string `json:"name"`
+    Email  string `json:"email"`
+    Gender string `json:"gender"`
+    Status string `json:"status"`
+    ID     int    `json:"id"`
+}
+
+// Typed deserialization with generics
+usersResponse, err := rest.Deserialize[[]UserResponse](response)
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+#### Custom Headers and Default Headers
+```go
+// examples/json/dfltheaders/main.go
+client := &rest.Client{
+    Name:           "example-client",
+    BaseURL:        "https://gorest.co.in/public/v2",
+    ContentType:    rest.JSON,
+    DefaultHeaders: http.Header{
+        "X-Static-Header": {"My-Static-Value"},
+    },
+}
+
+// Dynamic headers for specific requests
+headers := make(http.Header)
+headers.Set("My-Dynamic-Header-1", "My-Dynamic-Value-1")
+headers.Set("My-Dynamic-Header-2", "My-Dynamic-Value-2")
+
+response := client.GetWithContext(ctx, "/users", headers)
+```
+
+### Authentication
+
+#### OAuth2 Client Credentials
+```go
+// examples/json/oauth/main.go
+client := &rest.Client{
+    Name:        "ocapi-client",
+    BaseURL:     "https://www.kiwoko.com/s/-/dw/data/v22_6",
+    ContentType: rest.JSON,
+    OAuth: &rest.OAuth{
+        ClientID:     "your_client_id",
+        ClientSecret: "your_client_secret",
+        TokenURL:     "https://account.demandware.com/dw/oauth2/access_token",
+        AuthStyle:    rest.AuthStyleInHeader,
+    },
+    EnableTrace: true,
+}
+```
+
+### Content Types
+
+#### XML Requests
+```go
+// examples/xml/main.go
+client := &rest.Client{
+    BaseURL:     "https://gorest.co.in/public/v2",
+    ContentType: rest.XML,
+}
+
+var usersResponse struct {
+    XMLName string `xml:"objects"`
+    List    []struct {
+        Name   string `xml:"name"`
+        Email  string `xml:"email"`
+        Gender string `xml:"gender"`
+        Status string `xml:"status"`
+        ID     int    `xml:"id"`
+    } `xml:"object"`
+}
+
+response := client.Get("/users.xml")
+err := response.FillUp(&usersResponse)
+```
+
+#### Form Data Submission
+```go
+// examples/form/main.go
+client := &rest.Client{
+    Name:        "example-client",
+    BaseURL:     "https://httpbin.org",
+    ContentType: rest.FORM,
+}
+
+values := url.Values{}
+values.Set("key1", "value1")
+values.Set("key2", "value2")
+
+response := client.PostWithContext(ctx, "/post", values)
+```
+
+### Advanced Features
+
+#### Gzip Compression
+```go
+// examples/gzip/main.go
+client := &rest.Client{
+    Name:           "httpbin-client",
+    BaseURL:        "https://httpbin.org",
+    ContentType:    rest.JSON,
+    EnableGzip:     true,
+    DefaultHeaders: http.Header{"Accept-Encoding": []string{"gzip"}},
+}
+
+headers := make(http.Header)
+headers.Add("Accept-Encoding", "gzip")
+
+response := client.GetWithContext(ctx, "/gzip", headers)
+```
+
+#### File Upload and Binary Data
+```go
+// examples/bytes/main.go
+client := &rest.Client{
+    Name:    "example-client",
+    BaseURL: "https://httpbin.org",
+}
+
+// Download large files
+apiURL := fmt.Sprintf("/bytes/%d", 1*rest.MB)
+response := client.GetWithContext(ctx, apiURL)
+
+// Stream bytes
+apiURL = fmt.Sprintf("/stream-bytes/%d", 1*rest.MB)
+response = client.GetWithContext(ctx, apiURL)
+```
+
+#### Redirect Handling
+```go
+// examples/redirect/main.go
+client := &rest.Client{
+    Name:           "example-client",
+    ContentType:    rest.JSON,
+    FollowRedirect: true, // Enable automatic redirect following
+}
+
+response := client.Get("https://tinyurl.com/39da2yt4")
+```
+
+### Caching and Performance
+
+#### Response Caching
+```go
+// examples/json/iskaypet/main.go
+client := &rest.Client{
+    Name:        "sites-client",
+    BaseURL:     "https://api.prod.dp.iskaypet.com",
+    ContentType: rest.JSON,
+    EnableCache: true,
+}
+
+// First request - hits the server
+response1 := client.Get("/sites")
+log.Infof("Cache-Control: %v", response1.Header.Get("Cache-Control"))
+
+// Second request - served from cache (if valid)
+response2 := client.Get("/sites")
+log.Infof("Cache-Control: %v", response2.Header.Get("Cache-Control"))
+```
+
+### Monitoring and Observability
+
+#### Metrics Collection
+```go
+// examples/metrics/main.go
+import "github.com/prometheus/client_golang/prometheus/promhttp"
+
+func main() {
+    http.Handle("/metrics", promhttp.Handler())
+    
+    client := &rest.Client{
+        BaseURL:     "https://httpbin.org",
+        ContentType: rest.JSON,
+        Name:        "gorest-client",
+        EnableCache: true,
+    }
+    
+    // Simulate API requests
+    go func() {
+        for {
+            apiURL := fmt.Sprintf("/cache/%d", random(1, 100))
+            response := client.GetWithContext(ctx, apiURL)
+            log.Infof("GET %s, Status: %d", apiURL, response.StatusCode)
+        }
+    }()
+    
+    server := &http.Server{Addr: ":8081"}
+    server.ListenAndServe()
+}
+```
+
+#### Request Tracing
+```go
+// examples/trace/main.go
+import "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic/otel/tracing"
+
+func main() {
+    app, err := tracing.New(ctx, tracing.WithAppName("MyExample"))
+    defer app.Shutdown(ctx)
+    
+    client := &rest.Client{
+        BaseURL:     "https://httpbin.org",
+        ContentType: rest.JSON,
+        Name:        "gorest-client",
+        EnableTrace: true,
+    }
+    
+    // Create transaction for tracing
+    txnCtx, txn := tracing.NewTransaction(ctx, "MyHTTPRequest")
+    response := client.GetWithContext(txnCtx, "/cache/123")
+    if response.Err != nil {
+        txn.NoticeError(response.Err)
+    }
+    txn.End()
+}
+```
+
+### Design Patterns
+
+#### Dependency Injection (IoC)
+```go
+// examples/ioc/main.go
+type ISitesClient interface {
+    GetSites(ctx context.Context) ([]SiteResponse, error)
+}
+
+type SitesClient struct {
+    httpClient rest.HTTPClient
+}
+
+func NewSitesClient(httpClient rest.HTTPClient) *SitesClient {
+    return &SitesClient{httpClient: httpClient}
+}
+
+func (r SitesClient) GetSites(ctx context.Context) ([]SiteResponse, error) {
+    headers := make(http.Header)
+    headers.Set("X-Api-Key", "your-api-key")
+    
+    response := r.httpClient.GetWithContext(ctx, "/sites", headers)
+    if response.Err != nil {
+        return nil, response.Err
+    }
+    
+    var sitesResponse []SiteResponse
+    err := response.FillUp(&sitesResponse)
+    return sitesResponse, err
+}
+
+// Usage
+httpClient := &rest.Client{
+    Name:        "sitesResponse-httpClient",
+    BaseURL:     "https://api.prod.dp.iskaypet.com",
+    ContentType: rest.JSON,
+}
+
+sitesClient := NewSitesClient(httpClient)
+sites, err := sitesClient.GetSites(context.Background())
+```
+
+### HTML Content Handling
+```go
+// examples/html/main.go
+client := &rest.Client{
+    Name:           "html-client",
+    EnableGzip:     true,
+    EnableCache:    true,
+}
+
+response1 := client.Get("https://example.com/page.html")
+fmt.Printf("Response cached: %t\n", response1.Cached())
+
+// Second request may be served from cache
+response2 := client.Get("https://example.com/page.html")
+fmt.Printf("Response cached: %t\n", response2.Cached())
+```
+
+### Running Examples
+
+Execute any example directly:
+
+```bash
+# Basic JSON example
+go run examples/json/basic/main.go
+
+# OAuth2 example
+go run examples/json/oauth/main.go
+
+# Metrics example with Prometheus
+APP_NAME=example go run examples/metrics/main.go
+
+# Tracing example
+go run examples/trace/main.go
+```
 
 ### Live Example
 
