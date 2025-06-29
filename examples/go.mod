@@ -1,12 +1,12 @@
 module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/examples
 
-go 1.24.3
+go 1.24.4
 
 require (
 	github.com/prometheus/client_golang v1.22.0
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.32
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.46
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.62
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.64
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.37.0
 	go.opentelemetry.io/otel/sdk v1.37.0
@@ -44,8 +44,8 @@ require (
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.30 // indirect
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.20 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.61.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.62.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.62.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.37.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.37.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
