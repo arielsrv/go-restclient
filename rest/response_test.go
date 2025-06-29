@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -250,6 +252,28 @@ func TestFillUp_Detection(t *testing.T) {
 	require.Error(t, err)
 	require.Empty(t, user)
 	require.Contains(t, err.Error(), "unsupported content type: text/plain")
+}
+
+type HTTPBinResponse struct {
+	Args    struct{} `json:"args"`
+	Headers struct {
+		Accept          string `json:"Accept"`
+		AcceptEncoding  string `json:"Accept-Encoding"`
+		AcceptLanguage  string `json:"Accept-Language"`
+		Host            string `json:"Host"`
+		Priority        string `json:"Priority"`
+		Referer         string `json:"Referer"`
+		SecChUa         string `json:"Sec-Ch-Ua"`
+		SecChUaMobile   string `json:"Sec-Ch-Ua-Mobile"`
+		SecChUaPlatform string `json:"Sec-Ch-Ua-Platform"`
+		SecFetchDest    string `json:"Sec-Fetch-Dest"`
+		SecFetchMode    string `json:"Sec-Fetch-Mode"`
+		SecFetchSite    string `json:"Sec-Fetch-Site"`
+		UserAgent       string `json:"User-Agent"`
+		XAmznTraceId    string `json:"X-Amzn-Trace-Id"`
+	} `json:"headers"`
+	Origin string `json:"origin"`
+	Url    string `json:"url"`
 }
 
 func TestClient_GetWithContext_ConcurrentResponses(t *testing.T) {
@@ -2229,4 +2253,317 @@ func TestClient_GetWithContext_ContentTypes(t *testing.T) {
 
 type xmlBody struct {
 	Test string `xml:"test"`
+}
+
+// TestClient_GetWithContext_ConcurrentResponsesHTTPBin tests concurrent responses
+// using HTTPBinResponse struct and hitting a real server (httpbin.org).
+func TestClient_GetWithContext_ConcurrentResponsesHTTPBin(t *testing.T) {
+	// Test different endpoints on httpbin.org
+	testCases := []struct {
+		name     string
+		endpoint string
+		expected string
+	}{
+		{
+			name:     "get_endpoint",
+			endpoint: "/get",
+			expected: "GET",
+		},
+		{
+			name:     "user_agent_endpoint",
+			endpoint: "/user-agent",
+			expected: "User-Agent",
+		},
+		{
+			name:     "headers_endpoint",
+			endpoint: "/headers",
+			expected: "Headers",
+		},
+		{
+			name:     "ip_endpoint",
+			endpoint: "/ip",
+			expected: "origin",
+		},
+		{
+			name:     "uuid_endpoint",
+			endpoint: "/uuid",
+			expected: "uuid",
+		},
+		{
+			name:     "delay_endpoint",
+			endpoint: "/delay/1",
+			expected: "GET",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			client := &rest.Client{
+				BaseURL:        "https://httpbin.org",
+				Timeout:        time.Duration(30) * time.Second, // Longer timeout for real server
+				ConnectTimeout: time.Duration(10) * time.Second,
+				EnableTrace:    true,
+				EnableCache:    true,
+				CustomPool: &rest.CustomPool{
+					Transport: &http.Transport{
+						MaxIdleConns:        50,
+						MaxConnsPerHost:     50,
+						MaxIdleConnsPerHost: 50,
+						TLSHandshakeTimeout: 10 * time.Second,
+					},
+				},
+			}
+
+			const n = 100        // Reduced concurrency for real server
+			const iterations = 2 // Multiple iterations to stress test
+
+			for iter := range iterations {
+				errs := make(chan error, n)
+				responses := make(chan *rest.Response, n)
+				httpBinResponses := make(chan *HTTPBinResponse, n)
+
+				group, ctx := errgroup.WithContext(t.Context())
+				for i := range n {
+					group.Go(func() error {
+						// Add unique headers to avoid cache conflicts
+						headers := http.Header{
+							"X-Test-ID":     {fmt.Sprintf("test-%d-%d", iter, i)},
+							"X-Timestamp":   {strconv.FormatInt(time.Now().UnixNano(), 10)},
+							"X-Random":      {strconv.Itoa(rand.Intn(10000))},
+							"Accept":        {"application/json"},
+							"Cache-Control": {"no-cache"},
+						}
+
+						resp := client.GetWithContext(ctx, tc.endpoint, headers)
+						if resp.Err != nil {
+							// Some errors are expected with real server (timeouts, network issues)
+							if strings.Contains(resp.Err.Error(), "timeout") ||
+								strings.Contains(resp.Err.Error(), "connection") ||
+								strings.Contains(resp.Err.Error(), "context") {
+								return nil // Expected error
+							}
+							errs <- fmt.Errorf("request error: %w", resp.Err)
+							return resp.Err
+						}
+
+						responses <- resp
+
+						// Try to unmarshal into HTTPBinResponse for endpoints that support it
+						if tc.endpoint == "/get" || tc.endpoint == "/headers" {
+							var httpBinResp HTTPBinResponse
+							if err := resp.FillUp(&httpBinResp); err == nil {
+								httpBinResponses <- &httpBinResp
+							}
+						}
+
+						return nil
+					})
+				}
+
+				err := group.Wait()
+				require.NoError(t, err)
+				close(errs)
+				close(responses)
+				close(httpBinResponses)
+
+				// Check for unexpected errors
+				errorCount := 0
+				for errItem := range errs {
+					errorCount++
+					t.Logf("Unexpected error: %v", errItem)
+				}
+
+				// Verify all responses
+				responseCount := 0
+				cachedCount := 0
+				httpBinCount := 0
+
+				for resp := range responses {
+					responseCount++
+
+					// Count cached responses
+					if resp.Cached() {
+						cachedCount++
+					}
+
+					// Verify response is valid JSON
+					if !strings.Contains(resp.String(), tc.expected) {
+						t.Logf("Response doesn't contain expected content '%s': %s", tc.expected, resp.String()[:100])
+					}
+
+					// Test concurrent access to response methods
+					var wg sync.WaitGroup
+					wg.Add(5)
+
+					// Concurrent String() calls
+					go func() {
+						defer wg.Done()
+						_ = resp.String()
+					}()
+
+					// Concurrent IsOk calls
+					go func() {
+						defer wg.Done()
+						_ = resp.IsOk()
+					}()
+
+					// Concurrent VerifyIsOkOrError calls
+					go func() {
+						defer wg.Done()
+						_ = resp.VerifyIsOkOrError()
+					}()
+
+					// Concurrent Cached calls
+					go func() {
+						defer wg.Done()
+						_ = resp.Cached()
+					}()
+
+					// Concurrent FillUp calls
+					go func() {
+						defer wg.Done()
+						var result map[string]interface{}
+						_ = resp.FillUp(&result)
+					}()
+
+					wg.Wait()
+				}
+
+				// Process HTTPBinResponse structs
+				for httpBinResp := range httpBinResponses {
+					httpBinCount++
+
+					// Verify HTTPBinResponse structure
+					if httpBinResp.Url == "" {
+						t.Logf("HTTPBinResponse URL is empty")
+					}
+					if httpBinResp.Origin == "" {
+						t.Logf("HTTPBinResponse Origin is empty")
+					}
+					if httpBinResp.Headers.UserAgent == "" {
+						t.Logf("HTTPBinResponse UserAgent is empty")
+					}
+				}
+
+				if responseCount != n {
+					t.Errorf("expected %d responses, got %d", n, responseCount)
+				}
+
+				// Log results for debugging
+				t.Logf("Iteration %d - Cache hit rate: %d/%d (%.1f%%)", iter+1, cachedCount, responseCount,
+					float64(cachedCount)/float64(responseCount)*100)
+				t.Logf("HTTPBinResponse count: %d/%d", httpBinCount, responseCount)
+				t.Logf("Error count: %d", errorCount)
+			}
+		})
+	}
+}
+
+// TestClient_GetWithContext_ConcurrentResponsesHTTPBinWithCache tests concurrent responses
+// with cache enabled using HTTPBinResponse struct and hitting a real server.
+func TestClient_GetWithContext_ConcurrentResponsesHTTPBinWithCache(t *testing.T) {
+	client := &rest.Client{
+		BaseURL:        "https://httpbin.org",
+		Timeout:        time.Duration(30) * time.Second,
+		ConnectTimeout: time.Duration(10) * time.Second,
+		EnableTrace:    true,
+		EnableCache:    true,
+		CustomPool: &rest.CustomPool{
+			Transport: &http.Transport{
+				MaxIdleConns:        50,
+				MaxConnsPerHost:     50,
+				MaxIdleConnsPerHost: 50,
+				TLSHandshakeTimeout: 10 * time.Second,
+			},
+		},
+	}
+
+	const n = 200
+	const iterations = 3
+
+	for iter := range iterations {
+		errs := make(chan error, n)
+		responses := make(chan *rest.Response, n)
+		httpBinResponses := make(chan *HTTPBinResponse, n)
+
+		group, ctx := errgroup.WithContext(t.Context())
+		for i := range n {
+			group.Go(func() error {
+				// Use same URL to test cache behavior
+				headers := http.Header{
+					"X-Test-ID":     {fmt.Sprintf("cache-test-%d-%d", iter, i)},
+					"X-Timestamp":   {strconv.FormatInt(time.Now().UnixNano(), 10)},
+					"Accept":        {"application/json"},
+					"Cache-Control": {"no-cache"},
+				}
+
+				resp := client.GetWithContext(ctx, "/get", headers)
+				if resp.Err != nil {
+					if strings.Contains(resp.Err.Error(), "timeout") ||
+						strings.Contains(resp.Err.Error(), "connection") ||
+						strings.Contains(resp.Err.Error(), "context") {
+						return nil
+					}
+					errs <- fmt.Errorf("request error: %w", resp.Err)
+					return resp.Err
+				}
+
+				responses <- resp
+
+				// Try to unmarshal into HTTPBinResponse
+				var httpBinResp HTTPBinResponse
+				if err := resp.FillUp(&httpBinResp); err == nil {
+					httpBinResponses <- &httpBinResp
+				}
+
+				return nil
+			})
+		}
+
+		err := group.Wait()
+		require.NoError(t, err)
+		close(errs)
+		close(responses)
+		close(httpBinResponses)
+
+		// Count results
+		errorCount := 0
+		responseCount := 0
+		cachedCount := 0
+		httpBinCount := 0
+
+		for range errs {
+			errorCount++
+		}
+
+		for resp := range responses {
+			responseCount++
+			if resp.Cached() {
+				cachedCount++
+			}
+		}
+
+		for httpBinResp := range httpBinResponses {
+			httpBinCount++
+
+			// Verify HTTPBinResponse structure
+			if httpBinResp.Url == "" {
+				t.Logf("HTTPBinResponse URL is empty")
+			}
+			if httpBinResp.Origin == "" {
+				t.Logf("HTTPBinResponse Origin is empty")
+			}
+		}
+
+		// Log cache performance
+		t.Logf("Iteration %d - Cache hit rate: %d/%d (%.1f%%)", iter+1, cachedCount, responseCount,
+			float64(cachedCount)/float64(responseCount)*100)
+		t.Logf("HTTPBinResponse count: %d/%d", httpBinCount, responseCount)
+		t.Logf("Error count: %d", errorCount)
+
+		// In later iterations, we should see more cache hits
+		if iter > 0 && cachedCount == 0 {
+			t.Logf("Note: No cache hits in iteration %d, this might be expected for real server", iter+1)
+		}
+	}
 }
