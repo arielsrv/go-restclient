@@ -222,7 +222,8 @@ func usersXML(writer http.ResponseWriter, req *http.Request) {
 		}
 
 		u := new(User)
-		if err = xml.Unmarshal(b, u); err != nil {
+		err = xml.Unmarshal(b, u)
+		if err != nil {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -349,7 +350,8 @@ func allUsers(writer http.ResponseWriter, req *http.Request) {
 		}
 
 		u := new(User)
-		if err = json.Unmarshal(b, u); err != nil {
+		err = json.Unmarshal(b, u)
+		if err != nil {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}

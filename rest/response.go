@@ -19,14 +19,14 @@ import (
 // for handling REST API responses, including caching, error handling, and
 // content deserialization.
 type Response struct {
+	// Response is the underlying HTTP response.
+	*http.Response
+
 	// Err contains any error that occurred during the request.
 	Err error
 
 	// cached indicates whether this response was retrieved from cache.
 	cached atomic.Value
-
-	// Response is the underlying HTTP response.
-	*http.Response
 
 	// Problem contains RFC7807 problem details if the response is an error.
 	Problem *Problem

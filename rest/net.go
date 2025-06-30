@@ -203,7 +203,8 @@ func (r *Client) newRequest(
 		}
 	}
 	defer func(Body io.ReadCloser) {
-		if cErr := Body.Close(); cErr != nil {
+		cErr := Body.Close()
+		if cErr != nil {
 			log.Errorf("error closing response body: %v", cErr)
 		}
 	}(httpResponse.Body)
@@ -313,7 +314,8 @@ func (r *Client) setRespReader(request *http.Request, response *http.Response) (
 		return nil, err
 	}
 	defer func(gzipReader *gzip.Reader) {
-		if cErr := gzipReader.Close(); cErr != nil {
+		cErr := gzipReader.Close()
+		if cErr != nil {
 			return
 		}
 	}(reader)
@@ -327,7 +329,8 @@ func (r *Client) setRespReader(request *http.Request, response *http.Response) (
 func setProblem(result *Response) {
 	contentType := result.Header.Get(CanonicalContentTypeHeader)
 	if strings.Contains(contentType, "problem") {
-		if err := result.FillUp(&result.Problem); err != nil {
+		err := result.FillUp(&result.Problem)
+		if err != nil {
 			return
 		}
 	}

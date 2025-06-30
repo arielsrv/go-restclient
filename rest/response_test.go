@@ -14,10 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/stretchr/testify/require"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"golang.org/x/sync/errgroup"
 )
 
 func TestGet_Raw(t *testing.T) {
@@ -269,10 +268,10 @@ type HTTPBinResponse struct {
 		SecFetchMode    string `json:"Sec-Fetch-Mode"`
 		SecFetchSite    string `json:"Sec-Fetch-Site"`
 		UserAgent       string `json:"User-Agent"`
-		XAmznTraceId    string `json:"X-Amzn-Trace-Id"`
+		XAmznTraceID    string `json:"x-amzn-trace-id"`
 	} `json:"headers"`
 	Origin string `json:"origin"`
-	Url    string `json:"url"`
+	URL    string `json:"url"`
 }
 
 func TestClient_GetWithContext_ConcurrentResponses(t *testing.T) {
@@ -731,7 +730,8 @@ func TestClient_GetWithContext_ResponseBufferConcatenation(t *testing.T) {
 
 		// Check if response is valid JSON
 		var result map[string]interface{}
-		if err = resp.FillUp(&result); err != nil {
+		err = resp.FillUp(&result)
+		if err != nil {
 			t.Errorf("Failed to parse JSON response: %v, response: %s", err, resp.String())
 			continue
 		}
@@ -1316,7 +1316,8 @@ func TestClient_GetWithContext_ResponseBufferConcatenationWithCache(t *testing.T
 
 		// Check if response is valid JSON
 		var result map[string]interface{}
-		if err = resp.FillUp(&result); err != nil {
+		err = resp.FillUp(&result)
+		if err != nil {
 			t.Errorf("Failed to parse JSON response: %v, response: %s", err, resp.String())
 			continue
 		}
@@ -1613,7 +1614,8 @@ func TestClient_GetWithContext_CacheEvictionAndConcurrency(t *testing.T) {
 
 		// Check if response is valid JSON
 		var result map[string]interface{}
-		if err = resp.FillUp(&result); err != nil {
+		err = resp.FillUp(&result)
+		if err != nil {
 			t.Errorf("Failed to parse JSON response: %v, response: %s", err, resp.String())
 			continue
 		}
@@ -2309,7 +2311,8 @@ func TestClient_GetWithContext_ConcurrentResponsesHTTPBinWithCache(t *testing.T)
 
 				// Try to unmarshal into HTTPBinResponse
 				var httpBinResp HTTPBinResponse
-				if err := resp.FillUp(&httpBinResp); err == nil {
+				err := resp.FillUp(&httpBinResp)
+				if err == nil {
 					httpBinResponses <- &httpBinResp
 				}
 
@@ -2344,7 +2347,7 @@ func TestClient_GetWithContext_ConcurrentResponsesHTTPBinWithCache(t *testing.T)
 			httpBinCount++
 
 			// Verify HTTPBinResponse structure
-			if httpBinResp.Url == "" {
+			if httpBinResp.URL == "" {
 				t.Logf("HTTPBinResponse URL is empty")
 			}
 			if httpBinResp.Origin == "" {
