@@ -114,6 +114,8 @@ gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.64 h1:OFSbW7Krvw
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.64/go.mod h1:svSd1fpC6P4qsw9XqJ7/gdoSNBx9AVWidjUY4H/0EY4=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.66 h1:9BjuHRSx2GBz63H/MI2LLqLnONV111jsCNUA9Oj2AJ0=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.66/go.mod h1:3hoMcAeqAAVoDRwaN3iFJZJqsFB8hb0PBz7tv8G0ULU=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.68 h1:nR9+o1ERVI8jikrjO5uLkxK4RAJk3Icjqz3rjN948wI=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.68/go.mod h1:hcq4EYVE4wxW661Zz5+Kkq9NSiCbnOZ5Br/ihJIsmd4=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.20 h1:9O9qWfiH409bzEsZApHg6JN/pJkYp+DT+VwNzbIbyAw=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.20/go.mod h1:cax7bWttFVqunEjzQTRNvW7IIf3vVNE8nifw4fAlP5I=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.22/go.mod h1:VQlLYfSq+iVtF7e14qbHAoO53/jwC1bpfY4OuLxqyDk=
