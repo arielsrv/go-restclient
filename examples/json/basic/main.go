@@ -15,10 +15,10 @@ func main() {
 
 	// Create a new REST client with custom settings
 	client := &rest.Client{
-		Name:        "example-client",                       // required for logging and tracing
-		BaseURL:     "https://gorest.co.in/public/v2",       // optional parameters
-		ContentType: rest.JSON,                              // rest.JSON by default (rest.XML, rest.FORM, etc.)
-		Timeout:     time.Millisecond * time.Duration(2000), // transmission timeout
+		Name:        "example-client",                                    // required for logging and tracing
+		BaseURL:     "https://order-status-oms-sfcc.dev.dp.iskaypet.com", // optional parameters
+		ContentType: rest.JSON,                                           // rest.JSON by default (rest.XML, rest.FORM, etc.)
+		Timeout:     time.Millisecond * time.Duration(2000),              // transmission timeout
 		/*ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
 		EnableCache:    true,                                   // Last-Modified, Expires & ETag headers are disabled by default
 		CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
@@ -49,7 +49,7 @@ func main() {
 	headers.Add("My-Custom-Header", "My-Custom-Value")
 
 	// Make a GET request (context optional)
-	response := client.GetWithContext(ctx, "/users", headers)
+	response := client.GetWithContext(ctx, "/purchases/81319403/orders/81319403?site_id=TES", headers)
 	if response.Err != nil {
 		fmt.Printf("Error: %v\n", response.Err)
 		os.Exit(1)
