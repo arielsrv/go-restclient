@@ -9,7 +9,7 @@ env:
   GOEXPERIMENT: nocoverageredesign
 
 tasks:
-  
+
   markdown:
     cmds:
       - markdownlint-cli2 "**/*.md" "#vendor"
@@ -71,6 +71,17 @@ tasks:
   build:
     cmds:
       - go build -v ./...
+
+  sonar:
+    cmds:
+      - |
+        if [ -z "$SONAR_TOKEN" ]; then
+          echo "Error: SONAR_TOKEN is not set."
+          exit 1
+        fi
+        go test -coverprofile=coverage.out ./...
+        go tool golangci-lint run --fix
+        sonar-scanner -Dsonar.host.url=https://sonarqube.tooling.dp.iskaypet.com
 
   release:
     cmds:

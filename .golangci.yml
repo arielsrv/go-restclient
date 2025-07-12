@@ -452,3 +452,12 @@ linters:
           - gosec
           - noctx
           - wrapcheck
+output:
+  formats:
+    checkstyle:
+      path: 'report.xml'
+    json:
+      path: stdout
+    text:
+      path: stdout
+      color: true
