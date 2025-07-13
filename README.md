@@ -4,7 +4,8 @@
 [![coverage report](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/badges/main/coverage.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/commits/main)
 [![release](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/badges/release.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/releases)
 
-A high-performance HTTP client library for Go with advanced features including caching, authentication, metrics, and comprehensive request/response handling.
+A high-performance HTTP client library for Go with advanced features including caching,
+authentication, metrics, and comprehensive request/response handling.
 
 ## ✨ Features
 
@@ -19,17 +20,17 @@ A high-performance HTTP client library for Go with advanced features including c
 
 ## 📋 Table of Contents
 
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Features](#features)
-- [Examples](#examples)
-- [Configuration](#configuration)
-- [Caching](#caching)
-- [Authentication](#authentication)
-- [Metrics & Monitoring](#metrics--monitoring)
-- [Benchmarks](#benchmarks)
-- [Connection Pooling](#connection-pooling)
-- [Roadmap](#roadmap)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Features](#-features)
+- [Examples](#-examples)
+- [Configuration](#-configuration)
+- [Caching](#-caching)
+- [Authentication](#-authentication)
+- [Metrics & Monitoring](#-metrics--monitoring)
+- [Benchmarks](#-benchmarks)
+- [Connection Pooling](#-connection-pooling)
+- [Roadmap](#%EF%B8%8F-roadmap)
 
 ## 🚀 Installation
 
