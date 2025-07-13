@@ -9,8 +9,6 @@ import (
 	"slices"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/examples/iterator/seq"
-
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -73,15 +71,17 @@ func (r *UsersService) GetUsers(ctx context.Context) (iter.Seq[UserDTO], error) 
 		return nil, err
 	}
 
-	return seq.Map[UserResponse, UserDTO](usersResponse, func(userResponse UserResponse) UserDTO {
-		return UserDTO{
-			ID:     userResponse.ID,
-			Name:   userResponse.Name,
-			Email:  userResponse.Email,
-			Gender: userResponse.Gender,
-			Status: userResponse.Status,
+	return func(yield func(userDTO UserDTO) bool) {
+		for userResponse := range usersResponse {
+			yield(UserDTO{
+				ID:     userResponse.ID,
+				Name:   userResponse.Name,
+				Email:  userResponse.Email,
+				Gender: userResponse.Gender,
+				Status: userResponse.Status,
+			})
 		}
-	}), nil
+	}, nil
 }
 
 func main() {
