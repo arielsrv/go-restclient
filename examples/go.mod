@@ -6,7 +6,7 @@ require (
 	github.com/prometheus/client_golang v1.22.0
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.32
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.46
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.68
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.70
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.37.0
 	go.opentelemetry.io/otel/sdk v1.37.0
@@ -22,7 +22,7 @@ require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect

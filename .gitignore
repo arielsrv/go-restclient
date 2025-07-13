@@ -21,6 +21,7 @@ coverage.txt
 coverage.xml
 coverage-report.html
 coverage-report.out
+coverage.out
 .DS_Store
 report.xml
 gl-code-quality-report.json

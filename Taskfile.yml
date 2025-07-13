@@ -7,6 +7,7 @@ env:
   COVERAGE_OUT_FILE: coverage.out
   COVERAGE_HTML_FILE: coverage.html
   GOEXPERIMENT: nocoverageredesign
+  SONAR_HOST: https://sonarqube.tooling.dp.iskaypet.com
 
 tasks:
 
@@ -25,10 +26,6 @@ tasks:
       - go tool golangci-lint run --fix
       - go tool gofumpt -w -l .
       - go tool betteralign -test_files -generated_files -apply ./...
-
-  lint:report:
-    cmds:
-      - go tool golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
 
   race:
     cmds:
@@ -70,7 +67,7 @@ tasks:
 
   build:
     cmds:
-      - go build -v ./...
+      - go build ./...
 
   sonar:
     cmds:
@@ -79,9 +76,9 @@ tasks:
           echo "Error: SONAR_TOKEN is not set."
           exit 1
         fi
-        go test -coverprofile=coverage.out ./...
-        go tool golangci-lint run --fix
-        sonar-scanner -Dsonar.host.url=https://sonarqube.tooling.dp.iskaypet.com
+        GOEXPERIMENT=nocoverageredesign go test -coverprofile=coverage.out ./... || true
+        go tool golangci-lint run --fix || true
+        sonar-scanner -Dsonar.host.url={{.SONAR_HOST}}
 
   release:
     cmds:
