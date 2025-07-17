@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/rand"
-	"fmt"
 	"math/big"
 	"net/http"
 	"runtime"
@@ -44,7 +43,7 @@ func main() {
 
 	// Create a new REST client with custom settings
 	client := &rest.Client{
-		BaseURL:        "https://httpbin.org",
+		BaseURL:        "http://localhost:8080",
 		ContentType:    rest.JSON,
 		Name:           "gorest-client",
 		ConnectTimeout: time.Duration(2000) * time.Millisecond,
@@ -53,7 +52,7 @@ func main() {
 		EnableTrace:    true,
 	}
 
-	random := func(minValue int64, maxValue int64) int64 {
+	_ = func(minValue int64, maxValue int64) int64 {
 		z := maxValue - minValue + 1
 		n, rErr := rand.Int(rand.Reader, big.NewInt(z))
 		if rErr != nil {
@@ -66,17 +65,17 @@ func main() {
 	go func() {
 		log.Infof("simulating API requests...")
 		for {
-			apiURL := fmt.Sprintf("/cache/%d", random(100, 1000))
 			txnCtx, txn := tracing.NewTransaction(ctx, "MyHTTPRequest")
-			response := client.GetWithContext(txnCtx, apiURL)
+			response := client.GetWithContext(txnCtx, "/messages/123")
 			if response.Err != nil {
 				txn.NoticeError(response.Err)
 				log.Error(response.Err)
 				txn.End()
 				continue
 			}
-			log.Infof("GET %s, Status: %d", apiURL, response.StatusCode)
+			log.Infof("GET /messages, Status: %d", response.StatusCode)
 			txn.End()
+			time.Sleep(time.Millisecond * 1000)
 		}
 	}()
 
