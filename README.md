@@ -818,7 +818,7 @@ go run examples/json/oauth/main.go
 go run examples/mock/main.go
 
 # Metrics example with Prometheus
-APP_NAME=example go run examples/metrics/main.go
+ENV=local APP_NAME=example go run examples/metrics/main.go
 
 # Tracing example
 go run examples/trace/main.go
@@ -827,7 +827,7 @@ go run examples/trace/main.go
 ### Live Example
 
 ```bash
-APP_NAME=example go run gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/examples/metrics@latest
+ENV=local APP_NAME=example go run gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/examples/metrics@latest
 ```
 
 ## 🛣️ Roadmap
