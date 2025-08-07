@@ -3,6 +3,8 @@
 [![pipeline status](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/badges/main/pipeline.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/commits/main)
 [![coverage report](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/badges/main/coverage.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/commits/main)
 [![release](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/badges/release.svg)](https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/-/releases)
+[![Quality Gate Status](https://sonarqube.tooling.dp.iskaypet.com/api/project_badges/measure?project=iskaypetcom_digital_sre_tools_dev_go-restclient_44a86603-3e76-44e9-b025-4472c8491e3c&metric=alert_status&token=sqb_e80727065210b0976bf7ac69df58870f05717559)](https://sonarqube.tooling.dp.iskaypet.com/dashboard?id=iskaypetcom_digital_sre_tools_dev_go-restclient_44a86603-3e76-44e9-b025-4472c8491e3c)
+
 
 A high-performance HTTP client library for Go with advanced features including caching,
 authentication, metrics, and comprehensive request/response handling.
