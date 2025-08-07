@@ -7,7 +7,7 @@
 A high-performance HTTP client library for Go with advanced features including caching,
 authentication, metrics, and comprehensive request/response handling.
 
-[Quality Gate Status](https://sonarqube.tooling.dp.iskaypet.com/dashboard?id=iskaypetcom_digital_sre_tools_dev_go-restclient_44a86603-3e76-44e9-b025-4472c8491e3c&codeScope=overall)
+[![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)](https://sonarqube.tooling.dp.iskaypet.com/dashboard?id=iskaypetcom_digital_sre_tools_dev_go-restclient_44a86603-3e76-44e9-b025-4472c8491e3c&codeScope=overall)
 
 ## ✨ Features
 
