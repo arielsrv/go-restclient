@@ -3,6 +3,7 @@ package rest_test
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
@@ -71,6 +72,7 @@ func TestMockup_MockErr(t *testing.T) {
 
 	mock := rest.Mock{
 		URL:          myURL,
+		Timeout:      time.Duration(100) * time.Millisecond,
 		HTTPMethod:   http.MethodGet,
 		ReqHeaders:   myHeaders,
 		RespHTTPCode: http.StatusOK,

@@ -160,7 +160,21 @@ func mockupHandler(writer http.ResponseWriter, req *http.Request) {
 		m := mockMap[req.Method+" "+normalizedURL]
 		mockDBMutex.RUnlock()
 		if m != nil {
-			time.Sleep(m.Timeout)
+			// If Timeout is set in the mock, simulate a network/timeout error by
+			// delaying the response headers long enough for the client to hit its
+			// ResponseHeaderTimeout. This makes the client return an error without
+			// needing to read any HTTP status or body.
+			if m.Timeout > 0 {
+				// Ensure we sleep at least DefaultTimeout plus the requested mock Timeout
+				// to increase the likelihood that client-side timeouts are triggered even
+				// if the client uses default settings.
+				delay := m.Timeout + DefaultTimeout
+				time.Sleep(delay)
+				// Do not write headers/body; returning after the delay will typically
+				// happen after the client has already timed out.
+				return
+			}
+
 			// Add headers
 			for k, v := range m.RespHeaders {
 				for _, vv := range v {

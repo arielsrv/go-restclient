@@ -119,9 +119,11 @@ func (r *Client) newRequest(
 	if r.EnableCache && slices.Contains(readVerbs, verb) {
 		if value, hit := resourceCache.get(apiURL); hit {
 			cacheResponse = value
-			cacheResponse.Hit()
-			if !cacheResponse.revalidate {
-				return cacheResponse
+			if cacheResponse != nil {
+				cacheResponse.Hit()
+				if !cacheResponse.revalidate {
+					return cacheResponse
+				}
 			}
 		}
 	}
