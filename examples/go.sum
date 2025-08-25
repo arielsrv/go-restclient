@@ -9,6 +9,7 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgraph-io/ristretto/v2 v2.2.0 h1:bkY3XzJcXoMuELV8F+vS8kzNgicwQFAaGINAEJdWGOM=
 github.com/dgraph-io/ristretto/v2 v2.2.0/go.mod h1:RZrm63UmcBAaYWC1DotLYBmTvgkrs0+XhBd7Npn7/zI=
+github.com/dgraph-io/ristretto/v2 v2.3.0/go.mod h1:gpoRV3VzrEY1a9dWAYV6T1U7YzfgttXdd/ZzL1s9OZM=
 github.com/dgryski/go-farm v0.0.0-20240924180020-3414d57e47da h1:aIftn67I1fkbMa512G+w+Pxci9hJPB8oMnkcP3iZF38=
 github.com/dgryski/go-farm v0.0.0-20240924180020-3414d57e47da/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
@@ -115,6 +116,8 @@ gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.75 h1:Ru1I3+W4JN
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.75/go.mod h1:CedUXbNdQl0Mr+FFPtoON1b9qjbiqWizq44drmLX8kI=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.82 h1:9pticsZvUmNfa3FTP8UeqJAmptW+sNIYk34g4eabAlY=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.82/go.mod h1:K4LOTD8FXpdIpjmgU9f2tWYikLv0lVswNPJhBF0wyS8=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.84 h1:o/eXgr2cQ+cLbdX4Ugn2VK5orIkWed73lBM3ajLVafk=
+gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.84/go.mod h1:6Is5i030b5IqIZ6PbMap1htqwYkf6o31GutOwkBdSHU=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.22 h1:lNm2fetwdx/U8uNEKhU/APHGPXe+voGfD46F2mly5uo=
 gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.22/go.mod h1:VQlLYfSq+iVtF7e14qbHAoO53/jwC1bpfY4OuLxqyDk=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
