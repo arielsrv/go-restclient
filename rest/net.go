@@ -151,7 +151,7 @@ func (r *Client) newRequest(
 	}
 
 	// Create a new HTTP client
-	httpClient := r.onceHTTPClient(ctx)
+	httpClient := r.newHTTPClient(ctx)
 
 	// Create a new HTTP request
 	request, err := http.NewRequestWithContext(ctx, verb, apiURL, contentReader)
@@ -364,7 +364,7 @@ func checkMockup(reqURL string) (string, string, error) {
 	return reqURL, cacheURL, nil
 }
 
-// onceHTTPClient sets up the HTTP client for the given request builder.
+// The newHTTPClient sets up the HTTP client for the given request builder.
 // It initializes the client only once per Client instance using sync.Once,
 // configuring transport, tracing, OAuth, and default headers.
 //
@@ -376,7 +376,7 @@ func checkMockup(reqURL string) (string, string, error) {
 //   - Redirect handling based on FollowRedirect setting
 //
 // Returns the configured http.Client.
-func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
+func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 	r.clientMtxOnce.Do(func() {
 		r.clientMtx.Lock()
 		defer r.clientMtx.Unlock()
@@ -385,20 +385,7 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 		if r.EnableTrace {
 			tr = otelhttp.NewTransport(tr)
 		}
-		baseClient := &http.Client{Transport: tr}
-		if r.OAuth != nil {
-			oauth := &clientcredentials.Config{
-				ClientID:       r.OAuth.ClientID,
-				ClientSecret:   r.OAuth.ClientSecret,
-				TokenURL:       r.OAuth.TokenURL,
-				AuthStyle:      oauth2.AuthStyle(r.OAuth.AuthStyle),
-				Scopes:         r.OAuth.Scopes,
-				EndpointParams: r.OAuth.EndpointParams,
-			}
-			ctxWithClient := context.WithValue(ctx, oauth2.HTTPClient, baseClient)
-			baseClient = oauth.Client(ctxWithClient)
-		}
-		r.Client = baseClient
+		r.Client = &http.Client{Transport: tr}
 
 		// Redirect handling
 		if !r.FollowRedirect {
@@ -425,6 +412,20 @@ func (r *Client) onceHTTPClient(ctx context.Context) *http.Client {
 
 	r.clientMtx.Lock()
 	defer r.clientMtx.Unlock()
+
+	if r.OAuth != nil {
+		oauth := &clientcredentials.Config{
+			ClientID:       r.OAuth.ClientID,
+			ClientSecret:   r.OAuth.ClientSecret,
+			TokenURL:       r.OAuth.TokenURL,
+			AuthStyle:      oauth2.AuthStyle(r.OAuth.AuthStyle),
+			Scopes:         r.OAuth.Scopes,
+			EndpointParams: r.OAuth.EndpointParams,
+		}
+		oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, r.Client)
+		return oauth.Client(oauthCtx)
+	}
+
 	return r.Client
 }
 

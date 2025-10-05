@@ -16,7 +16,7 @@ func main() {
 
 	response := client.GetWithContext(context.Background(), "/bytes/1024")
 	if response.Err == nil {
-		err := os.WriteFile("output.bin", response.Bytes(), 0644)
+		err := os.WriteFile("output.bin", response.Bytes(), 0o644)
 		if err != nil {
 			fmt.Println("Error saving file:", err)
 		} else {

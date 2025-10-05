@@ -1,4 +1,4 @@
-image: docker.io/golang:1.24.6
+image: docker.io/golang:1.25.1
 
 default:
   tags:
@@ -9,7 +9,6 @@ variables:
   GOLANGCI_LINT_CACHE: $CI_PROJECT_DIR/golangci-lint/.cache
   GOTESTSUM_CACHE: $CI_PROJECT_DIR/gotestsum/.cache
   CGO_ENABLED: 0
-  GOEXPERIMENT: nocoverageredesign
   GORACE: "halt_on_error=1"
   GOTESTSUM_FORMAT: "testname"
   GOLANGCI_LINT_TIMEOUT: "5m"
@@ -52,7 +51,7 @@ build:
 
     # 🧪 Optimized tests with race detection and coverage
     - echo "🧪 Running comprehensive tests..."
-    - CGO_ENABLED=1 go test -race -v -timeout=10m -coverprofile=coverage.out -covermode=atomic ./...
+    - CGO_ENABLED=1 go test -race -v -timeout=10m coverpkg=./rest/... -coverprofile=coverage.out -covermode=atomic ./...
     - echo "✅ Tests completed"
 
     # 📊 Optimized coverage reports

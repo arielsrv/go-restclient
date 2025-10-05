@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
 )
 
 func main() {
@@ -45,28 +45,30 @@ func main() {
 		Total int `json:"total"`
 	}
 
-	response := client.GetWithContext(context.Background(), "/sites")
-	if response.Err != nil {
-		log.Fatal(response.Err)
-	}
+	for {
+		response := client.GetWithContext(context.Background(), "/sites")
+		if response.Err != nil {
+			log.Fatal(response.Err)
+		}
 
-	if response.StatusCode != http.StatusOK {
-		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
-	}
+		if response.StatusCode != http.StatusOK {
+			log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+		}
 
-	var sitesResponse SitesResponse
-	err := response.FillUp(&sitesResponse)
-	if err != nil {
-		log.Fatal(err)
-	}
+		var sitesResponse SitesResponse
+		err := response.FillUp(&sitesResponse)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	for i := range sitesResponse.Data {
-		siteResponse := sitesResponse.Data[i]
-		log.Infof("Site: %s, Link: %s", siteResponse.ID, siteResponse.Link)
-	}
+		for i := range sitesResponse.Data {
+			siteResponse := sitesResponse.Data[i]
+			log.Infof("Site: %s, Link: %s", siteResponse.ID, siteResponse.Link)
+		}
 
-	log.Info("Waiting for 10 seconds before exiting...  (Ctrl+C to stop)")
-	time.Sleep(time.Duration(10) * time.Second)
+		log.Info("Waiting for 10 seconds before exiting...  (Ctrl+C to stop)")
+		time.Sleep(time.Duration(10) * time.Second)
+	}
 }
 
 func init() {

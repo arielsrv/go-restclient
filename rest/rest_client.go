@@ -463,7 +463,7 @@ func (r *Client) AsyncOptionsWithContext(ctx context.Context, url string, header
 
 // RawClient returns the underlying http.Client used by the RESTClient.
 func (r *Client) RawClient(ctx context.Context) *http.Client {
-	return r.onceHTTPClient(ctx)
+	return r.newHTTPClient(ctx)
 }
 
 // Do execute a REST request.
