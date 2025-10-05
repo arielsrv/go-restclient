@@ -58,6 +58,8 @@ tasks:
 
   download:
     cmds:
+      - go work sync
+      - (cd examples && go mod tidy)
       - go mod tidy
 
   upgrade:
