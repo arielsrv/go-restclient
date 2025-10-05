@@ -60,6 +60,7 @@ tasks:
     cmds:
       - go work sync
       - (cd examples && go mod tidy)
+      - (cd examples && go build ./...)
       - go mod tidy
 
   upgrade:
