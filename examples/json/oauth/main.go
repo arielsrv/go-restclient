@@ -45,8 +45,10 @@ func main() {
 		Total int `json:"total"`
 	}
 
+	ctx := context.Background()
+
 	for {
-		response := client.GetWithContext(context.Background(), "/sites")
+		response := client.GetWithContext(ctx, "/sites")
 		if response.Err != nil {
 			log.Fatal(response.Err)
 		}

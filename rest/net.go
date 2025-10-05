@@ -410,11 +410,8 @@ func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 		}
 	})
 
-	r.clientMtx.Lock()
-	defer r.clientMtx.Unlock()
-
 	if r.OAuth != nil {
-		oauth := &clientcredentials.Config{
+		oauthConfig := &clientcredentials.Config{
 			ClientID:       r.OAuth.ClientID,
 			ClientSecret:   r.OAuth.ClientSecret,
 			TokenURL:       r.OAuth.TokenURL,
@@ -422,8 +419,8 @@ func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 			Scopes:         r.OAuth.Scopes,
 			EndpointParams: r.OAuth.EndpointParams,
 		}
-		oauthCtx := context.WithValue(ctx, oauth2.HTTPClient, r.Client)
-		return oauth.Client(oauthCtx)
+
+		return oauthConfig.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
 	}
 
 	return r.Client
