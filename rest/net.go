@@ -26,6 +26,8 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
+var Version = "1.0.0"
+
 // HTTP method categorization for internal use.
 var (
 	// readVerbs contains HTTP methods that are considered "read" operations.
@@ -584,7 +586,7 @@ func (r *Client) setParams(
 			return r.UserAgent
 		}
 
-		return "go-restclient/1.0.0 (iskaypet-sre; +https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient)"
+		return "go-restclient/" + Version + " (iskaypet-sre; +https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient)"
 	}())
 
 	// Encoding

@@ -46,7 +46,7 @@ build:
 
     # 🔨 Optimized build with stripped binaries
     - echo "🔨 Building optimized binaries..."
-    - go build -ldflags="-s -w -X main.version=$CI_COMMIT_SHA" ./...
+    - go build -ldflags="-s -w -X rest.Version=$CI_COMMIT_SHA" ./...
     - echo "✅ Build completed"
 
     # 🧪 Optimized tests with race detection and coverage
