@@ -78,7 +78,7 @@ tasks:
           echo "Error: SONAR_TOKEN is not set."
           exit 1
         fi
-        go test -coverprofile=coverage.out ./... || true
+        go test -coverpkg=./... -coverprofile=coverage.out ./... || true
         go tool golangci-lint run --fix || true
         sonar-scanner -Dsonar.host.url={{.SONAR_HOST}}
 
