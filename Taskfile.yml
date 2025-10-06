@@ -6,7 +6,6 @@ env:
   BUILD_FOLDER: build
   COVERAGE_OUT_FILE: coverage.out
   COVERAGE_HTML_FILE: coverage.html
-  GOEXPERIMENT: nocoverageredesign
   SONAR_HOST: https://sonarqube.tooling.dp.iskaypet.com
 
 tasks:
@@ -59,6 +58,9 @@ tasks:
 
   download:
     cmds:
+      - go work sync
+      - (cd examples && go mod tidy)
+      - (cd examples && go build ./...)
       - go mod tidy
 
   upgrade:
@@ -76,7 +78,7 @@ tasks:
           echo "Error: SONAR_TOKEN is not set."
           exit 1
         fi
-        GOEXPERIMENT=nocoverageredesign go test -coverprofile=coverage.out ./... || true
+        go test -coverpkg=./... -coverprofile=coverage.out ./... || true
         go tool golangci-lint run --fix || true
         sonar-scanner -Dsonar.host.url={{.SONAR_HOST}}
 
