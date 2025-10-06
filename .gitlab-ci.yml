@@ -40,13 +40,13 @@ build:
   script:
     # 📦 Optimized dependency management
     - echo "📦 Downloading dependencies..."
-    - go mod download -x
+    - go mod download
     - go mod verify
     - echo "✅ Dependencies ready"
 
     # 🔨 Optimized build with stripped binaries
     - echo "🔨 Building optimized binaries..."
-    - go build -v -ldflags="-s -w -X main.version=$CI_COMMIT_SHA" ./...
+    - go build -ldflags="-s -w -X main.version=$CI_COMMIT_SHA" ./...
     - echo "✅ Build completed"
 
     # 🧪 Optimized tests with race detection and coverage
