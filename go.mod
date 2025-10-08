@@ -10,7 +10,7 @@ require (
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.24
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.63.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0
-	golang.org/x/oauth2 v0.31.0
+	golang.org/x/oauth2 v0.32.0
 	golang.org/x/sync v0.17.0
 )
 
