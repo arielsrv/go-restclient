@@ -1,4 +1,4 @@
-image: docker.io/golang:1.25.1
+image: docker.io/golang:1.25.2
 
 default:
   tags:

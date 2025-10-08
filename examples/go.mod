@@ -1,12 +1,12 @@
 module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/examples
 
-go 1.25.1
+go 1.25.2
 
 require (
 	github.com/prometheus/client_golang v1.23.2
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.32
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.62
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.90
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.64
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.92
 	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.38.0
 	go.opentelemetry.io/otel/sdk v1.38.0
