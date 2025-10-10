@@ -20,11 +20,18 @@ tasks:
       - go vet ./...
       - go tool govulncheck ./...
 
-  lint:
+  lint-tools:
     cmds:
       - go tool golangci-lint run --fix
       - go tool gofumpt -w -l .
       - go tool betteralign -test_files -generated_files -apply ./...
+
+  lint:
+    cmds:
+      - cd examples
+      - task: lint-tools
+      - cd ..
+      - task: lint-tools
 
   race:
     cmds:
