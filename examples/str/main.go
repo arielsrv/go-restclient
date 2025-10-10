@@ -8,8 +8,8 @@ import (
 )
 
 type List[T cmp.Ordered] struct {
-	items   []T
 	sorting Sorting[T]
+	items   []T
 }
 
 func NewList[T cmp.Ordered](items []T) *List[T] {

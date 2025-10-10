@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	fmt.Println("=== Go RESTClient Mock Server Examples ===\n")
+	fmt.Println("=== Go RESTClient Mock Server Examples ===")
 
 	// Example 1: Basic Mock Setup
 	fmt.Println("1. Basic Mock Setup:")
@@ -96,7 +96,11 @@ func mockWithHeadersExample() {
 		Timeout:      100 * time.Millisecond, // Simulate network delay
 	}
 
-	rest.AddMockups(authMock)
+	err := rest.AddMockups(authMock)
+	if err != nil {
+		fmt.Printf("Error adding mock: %v\n", err)
+		return
+	}
 
 	client := &rest.Client{
 		Name:        "auth-client",
@@ -107,7 +111,7 @@ func mockWithHeadersExample() {
 	// Add required headers
 	headers := make(http.Header)
 	headers.Set("Authorization", "Bearer valid-token")
-	headers.Set("X-API-Key", "test-key")
+	headers.Set("X-Api-Key", "test-key")
 
 	response := client.GetWithContext(context.Background(), "/protected", headers)
 	fmt.Printf("Response: %s\n", response.String())
@@ -151,7 +155,11 @@ func multipleMethodsExample() {
 		RespBody:     "",
 	}
 
-	rest.AddMockups(getMock, postMock, putMock, deleteMock)
+	err := rest.AddMockups(getMock, postMock, putMock, deleteMock)
+	if err != nil {
+		fmt.Printf("Error adding mock: %v\n", err)
+		return
+	}
 
 	client := &rest.Client{
 		Name:        "crud-client",
@@ -210,7 +218,11 @@ func errorScenariosExample() {
 		Timeout:      10 * time.Second, // Very slow response
 	}
 
-	rest.AddMockups(notFoundMock, serverErrorMock, timeoutMock)
+	err := rest.AddMockups(notFoundMock, serverErrorMock, timeoutMock)
+	if err != nil {
+		fmt.Printf("Error adding mock: %v\n", err)
+		return
+	}
 
 	client := &rest.Client{
 		Name:        "error-test-client",

@@ -13,12 +13,14 @@ import (
 func main() {
 	// Create a new REST client with custom settings
 	client := &rest.Client{
-		Name:           "httpbin-client", // required for logging and tracing
-		ContentType:    rest.JSON,        // rest.JSON by default
-		Timeout:        time.Duration(5000) * time.Millisecond,
-		BaseURL:        "https://httpbin.org",
-		EnableGzip:     true,                                             // enable gzip compression by default (optionally enable it)
-		DefaultHeaders: http.Header{"Accept-Encoding": []string{"gzip"}}, // default Accept-Encoding header (optionally customize it)
+		Name:        "httpbin-client", // required for logging and tracing
+		ContentType: rest.JSON,        // rest.JSON by default
+		Timeout:     time.Duration(5000) * time.Millisecond,
+		BaseURL:     "https://httpbin.org",
+		EnableGzip:  true, // enable gzip compression by default (optionally enable it)
+		DefaultHeaders: http.Header{
+			"Accept-Encoding": []string{"gzip"},
+		}, // default Accept-Encoding header (optionally customize it)
 	}
 
 	// Enable gzip compression for the request (or use EnableGzip option in the client settings)

@@ -13,11 +13,11 @@ import (
 )
 
 type UserResponse struct {
-	ID     int    `json:"id"`
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Gender string `json:"gender"`
 	Status string `json:"status"`
+	ID     int    `json:"id"`
 }
 
 type UsersClient struct {
@@ -50,11 +50,11 @@ func (r *UsersClient) GetUsers(ctx context.Context) (iter.Seq[UserResponse], err
 }
 
 type UserDTO struct {
-	ID     int    `json:"id"`
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Gender string `json:"gender"`
 	Status string `json:"status"`
+	ID     int    `json:"id"`
 }
 
 type UsersService struct {
@@ -73,13 +73,7 @@ func (r *UsersService) GetUsers(ctx context.Context) (iter.Seq[UserDTO], error) 
 
 	return func(yield func(userDTO UserDTO) bool) {
 		for userResponse := range usersResponse {
-			yield(UserDTO{
-				ID:     userResponse.ID,
-				Name:   userResponse.Name,
-				Email:  userResponse.Email,
-				Gender: userResponse.Gender,
-				Status: userResponse.Status,
-			})
+			yield(UserDTO(userResponse))
 		}
 	}, nil
 }

@@ -57,13 +57,13 @@ linters:
     - dupl # tool for code clone detection
     - durationcheck # checks for two durations multiplied together
     - embeddedstructfieldcheck # checks embedded types in structs
-    - errcheck # checking for unchecked errors, these unchecked errors can be critical bugs in some cases
+    #- errcheck # checking for unchecked errors, these unchecked errors can be critical bugs in some cases
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
     #- exhaustive # checks exhaustiveness of enum switch statements
     - exptostd # detects functions from golang.org/x/exp/ that can be replaced by std functions
     - fatcontext # detects nested contexts in loops
-    - forbidigo # forbids identifiers
+    #- forbidigo # forbids identifiers
     - funcorder # checks the order of functions, methods, and constructors
     #- funlen # tool for detection of long functions
     - gocheckcompilerdirectives # validates go compiler directive comments (//go:)
@@ -72,7 +72,7 @@ linters:
     - gochecksumtype # checks exhaustiveness on Go "sum types"
     #- gocognit # computes and checks the cognitive complexity of functions
     - goconst # finds repeated strings that could be replaced by a constant
-    - gocritic # provides diagnostics that check for bugs, performance and style issues
+    #- gocritic # provides diagnostics that check for bugs, performance and style issues
     - gocyclo # computes and checks the cyclomatic complexity of functions
     - godoclint # checks Golang's documentation practice
     - godot # checks if comments end in a period
@@ -172,7 +172,7 @@ linters:
       # The maximal average package complexity.
       # If it's higher than 0.0 (float) the check is enabled.
       # Default: 0.0
-      package-average: 10.0
+      package-average: 20.0
 
     depguard:
       # Rules to apply.

@@ -9,10 +9,9 @@ import (
 	"runtime"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic/otel/tracing"
-
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
+	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic/otel/tracing"
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
 )
 
@@ -83,7 +82,7 @@ func main() {
 	server := &http.Server{Addr: ":8081", ReadHeaderTimeout: 5000 * time.Millisecond}
 
 	log.Info("server started, metrics on http://localhost:8081/metrics")
-	if err := server.ListenAndServe(); err != nil {
+	if err = server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }

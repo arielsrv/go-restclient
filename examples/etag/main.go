@@ -30,12 +30,22 @@ func main() {
 	fmt.Println("-- First request --")
 	resp1 := client.GetWithContext(ctx, path)
 	check(resp1)
-	fmt.Printf("Status: %d, Cached: %t, ETag: %q\n", resp1.StatusCode, resp1.Cached(), resp1.Header.Get(rest.ETagHeader))
+	fmt.Printf(
+		"Status: %d, Cached: %t, ETag: %q\n",
+		resp1.StatusCode,
+		resp1.Cached(),
+		resp1.Header.Get(rest.ETagHeader),
+	)
 
 	fmt.Println("-- Second request (should revalidate with If-None-Match and use cache) --")
 	resp2 := client.GetWithContext(ctx, path)
 	check(resp2)
-	fmt.Printf("Status: %d, Cached: %t, ETag: %q\n", resp2.StatusCode, resp2.Cached(), resp2.Header.Get(rest.ETagHeader))
+	fmt.Printf(
+		"Status: %d, Cached: %t, ETag: %q\n",
+		resp2.StatusCode,
+		resp2.Cached(),
+		resp2.Header.Get(rest.ETagHeader),
+	)
 
 	// Note: On the second call, the library sends If-None-Match automatically.
 	// If the server replies 304 Not Modified, the go-restclient returns the cached response
@@ -54,9 +64,5 @@ func check(r *rest.Response) {
 	if !r.IsOk() {
 		fmt.Printf("unexpected status: %d body=%s\n", r.StatusCode, r.String())
 		os.Exit(1)
-	}
-	// ensure the HTTP layer didn't downgrade compression or similar; not required for ETag usage
-	if r.Header.Get("Content-Encoding") == "gzip" {
-		// ok
 	}
 }

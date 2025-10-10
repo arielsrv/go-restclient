@@ -90,6 +90,8 @@ func init() {
 	)
 
 	otel.SetTracerProvider(tracerProvider)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	otel.SetTextMapPropagator(
+		propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}),
+	)
 	otel.Tracer("example")
 }

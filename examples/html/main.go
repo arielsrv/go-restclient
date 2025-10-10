@@ -21,7 +21,10 @@ func main() {
 		EnableCache:    true,
 	}
 
-	response1 := client.GetWithContext(ctx, "https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
+	response1 := client.GetWithContext(
+		ctx,
+		"https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html",
+	)
 	switch {
 	case response1.Err != nil:
 		log.Fatal(response1.Err)
@@ -34,7 +37,10 @@ func main() {
 	time.Sleep(time.Millisecond * 100)
 
 	// server response with 304 Not Modified so client should not make a new request and return cached response
-	response2 := client.GetWithContext(ctx, "https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html")
+	response2 := client.GetWithContext(
+		ctx,
+		"https://syndicate.synthrone.com/df9g5m2kxcv7/ROY153637_M/latest/ROY153637_M.html",
+	)
 	switch {
 	case response2.Err != nil:
 		log.Fatal(response2.Err)
