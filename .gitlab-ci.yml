@@ -9,7 +9,7 @@ variables:
   GOCACHE: $CI_PROJECT_DIR/.gocache
   GOLANGCI_LINT_CACHE: $CI_PROJECT_DIR/golangci-lint/.cache
   GOTESTSUM_CACHE: $CI_PROJECT_DIR/gotestsum/.cache
-  CGO_ENABLED: 0
+  CGO_ENABLED: 1
   GORACE: "halt_on_error=1"
   GOTESTSUM_FORMAT: "testname"
   GOLANGCI_LINT_TIMEOUT: "5m"
@@ -17,7 +17,7 @@ variables:
 .go-cache:
   before_script:
     - if [ -d "$HOME" ]; then echo "machine gitlab.com login glpat password $CICD_TOKEN" > "$HOME/.netrc"; fi
-    - mkdir -p ${GOMODCACHE} ${GOLANGCI_LINT_CACHE} ${GOTESTSUM_CACHE}
+    - mkdir -p ${GOMODCACHE} ${GOLANGCI_LINT_CACHE} ${GOTESTSUM_CACHE} ${GOCACHE}
     - echo "🔧 Setting up optimized environment..."
     - go version
     - echo "📦 Cache directories created"
@@ -53,27 +53,16 @@ build:
     - echo "✅ Build completed"
 
     # 🧪 Conditional tests and reports for speed
-    - |
-      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
-        echo "🧪 Running comprehensive tests (with -race and full coverage)...";
-        CGO_ENABLED=1 go test -race -v -timeout=10m -coverpkg=./rest/... -coverprofile=coverage.out -covermode=atomic ./...;
-        echo "📊 Generating full coverage reports...";
-        go tool cover -func=coverage.out | tee coverage-func.txt;
-        go tool cover -html=coverage.out -o coverage-report.html || true;
-        go tool gocover-cobertura <coverage.out >coverage.xml || true;
-        echo "📋 Generating test reports...";
-        go tool gotestsum --junitfile report.xml --format testname || true;
-        echo "🔍 Running code quality checks...";
-        go tool golangci-lint run --timeout=${GOLANGCI_LINT_TIMEOUT} || true;
-      else
-        echo "🧪 Running fast MR tests (no -race, shorter timeout)...";
-        go test -v -timeout=5m -coverprofile=coverage.out ./...;
-        echo "📊 Generating quick coverage summary...";
-        go tool cover -func=coverage.out | tee coverage-func.txt;
-        # Ensure CI artifacts exist even on MR pipelines
-        go tool gocover-cobertura <coverage.out >coverage.xml || echo '<coverage></coverage>' > coverage.xml;
-        echo '<testsuite name="placeholder" tests="0" failures="0" errors="0" skipped="0"></testsuite>' > report.xml;
-      fi
+    - echo "🧪 Running comprehensive tests (with -race and full coverage)...";
+    - go test -race -v -timeout=10m -coverpkg=./rest/... -coverprofile=coverage.out -covermode=atomic ./...;
+    - echo "📊 Generating full coverage reports...";
+    - go tool cover -func=coverage.out | tee coverage-func.txt;
+    - go tool cover -html=coverage.out -o coverage-report.html || true;
+    - go tool gocover-cobertura <coverage.out >coverage.xml || true;
+    - echo "📋 Generating test reports...";
+    - go tool gotestsum --junitfile report.xml --format testname || true;
+    - echo "🔍 Running code quality checks...";
+    - go tool golangci-lint run --timeout=${GOLANGCI_LINT_TIMEOUT} || true;
     - echo "✅ All checks completed successfully"
 
   artifacts:
