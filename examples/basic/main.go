@@ -15,33 +15,34 @@ func main() {
 
 	// Create a new REST client with custom settings
 	client := &rest.Client{
-		Name:        "example-client",                                    // required for logging and tracing
-		BaseURL:     "https://order-status-oms-sfcc.dev.dp.iskaypet.com", // optional parameters
-		ContentType: rest.JSON,                                           // rest.JSON by default (rest.XML, rest.FORM, etc.)
-		Timeout:     time.Millisecond * time.Duration(2000),              // transmission timeout
-		/*ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
+		Name:           "example-client",                       // required for logging and tracing
+		BaseURL:        "https://gorest.co.in/public/v2",       // optional parameters
+		ContentType:    rest.JSON,                              // rest.JSON by default (rest.XML, rest.FORM, etc.)
+		Timeout:        time.Millisecond * time.Duration(2000), // transmission timeout
+		ConnectTimeout: time.Millisecond * time.Duration(5000), // socket timeout
 		EnableCache:    true,                                   // Last-Modified, Expires & ETag headers are disabled by default
-		CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
-			Transport: &http.Transport{
-				IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
-				ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
-				MaxIdleConnsPerHost:   10,
-			},
-		},
-		BasicAuth: &rest.BasicAuth{
-			Username: "your_username",
-			Password: "your_password",
-		},
-		OAuth: &rest.OAuth{
-			ClientID:     "your_client_id",
-			ClientSecret: "your_client_secret",
-			TokenURL:     "https://oauth.gorest.co.in/oauth/token",
-			AuthStyle:    rest.AuthStyleInHeader,
-		},
-		EnableTrace:    true,
-		UserAgent:      "<Your User Agent>",
-		DisableTimeout: false,
-		FollowRedirect: false,*/
+		EnableGzip:     true,
+		//CustomPool: &rest.CustomPool{ // for fine-tuning the connection pool
+		//	Transport: &http.Transport{
+		//		IdleConnTimeout:       time.Duration(2000) * time.Millisecond,
+		//		ResponseHeaderTimeout: time.Duration(2000) * time.Millisecond,
+		//		MaxIdleConnsPerHost:   10,
+		//	},
+		//},
+		//BasicAuth: &rest.BasicAuth{
+		//	Username: "your_username",
+		//	Password: "your_password",
+		//},
+		//OAuth: &rest.OAuth{
+		//	ClientID:     "your_client_id",
+		//	ClientSecret: "your_client_secret",
+		//	TokenURL:     "https://oauth.gorest.co.in/oauth/token",
+		//	AuthStyle:    rest.AuthStyleInHeader,
+		//},
+		//EnableTrace:    true,
+		//UserAgent:      "<Your User Agent>",
+		//DisableTimeout: false,
+		//FollowRedirect: false,
 	}
 
 	// Set headers for the request (optional)
@@ -49,7 +50,7 @@ func main() {
 	headers.Add("My-Custom-Header", "My-Custom-Value")
 
 	// Make a GET request (context optional)
-	response := client.GetWithContext(ctx, "/purchases/81319403/orders/81319403?site_id=TES", headers)
+	response := client.GetWithContext(ctx, "/users", headers)
 	if response.Err != nil {
 		fmt.Printf("Error: %v\n", response.Err)
 		os.Exit(1)
