@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 	"time"
 
 	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
@@ -76,7 +77,7 @@ func main() {
 	}
 
 	// Print the users
-	for i := range users {
-		fmt.Printf("User: %d, Name: %s, Email: %s\n", users[i].ID, users[i].Name, users[i].Email)
+	for user := range slices.Values(users) {
+		fmt.Printf("User: %d, Name: %s, Email: %s\n", user.ID, user.Name, user.Email)
 	}
 }
