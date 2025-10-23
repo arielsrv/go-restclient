@@ -21,7 +21,7 @@ func main() {
 		ContentType: rest.JSON,
 		Timeout:     5 * time.Second,
 		EnableGzip:  true,
-		EnableCache: true, // required to leverage ETag/Last-Modified cache behaviour
+		EnableCache: true, // required to leverage ETag/Last-Modified cache behavior
 	}
 
 	const path = "/etag/foobar-etag"
@@ -36,6 +36,8 @@ func main() {
 		resp1.Cached(),
 		resp1.Header.Get(rest.ETagHeader),
 	)
+
+	time.Sleep(100 * time.Millisecond)
 
 	fmt.Println("-- Second request (should revalidate with If-None-Match and use cache) --")
 	resp2 := client.GetWithContext(ctx, path)
