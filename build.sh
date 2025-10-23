@@ -1,14 +1,13 @@
 #!/bin/bash
 set -e
-
-# Obtener ruta absoluta del proyecto
 ROOT_DIR=$(pwd)/.cache
+
+# Only for GitLab testing ...
 
 export GOMODCACHE="$ROOT_DIR/.gomodcache"
 export GOCACHE="$ROOT_DIR/gocache"
 export GOLANGCI_LINT_CACHE="$ROOT_DIR/golangci-lint/.cache"
 export GOTESTSUM_CACHE="$ROOT_DIR/gotestsum/.cache"
-
 export CGO_ENABLED=1
 export GORACE="halt_on_error=1"
 export GOTESTSUM_FORMAT="testname"
