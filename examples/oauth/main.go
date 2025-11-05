@@ -17,8 +17,8 @@ import (
 
 func main() {
 	client := &rest.Client{
-		Name:           "ocapi-client",
-		BaseURL:        "https://www.kiwoko.com/s/-/dw/data/v22_6",
+		Name:           "scapi-client",
+		BaseURL:        "https://c5n0uf3s.api.commercecloud.salesforce.com",
 		Timeout:        time.Millisecond * 1000,
 		ConnectTimeout: time.Millisecond * 5000,
 		ContentType:    rest.JSON,
@@ -48,7 +48,7 @@ func main() {
 	ctx := context.Background()
 
 	for {
-		response := client.GetWithContext(ctx, "/sites")
+		response := client.GetWithContext(ctx, "/product/products/v1/organizations/f_ecom_bdlq_prd/products/BEA10136?siteId=KiwokoES")
 		if response.Err != nil {
 			log.Fatal(response.Err)
 		}

@@ -5,14 +5,17 @@ go 1.25.3
 require (
 	github.com/prometheus/client_golang v1.23.2
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger v0.0.32
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.68
-	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.94
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic v0.0.76
+	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient v0.2.98
 	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.38.0
 	go.opentelemetry.io/otel/sdk v1.38.0
 )
 
 require (
+	github.com/aws/aws-sdk-go-v2/service/sns v1.39.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.42.12 // indirect
+	github.com/aws/smithy-go v1.23.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -43,7 +46,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector v0.0.30 // indirect
 	gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config v0.0.24 // indirect
-	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
+	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.63.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.38.0 // indirect
