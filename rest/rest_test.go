@@ -132,7 +132,7 @@ func TestPost_XMLErr(t *testing.T) {
 	client := rest.Client{
 		ContentType: rest.XML,
 	}
-	resp := client.Post(server.URL+"/user", map[string]interface{}{})
+	resp := client.Post(server.URL+"/user", map[string]any{})
 
 	if resp.Err == nil {
 		t.Fatal("Error should not be nil")
@@ -365,7 +365,7 @@ func TestResponse_InvalidContentType(t *testing.T) {
 	restClient.Timeout = 9 * time.Millisecond
 	restClient.ContentType = 4
 
-	resp := restClient.Post(server.URL+"/users", map[string]interface{}{})
+	resp := restClient.Post(server.URL+"/users", map[string]any{})
 	require.Error(t, resp.VerifyIsOkOrError())
 }
 

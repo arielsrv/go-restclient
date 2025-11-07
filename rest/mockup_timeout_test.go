@@ -24,7 +24,8 @@ func TestMockup_RequestTimeout(t *testing.T) {
 		// to this to increase likelihood of client timeout.
 		Timeout: 200 * time.Millisecond,
 	}
-	if err := rest.AddMockups(&mock); err != nil {
+	err := rest.AddMockups(&mock)
+	if err != nil {
 		t.Fatalf("unexpected error adding mock: %v", err)
 	}
 

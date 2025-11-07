@@ -401,7 +401,7 @@ func TestClient_GetWithContext_ConcurrentResponses(t *testing.T) {
 					go func() {
 						defer wg.Done()
 						if tc.content == "application/json" {
-							var result map[string]interface{}
+							var result map[string]any
 							_ = resp.FillUp(&result)
 						}
 					}()
@@ -616,7 +616,7 @@ func TestClient_GetWithContext_ConcurrentResponseBufferStress(t *testing.T) {
 
 				go func() {
 					defer wg.Done()
-					var result map[string]interface{}
+					var result map[string]any
 					_ = resp.FillUp(&result)
 				}()
 
@@ -730,7 +730,7 @@ func TestClient_GetWithContext_ResponseBufferConcatenation(t *testing.T) {
 		responseCount++
 
 		// Check if response is valid JSON
-		var result map[string]interface{}
+		var result map[string]any
 		err = resp.FillUp(&result)
 		if err != nil {
 			t.Errorf("Failed to parse JSON response: %v, response: %s", err, resp.String())
@@ -813,7 +813,7 @@ func TestClient_GetWithContext_ConcurrentResponseAccess(t *testing.T) {
 			results <- result
 
 			// Concurrent FillUp calls
-			var data map[string]interface{}
+			var data map[string]any
 			_ = resp.FillUp(&data)
 
 			// Concurrent IsOk calls
@@ -970,7 +970,7 @@ func TestClient_GetWithContext_ConcurrentResponsesWithCache(t *testing.T) {
 					go func() {
 						defer wg.Done()
 						if tc.content == "application/json" {
-							var result map[string]interface{}
+							var result map[string]any
 							_ = resp.FillUp(&result)
 						}
 					}()
@@ -1193,7 +1193,7 @@ func TestClient_GetWithContext_ConcurrentResponseBufferStressWithCache(t *testin
 
 				go func() {
 					defer wg.Done()
-					var result map[string]interface{}
+					var result map[string]any
 					_ = resp.FillUp(&result)
 				}()
 
@@ -1317,7 +1317,7 @@ func TestClient_GetWithContext_ResponseBufferConcatenationWithCache(t *testing.T
 		}
 
 		// Check if response is valid JSON
-		var result map[string]interface{}
+		var result map[string]any
 		err = resp.FillUp(&result)
 		if err != nil {
 			t.Errorf("Failed to parse JSON response: %v, response: %s", err, resp.String())
@@ -1425,7 +1425,7 @@ func TestClient_GetWithContext_CacheKeyIssue(t *testing.T) {
 	}
 
 	// Parse responses to check content
-	var result1, result2 map[string]interface{}
+	var result1, result2 map[string]any
 	require.NoError(t, resp1.FillUp(&result1))
 	require.NoError(t, resp2.FillUp(&result2))
 
@@ -1484,7 +1484,7 @@ func TestClient_GetWithContext_ConcurrentResponseAccessWithCache(t *testing.T) {
 			results <- result
 
 			// Concurrent FillUp calls
-			var data map[string]interface{}
+			var data map[string]any
 			_ = resp.FillUp(&data)
 
 			// Concurrent IsOk calls
@@ -1615,7 +1615,7 @@ func TestClient_GetWithContext_CacheEvictionAndConcurrency(t *testing.T) {
 		responseCount++
 
 		// Check if response is valid JSON
-		var result map[string]interface{}
+		var result map[string]any
 		err = resp.FillUp(&result)
 		if err != nil {
 			t.Errorf("Failed to parse JSON response: %v, response: %s", err, resp.String())
@@ -1742,9 +1742,9 @@ func executeRequest(
 		headers = http.Header{"Accept": {contentType}}
 	}
 
-	var body interface{}
+	var body any
 	if method == "POST" || method == "PUT" || method == "PATCH" {
-		body = map[string]interface{}{
+		body = map[string]any{
 			"test":      "data",
 			"timestamp": time.Now().UnixNano(),
 		}
@@ -1798,7 +1798,7 @@ func testConcurrentResponseAccess(resp *rest.Response) {
 
 	go func() {
 		defer wg.Done()
-		var result map[string]interface{}
+		var result map[string]any
 		_ = resp.FillUp(&result)
 	}()
 
@@ -1912,7 +1912,7 @@ func TestClient_GetWithContext_EdgeCasesAndErrors(t *testing.T) {
 	require.NoError(t, resp.Err)
 
 	// Test FillUp with unknown content type
-	var result map[string]interface{}
+	var result map[string]any
 	err := resp.FillUp(&result)
 	require.Error(t, err)
 	t.Logf("Expected error for unknown content type: %v", err)
@@ -2170,18 +2170,18 @@ func TestClient_GetWithContext_ResponseMethods(t *testing.T) {
 	t.Logf("Debug(): %s", resp.Debug())
 
 	// Test FillUp
-	var result map[string]interface{}
+	var result map[string]any
 	err := resp.FillUp(&result)
 	require.NoError(t, err)
 	require.Equal(t, "data", result["test"])
 
 	// Test Deserialize
-	deserialized, err := rest.Deserialize[map[string]interface{}](resp)
+	deserialized, err := rest.Deserialize[map[string]any](resp)
 	require.NoError(t, err)
 	require.Equal(t, "data", deserialized["test"])
 
 	// Test with nil response
-	_, err = rest.Deserialize[map[string]interface{}](nil)
+	_, err = rest.Deserialize[map[string]any](nil)
 	require.Error(t, err)
 
 	// Test VerifyIsOkOrError
