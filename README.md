@@ -30,6 +30,7 @@ authentication, metrics, and comprehensive request/response handling.
 - [Caching](#-caching)
 - [Authentication](#-authentication)
 - [Metrics & Monitoring](#-metrics--monitoring)
+- [OpenTelemetry (Tracing)](#opentelemetry-tracing)
 - [Benchmarks](#-benchmarks)
 - [Connection Pooling](#-connection-pooling)
 - [Roadmap](#%EF%B8%8F-roadmap)
@@ -262,7 +263,7 @@ Explore comprehensive examples in the `examples/` directory:
 
 #### Simple JSON Requests
 ```go
-// examples/json/basic/main.go
+// examples/basic/main.go
 client := &rest.Client{
     Name:        "example-client",
     BaseURL:     "https://gorest.co.in/public/v2",
@@ -283,7 +284,7 @@ if err := response.FillUp(&users); err != nil {
 
 #### Using Generics for Type Safety
 ```go
-// examples/json/generics/main.go
+// examples/generics/main.go
 type UserResponse struct {
     Name   string `json:"name"`
     Email  string `json:"email"`
@@ -301,7 +302,7 @@ if err != nil {
 
 #### Custom Headers and Default Headers
 ```go
-// examples/json/dfltheaders/main.go
+// examples/dfltheaders/main.go
 client := &rest.Client{
     Name:           "example-client",
     BaseURL:        "https://gorest.co.in/public/v2",
@@ -323,7 +324,7 @@ response := client.GetWithContext(ctx, "/users", headers)
 
 #### OAuth2 Client Credentials
 ```go
-// examples/json/oauth/main.go
+// examples/oauth/main.go
 client := &rest.Client{
     Name:        "ocapi-client",
     BaseURL:     "https://www.kiwoko.com/s/-/dw/data/v22_6",
@@ -431,7 +432,7 @@ response := client.Get("https://tinyurl.com/39da2yt4")
 
 #### Response Caching
 ```go
-// examples/json/iskaypet/main.go
+// examples/iskaypet/main.go
 client := &rest.Client{
     Name:        "sites-client",
     BaseURL:     "https://api.prod.dp.iskaypet.com",
@@ -504,6 +505,87 @@ func main() {
     txn.End()
 }
 ```
+
+## OpenTelemetry (Tracing)
+
+OpenTelemetry (OTel) support is built into the client. When you set `EnableTrace: true`, the client:
+
+- Hooks into Go's `net/http/httptrace`
+- Uses `otelhttptrace.NewClientTrace(ctx)` to create OTel spans around DNS, connect, TLS, and request/response lifecycle events
+- Propagates the active context so your upstream spans (e.g., from handlers or jobs) automatically become parents of HTTP client spans
+
+### Minimal setup (stdout exporter)
+
+```go
+import (
+    "context"
+    "time"
+
+    "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+    "go.opentelemetry.io/otel"
+    "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+    "go.opentelemetry.io/otel/sdk/resource"
+    sdktrace "go.opentelemetry.io/otel/sdk/trace"
+    semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
+)
+
+func initTracing() func(context.Context) error {
+    exp, _ := stdouttrace.New(stdouttrace.WithPrettyPrint())
+    tp := sdktrace.NewTracerProvider(
+        sdktrace.WithBatcher(exp),
+        sdktrace.WithResource(resource.NewWithAttributes(
+            semconv.SchemaURL,
+            semconv.ServiceNameKey.String("my-service"),
+        )),
+    )
+    otel.SetTracerProvider(tp)
+    return tp.Shutdown
+}
+
+func main() {
+    shutdown := initTracing()
+    defer shutdown(context.Background())
+
+    client := &rest.Client{
+        Name:        "example-client",
+        BaseURL:     "https://httpbin.org",
+        ContentType: rest.JSON,
+        EnableTrace: true,
+    }
+
+    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+    defer cancel()
+
+    resp := client.GetWithContext(ctx, "/get")
+    _ = resp
+}
+```
+
+### Using OTLP and a Collector
+
+Most production setups send traces to an OTel Collector (or directly to vendors). Common environment variables:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317        # gRPC
+# export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318      # HTTP/proto
+export OTEL_SERVICE_NAME=my-service
+export OTEL_RESOURCE_ATTRIBUTES=deployment.environment=local
+```
+
+If you prefer a helper, see `examples/trace/main.go`, which demonstrates initialization via our `go-relic` helper and sending spans to an OTLP collector.
+
+### How it works here
+
+- Field `EnableTrace` on `rest.Client` activates client-side tracing hooks in `rest/net.go`:
+  - `httptrace.WithClientTrace(ctx, otelhttptrace.NewClientTrace(ctx))`
+- You get granular spans for name resolution, connection, TLS, and request lifecycle
+- The client respects the incoming `ctx` so your trace tree remains intact across calls
+
+### References & examples
+
+- Complete example: `examples/trace/main.go`
+- OAuth + tracing example: `examples/oauth/main.go`
+- Grafana dashboard JSONs for metrics are available in the `grafana/` directory and a preview image `images/metrics.png`
 
 ### Design Patterns
 
@@ -811,10 +893,10 @@ Execute any example directly:
 
 ```bash
 # Basic JSON example
-go run examples/json/basic/main.go
+go run examples/basic/main.go
 
 # OAuth2 example
-go run examples/json/oauth/main.go
+go run examples/oauth/main.go
 
 # Mock server example
 go run examples/mock/main.go
