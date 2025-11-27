@@ -74,7 +74,7 @@ require (
 	github.com/dave/dst v0.27.3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/denis-tingaikin/go-header v0.5.0 // indirect
-	github.com/dkorunic/betteralign v0.8.0 // indirect
+	github.com/dkorunic/betteralign v0.8.1 // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/dnephin/pflag v1.0.7 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -114,7 +114,7 @@ require (
 	github.com/golangci/swaggoswag v0.0.0-20250504205917-77f2aca3143e // indirect
 	github.com/golangci/unconvert v0.0.0-20250410112200-a129a6e6413e // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/renameio/v2 v2.0.0 // indirect
+	github.com/google/renameio/v2 v2.0.1 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gordonklaus/ineffassign v0.2.0 // indirect
 	github.com/gostaticanalysis/analysisutil v0.7.1 // indirect
@@ -253,13 +253,12 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20251023183803-a4bb9ffd2546 // indirect
-	golang.org/x/mod v0.29.0 // indirect
-	golang.org/x/net v0.46.1-0.20251013234738-63d1a5100f82 // indirect
-	golang.org/x/sys v0.37.0 // indirect
-	golang.org/x/telemetry v0.0.0-20251008203120-078029d740a8 // indirect
-	golang.org/x/term v0.36.0 // indirect
-	golang.org/x/text v0.30.0 // indirect
-	golang.org/x/tools v0.38.0 // indirect
+	golang.org/x/mod v0.30.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/telemetry v0.0.0-20251111182119-bc8e575c7b54 // indirect
+	golang.org/x/term v0.37.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/tools v0.39.0 // indirect
 	golang.org/x/vuln v1.1.4 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
