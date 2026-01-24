@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arielsrv/go-restclient/rest"
 	"github.com/stretchr/testify/require"
+
+	"github.com/arielsrv/go-restclient/rest"
 )
 
 func TestMockup(t *testing.T) {

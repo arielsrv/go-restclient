@@ -14,9 +14,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arielsrv/go-restclient/rest"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/arielsrv/go-restclient/rest"
 )
 
 func TestGet_Raw(t *testing.T) {

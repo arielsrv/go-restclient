@@ -14,8 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arielsrv/go-restclient/rest"
 	"golang.org/x/oauth2"
+
+	"github.com/arielsrv/go-restclient/rest"
 )
 
 var lastModifiedDate = time.Now()

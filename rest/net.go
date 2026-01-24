@@ -165,7 +165,6 @@ func (r *Client) newRequest(
 
 	// Make the request
 	httpResponse, err := httpClient.Do(request)
-
 	// Error handling
 	if err != nil {
 		return &Response{

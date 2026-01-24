@@ -8,9 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arielsrv/go-restclient/rest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/arielsrv/go-restclient/rest"
 )
 
 func TestAuthConstants(t *testing.T) {

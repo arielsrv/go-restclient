@@ -10,7 +10,7 @@ import (
 func BenchmarkGet(b *testing.B) {
 	client := &rest.Client{}
 
-	for range b.N {
+	for b.Loop() {
 		resp := client.Get("https://gorest.co.in/public/v2/users")
 		if resp.Err != nil {
 			continue
@@ -21,7 +21,7 @@ func BenchmarkGet(b *testing.B) {
 }
 
 func BenchmarkCacheGet(b *testing.B) {
-	for range b.N {
+	for b.Loop() {
 		resp := rb.Get("/cache/user")
 
 		if resp.StatusCode != http.StatusOK {
@@ -30,7 +30,7 @@ func BenchmarkCacheGet(b *testing.B) {
 }
 
 func BenchmarkSlowGet(b *testing.B) {
-	for range b.N {
+	for b.Loop() {
 		resp := rb.Get("/slow/user")
 
 		if resp.StatusCode != http.StatusOK {
