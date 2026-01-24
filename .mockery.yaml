@@ -8,6 +8,6 @@ template-data:
   unroll-variadic: True
 force-file-write: True
 packages:
-  gitlab.com/arielsrv/go-restclient/rest:
+  github.com/arielsrv/go-restclient/rest:
     config:
       recursive: true

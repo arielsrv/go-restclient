@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/arielsrv/go-restclient/rest"
 	"github.com/stretchr/testify/require"
-	"gitlab.com/arielsrv/go-restclient/rest"
 	"golang.org/x/sync/errgroup"
 )
 

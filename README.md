@@ -1,8 +1,8 @@
 # Go RESTClient
 
-[![pipeline status](https://gitlab.com/arielsrv/go-restclient/badges/main/pipeline.svg)](https://gitlab.com/arielsrv/go-restclient/-/commits/main)
-[![coverage report](https://gitlab.com/arielsrv/go-restclient/badges/main/coverage.svg)](https://gitlab.com/arielsrv/go-restclient/-/commits/main)
-[![release](https://gitlab.com/arielsrv/go-restclient/-/badges/release.svg)](https://gitlab.com/arielsrv/go-restclient/-/releases)
+[![pipeline status](https://github.com/arielsrv/go-restclient/badges/main/pipeline.svg)](https://github.com/arielsrv/go-restclient/-/commits/main)
+[![coverage report](https://github.com/arielsrv/go-restclient/badges/main/coverage.svg)](https://github.com/arielsrv/go-restclient/-/commits/main)
+[![release](https://github.com/arielsrv/go-restclient/-/badges/release.svg)](https://github.com/arielsrv/go-restclient/-/releases)
 
 A high-performance HTTP client library for Go with advanced features including caching,
 authentication, metrics, and comprehensive request/response handling.
@@ -38,7 +38,7 @@ authentication, metrics, and comprehensive request/response handling.
 ## 🚀 Installation
 
 ```bash
-go get gitlab.com/arielsrv/go-restclient@latest
+go get github.com/arielsrv/go-restclient@latest
 ```
 
 ## ⚡ Quick Start
@@ -52,7 +52,7 @@ import (
     "net/http"
     "time"
 
-    "gitlab.com/arielsrv/go-restclient/rest"
+    "github.com/arielsrv/go-restclient/rest"
 )
 
 func main() {
@@ -521,7 +521,7 @@ import (
     "context"
     "time"
 
-    "gitlab.com/arielsrv/go-restclient/rest"
+    "github.com/arielsrv/go-restclient/rest"
     "go.opentelemetry.io/otel"
     "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
     "go.opentelemetry.io/otel/sdk/resource"
@@ -644,7 +644,7 @@ import (
     "net/http"
     "time"
 
-    "gitlab.com/arielsrv/go-restclient/rest"
+    "github.com/arielsrv/go-restclient/rest"
 )
 
 func main() {
@@ -911,7 +911,7 @@ go run examples/trace/main.go
 ### Live Example
 
 ```bash
-ENV=local APP_NAME=example go run gitlab.com/arielsrv/go-restclient/examples/metrics@latest
+ENV=local APP_NAME=example go run github.com/arielsrv/go-restclient/examples/metrics@latest
 ```
 
 ## 🛣️ Roadmap

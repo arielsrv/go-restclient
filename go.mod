@@ -1,4 +1,4 @@
-module gitlab.com/arielsrv/go-restclient
+module github.com/arielsrv/go-restclient
 
 go 1.25.6
 

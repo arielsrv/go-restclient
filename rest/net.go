@@ -537,7 +537,7 @@ func (r *Client) setParams(
 			return r.UserAgent
 		}
 
-		return "go-restclient/" + Version + " (iskaypet-sre; +https://gitlab.com/arielsrv/go-restclient)"
+		return "go-restclient/" + Version + " (iskaypet-sre; +https://github.com/arielsrv/go-restclient)"
 	}())
 
 	// Encoding

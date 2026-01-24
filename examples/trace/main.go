@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/arielsrv/go-restclient/rest"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlab.com/arielsrv/go-restclient/rest"
 )
 
 func init() {

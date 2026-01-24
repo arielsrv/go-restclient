@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"gitlab.com/arielsrv/go-restclient/rest"
+	"github.com/arielsrv/go-restclient/rest"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"

@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/arielsrv/go-restclient/rest"
+	"github.com/arielsrv/go-restclient/rest"
 	"golang.org/x/oauth2"
 )
 

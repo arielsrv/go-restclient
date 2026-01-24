@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/arielsrv/go-restclient/rest"
+	"github.com/arielsrv/go-restclient/rest"
 )
 
 func TestCacheGetLowCacheMaxSize(t *testing.T) {

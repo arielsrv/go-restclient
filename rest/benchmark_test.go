@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"gitlab.com/arielsrv/go-restclient/rest"
+	"github.com/arielsrv/go-restclient/rest"
 )
 
 func BenchmarkGet(b *testing.B) {

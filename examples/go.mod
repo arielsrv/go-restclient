@@ -1,4 +1,4 @@
-module gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/examples
+module github.com/arielsrv/go-restclient/examples
 
 go 1.25.6
 

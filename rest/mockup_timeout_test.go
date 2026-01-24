@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/arielsrv/go-restclient/rest"
+	"github.com/arielsrv/go-restclient/rest"
 )
 
 // This test exercises the timeout branch in mockup.go where the handler
