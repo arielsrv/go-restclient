@@ -14,8 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 	"golang.org/x/oauth2"
 )
 
@@ -121,7 +120,7 @@ func authToken(writer http.ResponseWriter, _ *http.Request) {
 
 	ub, err := json.Marshal(token)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	writer.Header().Set("Content-Type", "application/json")
@@ -259,7 +258,6 @@ func usersForm(writer http.ResponseWriter, req *http.Request) {
 
 		form, err := url.ParseQuery(string(b))
 		if err != nil {
-			log.Error(err)
 			return
 		}
 

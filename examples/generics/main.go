@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 )
 
 type UserResponse struct {
@@ -28,22 +29,25 @@ func main() {
 	// Make a GET request
 	response := client.Get("/users")
 	if response.Err != nil {
-		log.Fatal(response.Err)
+		fmt.Println(response.Err)
+		os.Exit(1)
 	}
 
 	// Check status code and handle errors accordingly or response.IsOk()
 	if !response.IsOk() {
-		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+		fmt.Printf("Status: %d, Body: %s\n", response.StatusCode, response.String())
+		os.Exit(1)
 	}
 
 	// Typed fill up
 	usersResponse, err := rest.Deserialize[[]UserResponse](response)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	// Print the users
 	for i := range usersResponse {
-		log.Infof("User: %v", usersResponse[i])
+		fmt.Printf("User: %v\n", usersResponse[i])
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	mock "github.com/stretchr/testify/mock"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 )
 
 // NewMockCache creates a new instance of MockCache. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

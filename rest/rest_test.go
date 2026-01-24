@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 )
 
 func TestAuthConstants(t *testing.T) {

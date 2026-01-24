@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 )
 
 type SiteResponse struct {
@@ -40,56 +40,65 @@ func main() {
 	ctx := context.Background()
 	response := client.GetWithContext(ctx, "/sites")
 	if response.Err != nil {
-		log.Fatal(response.Err)
+		fmt.Println(response.Err)
+		os.Exit(1)
 	}
 
 	if response.StatusCode != http.StatusOK {
-		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+		fmt.Printf("Status: %d, Body: %s\n", response.StatusCode, response.String())
+		os.Exit(1)
 	}
 
-	log.Infof("Cache-Control: %v", response.Header.Get("Cache-Control"))
+	fmt.Printf("Cache-Control: %v\n", response.Header.Get("Cache-Control"))
 
 	// Typed fill up
 	sitesResponse, err := rest.Deserialize[[]SiteResponse](response)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	for i := range sitesResponse {
-		log.Infof("Site: %v", sitesResponse[i])
+		fmt.Printf("Site: %v\n", sitesResponse[i])
 
 		for k := range sitesResponse {
 			response = client.GetWithContext(ctx, fmt.Sprintf("/sites/%s", sitesResponse[k].ID))
 			if response.Err != nil {
-				log.Fatal(response.Err)
+				fmt.Println(response.Err)
+				os.Exit(1)
 			}
 
 			if response.StatusCode != http.StatusOK {
-				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+				fmt.Printf("Status: %d, Body: %s\n", response.StatusCode, response.String())
+				os.Exit(1)
 			}
 
 			siteResponse, sErr := rest.Deserialize[SiteResponse](response)
 			if sErr != nil {
-				log.Fatal(sErr)
+				fmt.Println(sErr)
+				os.Exit(1)
 			}
 
-			log.Infof("Site Details: %v", siteResponse)
+			fmt.Printf("Site Details: %v\n", siteResponse)
 
 			response = client.GetWithContext(ctx, fmt.Sprintf("/countries/%s", siteResponse.CountryID))
 			if response.Err != nil {
-				log.Fatal(response.Err)
+				fmt.Println(response.Err)
+				os.Exit(1)
 			}
 
 			if response.StatusCode != http.StatusOK {
-				log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+				fmt.Printf("Status: %d, Body: %s\n", response.StatusCode, response.String())
+				os.Exit(1)
 			}
 
 			countryResponse, cErr := rest.Deserialize[CountryResponse](response)
 			if cErr != nil {
-				log.Fatal(cErr)
+				fmt.Println(cErr)
+				os.Exit(1)
 			}
 
-			log.Infof("Country Details: %v", countryResponse)
+			fmt.Printf("Country Details: %v\n", countryResponse)
 		}
 	}
 
@@ -97,10 +106,12 @@ func main() {
 	response = client.GetWithContext(ctx, "/sites")
 	switch {
 	case response.Err != nil:
-		log.Fatal(response.Err)
+		fmt.Println(response.Err)
+		os.Exit(1)
 	case response.StatusCode != http.StatusOK:
-		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+		fmt.Printf("Status: %d, Body: %s\n", response.StatusCode, response.String())
+		os.Exit(1)
 	}
 
-	log.Infof("Cache-Control: %v", response.Header.Get("Cache-Control"))
+	fmt.Printf("Cache-Control: %v\n", response.Header.Get("Cache-Control"))
 }

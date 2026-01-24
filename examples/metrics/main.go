@@ -6,18 +6,18 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"os"
 	"runtime"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 )
 
 func init() {
 	numCPU := runtime.NumCPU() - 1
 	runtime.GOMAXPROCS(numCPU)
-	log.Infof("using %d CPU cores", numCPU)
+	fmt.Printf("using %d CPU cores\n", numCPU)
 }
 
 func main() {
@@ -44,22 +44,23 @@ func main() {
 	}
 
 	go func() {
-		log.Infof("simulating API requests...")
+		fmt.Println("simulating API requests...")
 		for {
 			apiURL := fmt.Sprintf("/cache/%d", random(1, 100))
 			response := client.GetWithContext(context.Background(), apiURL)
 			if response.Err != nil {
-				log.Error(response.Err)
+				fmt.Println(response.Err)
 				continue
 			}
-			log.Infof("GET %s, Status: %d", apiURL, response.StatusCode)
+			fmt.Printf("GET %s, Status: %d\n", apiURL, response.StatusCode)
 		}
 	}()
 
 	server := &http.Server{Addr: ":8081", ReadHeaderTimeout: 5000 * time.Millisecond}
 
-	log.Info("server started, metrics on http://localhost:8081/metrics")
+	fmt.Println("server started, metrics on http://localhost:8081/metrics")
 	if err := server.ListenAndServe(); err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

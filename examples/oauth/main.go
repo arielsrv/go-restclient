@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"os"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
@@ -50,25 +51,28 @@ func main() {
 	for {
 		response := client.GetWithContext(ctx, "/product/products/v1/organizations/f_ecom_bdlq_prd/products/BEA10136?siteId=KiwokoES")
 		if response.Err != nil {
-			log.Fatal(response.Err)
+			fmt.Println(response.Err)
+			os.Exit(1)
 		}
 
 		if response.StatusCode != http.StatusOK {
-			log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+			fmt.Printf("Status: %d, Body: %s\n", response.StatusCode, response.String())
+			os.Exit(1)
 		}
 
 		var sitesResponse SitesResponse
 		err := response.FillUp(&sitesResponse)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
 		for i := range sitesResponse.Data {
 			siteResponse := sitesResponse.Data[i]
-			log.Infof("Site: %s, Link: %s", siteResponse.ID, siteResponse.Link)
+			fmt.Printf("Site: %s, Link: %s\n", siteResponse.ID, siteResponse.Link)
 		}
 
-		log.Info("Waiting for 10 seconds before exiting...  (Ctrl+C to stop)")
+		fmt.Println("Waiting for 10 seconds before exiting...  (Ctrl+C to stop)")
 		time.Sleep(time.Duration(10) * time.Second)
 	}
 }

@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"os"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 )
 
 func main() {
@@ -30,19 +31,22 @@ func main() {
 
 	response := httpClient.GetWithContext(context.Background(), "/users.xml")
 	if response.Err != nil {
-		log.Fatal(response.Err)
+		fmt.Println(response.Err)
+		os.Exit(1)
 	}
 
 	if response.StatusCode != http.StatusOK {
-		log.Fatalf("Status: %d, Body: %s", response.StatusCode, response.String())
+		fmt.Printf("Status: %d, Body: %s\n", response.StatusCode, response.String())
+		os.Exit(1)
 	}
 
 	err := response.FillUp(&usersResponse)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	for i := range usersResponse.List {
-		log.Infof("User: %v", usersResponse.List[i])
+		fmt.Printf("User: %v\n", usersResponse.List[i])
 	}
 }

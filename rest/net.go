@@ -17,9 +17,6 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-metrics-collector/metrics"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-sdk-config/env"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
@@ -167,63 +164,17 @@ func (r *Client) newRequest(
 	r.setParams(request, cacheResponse, cacheURL, headers...)
 
 	// Make the request
-	start := time.Now()
 	httpResponse, err := httpClient.Do(request)
-	duration := time.Since(start)
-
-	// Metrics
-	metrics.Collector.Prometheus().
-		RecordExecutionTime("__go_restclient_durations_seconds", duration, metrics.Tags{
-			"client_name": r.Name,
-		})
-
-	// Deprecated
-	metrics.Collector.Prometheus().RecordExecutionTime("services_dashboard_services_timers", duration,
-		buildTags(r.Name, "http_connection", "response_time"))
 
 	// Error handling
 	if err != nil {
-		var netError net.Error
-		errorType := "network"
-		if errors.As(err, &netError) && netError.Timeout() {
-			errorType = "timeout"
-		}
-
-		// Metrics
-		metrics.Collector.Prometheus().
-			IncrementCounter("__go_restclient_requests_error",
-				metrics.Tags{
-					"client_name": r.Name,
-					"error_type":  errorType,
-				})
-
-		// Deprecated
-		metrics.Collector.Prometheus().
-			IncrementCounter("services_dashboard_services_counters_total",
-				buildTags(r.Name, "http_connection_error", errorType))
-
 		return &Response{
 			Err: err,
 		}
 	}
 	defer func(Body io.ReadCloser) {
-		cErr := Body.Close()
-		if cErr != nil {
-			log.Errorf("error closing response body: %v", cErr)
-		}
+		_ = Body.Close()
 	}(httpResponse.Body)
-
-	// Metrics
-	metrics.Collector.Prometheus().
-		IncrementCounter("__go_restclient_requests_total",
-			metrics.Tags{
-				"client_name": r.Name,
-				"status_code": strconv.Itoa(httpResponse.StatusCode),
-			})
-
-	// Deprecated
-	metrics.Collector.Prometheus().IncrementCounter("services_dashboard_services_counters_total",
-		buildTags(r.Name, "http_status", strconv.Itoa(httpResponse.StatusCode)))
 
 	// If we get a 304, return httpResponse from cache
 	if httpResponse.StatusCode == http.StatusNotModified {
@@ -586,7 +537,7 @@ func (r *Client) setParams(
 			return r.UserAgent
 		}
 
-		return "go-restclient/" + Version + " (iskaypet-sre; +https://gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient)"
+		return "go-restclient/" + Version + " (iskaypet-sre; +https://gitlab.com/arielsrv/go-restclient)"
 	}())
 
 	// Encoding
@@ -691,19 +642,4 @@ func setETag(response *Response) bool {
 	response.etag = response.Header.Get(ETagHeader)
 
 	return response.etag != ""
-}
-
-// buildTags builds the tags for the Prometheus metrics.
-// It creates a map of tags with client name, event type, event subtype,
-// application name, environment, and service type.
-// These tags are used to categorize and filter metrics in Prometheus.
-func buildTags(clientName, eventType, eventSubType string) metrics.Tags {
-	return metrics.Tags{
-		"client_name":   clientName,
-		"event_type":    eventType,
-		"event_subtype": eventSubType,
-		"application":   env.GetString("APP_NAME", "undefined"),
-		"environment":   env.GetString("ENV", "undefined"),
-		"service_type":  "http_client",
-	}
 }

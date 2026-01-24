@@ -6,39 +6,22 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"os"
 	"runtime"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic/otel/tracing"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 )
 
 func init() {
 	numCPU := runtime.NumCPU() - 1
 	runtime.GOMAXPROCS(numCPU)
-	log.Infof("using %d CPU cores", numCPU)
+	fmt.Printf("using %d CPU cores\n", numCPU)
 }
 
 func main() {
 	ctx := context.Background()
-	app, err := tracing.New(
-		ctx,
-		tracing.WithAppName("MyExample"),
-		tracing.WithProtocol(tracing.
-			NewGRPCProtocol("localhost:4317")))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer func(app *tracing.App, ctx context.Context) {
-		shutdownErr := app.Shutdown(ctx)
-		if shutdownErr != nil {
-			log.Fatal(err)
-		}
-	}(app, ctx)
-
 	http.Handle("/metrics", promhttp.Handler())
 
 	// Create a new REST client with custom settings
@@ -63,26 +46,23 @@ func main() {
 	}
 
 	go func() {
-		log.Infof("simulating API requests...")
+		fmt.Println("simulating API requests...")
 		for {
 			apiURL := fmt.Sprintf("/cache/%d", random(100, 1000))
-			txnCtx, txn := tracing.NewTransaction(ctx, "MyHTTPRequest")
-			response := client.GetWithContext(txnCtx, apiURL)
+			response := client.GetWithContext(ctx, apiURL)
 			if response.Err != nil {
-				txn.NoticeError(response.Err)
-				log.Error(response.Err)
-				txn.End()
+				fmt.Println(response.Err)
 				continue
 			}
-			log.Infof("GET %s, Status: %d", apiURL, response.StatusCode)
-			txn.End()
+			fmt.Printf("GET %s, Status: %d\n", apiURL, response.StatusCode)
 		}
 	}()
 
 	server := &http.Server{Addr: ":8081", ReadHeaderTimeout: 5000 * time.Millisecond}
 
-	log.Info("server started, metrics on http://localhost:8081/metrics")
-	if err = server.ListenAndServe(); err != nil {
-		log.Fatal(err)
+	fmt.Println("server started, metrics on http://localhost:8081/metrics")
+	if err := server.ListenAndServe(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

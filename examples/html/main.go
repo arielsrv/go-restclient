@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-logger/log"
-	"gitlab.com/iskaypetcom/digital/sre/tools/dev/go-restclient/rest"
+	"gitlab.com/arielsrv/go-restclient/rest"
 )
 
 func main() {
@@ -27,9 +27,11 @@ func main() {
 	)
 	switch {
 	case response1.Err != nil:
-		log.Fatal(response1.Err)
+		fmt.Println(response1.Err)
+		os.Exit(1)
 	case response1.StatusCode != http.StatusOK:
-		log.Fatalf("status_code: %d, reason: %s", response1.StatusCode, response1.String())
+		fmt.Printf("status_code: %d, reason: %s\n", response1.StatusCode, response1.String())
+		os.Exit(1)
 	}
 	fmt.Printf("Response cached: %t\n", response1.Cached())
 
@@ -43,9 +45,11 @@ func main() {
 	)
 	switch {
 	case response2.Err != nil:
-		log.Fatal(response2.Err)
+		fmt.Println(response2.Err)
+		os.Exit(1)
 	case response2.StatusCode != http.StatusOK:
-		log.Fatalf("status_code: %d, reason: %s", response2.StatusCode, response2.String())
+		fmt.Printf("status_code: %d, reason: %s\n", response2.StatusCode, response2.String())
+		os.Exit(1)
 	}
 
 	fmt.Printf("Response cached: %t\n", response2.Cached())

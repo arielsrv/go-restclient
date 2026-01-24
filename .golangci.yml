@@ -1,17 +1,23 @@
 
-# This file is licensed under the terms of the MIT license https://opensource.org/license/mit
-# Copyright (c) 2021-2025 Marat Reymers
 
-## Golden config for golangci-lint v2.6.1
+# This file is licensed under the terms of the MIT license https://opensource.org/license/mit
+# Copyright (c) 2021-2025 Marat Reimers
+
+## Golden config for golangci-lint v2.8.0
 #
 # This is the best config for golangci-lint based on my experience and opinion.
 # It is very strict, but not extremely strict.
 # Feel free to adapt it to suit your needs.
-# If this config helps you, please consider keeping a link to this file (see the next comment).
+# If this config helps you, please consider keeping a link to this repo (see the next comment).
 
-# Based on https://gist.github.com/maratori/47a4d00457a92aa426dbd48a18776322
+# Based on https://github.com/maratori/golangci-lint-config
 
 version: "2"
+
+run:
+  # Timeout for analysis, e.g. 30s, 5m.
+  # Default: 1m
+  timeout: 5m
 
 issues:
   # Maximum count of issues with the same text.
@@ -26,8 +32,8 @@ formatters:
 
     ## you may want to enable
     #- gci # checks if code and import statements are formatted, with additional rules
-    #- gofmt # checks if the code is formatted according to 'gofmt' command
-    #- gofumpt # enforces a stricter format than 'gofmt', while being backwards compatible
+    - gofmt # checks if the code is formatted according to 'gofmt' command
+    - gofumpt # enforces a stricter format than 'gofmt', while being backwards compatible
     #- swaggo # formats swaggo comments
 
   # All settings can be found here https://github.com/golangci/golangci-lint/blob/HEAD/.golangci.reference.yml
@@ -37,7 +43,7 @@ formatters:
       # with the given prefixes are grouped after 3rd-party packages.
       # Default: []
       local-prefixes:
-        - github.com/my/project
+        - github.com/Remitee-Money-Transfer/remitee-money-transfer-v2-poc/01-middleware
 
     golines:
       # Target maximum line length.
@@ -60,7 +66,7 @@ linters:
     - errcheck # checking for unchecked errors, these unchecked errors can be critical bugs in some cases
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
-    #- exhaustive # checks exhaustiveness of enum switch statements
+    - exhaustive # checks exhaustiveness of enum switch statements
     - exptostd # detects functions from golang.org/x/exp/ that can be replaced by std functions
     - fatcontext # detects nested contexts in loops
     - forbidigo # forbids identifiers
@@ -83,7 +89,7 @@ linters:
     - iface # checks the incorrect use of interfaces, helping developers avoid interface pollution
     - ineffassign # detects when assignments to existing variables are not used
     - intrange # finds places where for loops could make use of an integer range
-    #- iotamixing # checks if iotas are being used in const blocks with other non-iota declarations
+    - iotamixing # checks if iotas are being used in const blocks with other non-iota declarations
     - loggercheck # checks key value pairs for common logger libraries (kitlog,klog,logr,zap)
     - makezero # finds slice declarations with non-zero initial length
     - mirror # reports wrong mirror patterns of bytes/strings usage
@@ -91,7 +97,7 @@ linters:
     - modernize # suggests simplifications to Go code, using modern language and library features
     - musttag # enforces field tags in (un)marshaled structs
     - nakedret # finds naked returns in functions greater than a specified function length
-    #- nestif # reports deeply nested if statements
+    - nestif # reports deeply nested if statements
     - nilerr # finds the code that returns nil even if it checks that the error is not nil
     - nilnesserr # reports that it checks for err != nil, but it returns a different nil value error (powered by nilness and nilerr)
     - nilnil # checks that there is no simultaneous return of nil error and an invalid value
@@ -103,7 +109,7 @@ linters:
     - predeclared # finds code that shadows one of Go's predeclared identifiers
     - promlinter # checks Prometheus metrics naming via promlint
     - protogetter # reports direct reads from proto message fields when getters should be used
-    #- reassign # checks that package variables are not reassigned
+    - reassign # checks that package variables are not reassigned
     - recvcheck # checks for receiver type consistency
     #- revive # fast, configurable, extensible, flexible, and beautiful linter for Go, drop-in replacement of golint
     - rowserrcheck # checks whether Err of rows is checked successfully
@@ -132,11 +138,11 @@ linters:
     - godox # detects usage of FIXME, TODO and other keywords inside comments
     - goheader # checks is file header matches to pattern
     - inamedparam # [great idea, but too strict, need to ignore a lot of cases by default] reports interfaces with unnamed method parameters
-    #- interfacebloat # checks the number of methods inside an interface
-    #- ireturn # accept interfaces, return concrete types
+    - interfacebloat # checks the number of methods inside an interface
+    - ireturn # accept interfaces, return concrete types
     #- noinlineerr # disallows inline error handling `if err := ...; err != nil {`
     - prealloc # [premature optimization, but can be used in some cases] finds slice declarations that could potentially be preallocated
-    - tagalign # checks that struct tags are well aligned
+    #- tagalign # checks that struct tags are well aligned
     #- varnamelen # [great idea, but too many false positives] checks that the length of a variable's name matches its scope
     #- wrapcheck # checks that errors returned from external packages are wrapped
     - zerologlint # detects the wrong usage of zerolog that a user forgets to dispatch zerolog.Event
@@ -209,6 +215,8 @@ linters:
               desc: Use github.com/google/uuid instead, satori's package is not maintained
             - pkg: github.com/gofrs/uuid$
               desc: Use github.com/gofrs/uuid/v5 or later, it was not a go module before v5
+            - pkg: github.com/pkg/errors
+              desc: Use standard library errors package with fmt.Errorf and %w verb instead
         "non-test files":
           files:
             - "!$test"
@@ -231,7 +239,7 @@ linters:
       # Report about not checking of errors in type assertions: `a := b.(MyStruct)`.
       # Such cases aren't reported by default.
       # Default: false
-      check-type-assertions: false
+      check-type-assertions: true
 
     exhaustive:
       # Program elements to check for exhaustiveness.
@@ -240,41 +248,20 @@ linters:
         - switch
         - map
 
-    exhaustruct:
-      # List of regular expressions to match type names that should be excluded from processing.
-      # Anonymous structs can be matched by '<anonymous>' alias.
-      # Has precedence over `include`.
-      # Each regular expression must match the full type name, including package path.
-      # For example, to match type `net/http.Cookie` regular expression should be `.*/http\.Cookie`,
-      # but not `http\.Cookie`.
-      # Default: []
-      exclude:
-        # std libs
-        - ^net/http.Client$
-        - ^net/http.Cookie$
-        - ^net/http.Request$
-        - ^net/http.Response$
-        - ^net/http.Server$
-        - ^net/http.Transport$
-        - ^net/url.URL$
-        - ^os/exec.Cmd$
-        - ^reflect.StructField$
-        # public libs
-        - ^github.com/Shopify/sarama.Config$
-        - ^github.com/Shopify/sarama.ProducerMessage$
-        - ^github.com/mitchellh/mapstructure.DecoderConfig$
-        - ^github.com/prometheus/client_golang/.+Opts$
-        - ^github.com/spf13/cobra.Command$
-        - ^github.com/spf13/cobra.CompletionOptions$
-        - ^github.com/stretchr/testify/mock.Mock$
-        - ^github.com/testcontainers/testcontainers-go.+Request$
-        - ^github.com/testcontainers/testcontainers-go.FromDockerfile$
-        - ^golang.org/x/tools/go/analysis.Analyzer$
-        - ^google.golang.org/protobuf/.+Options$
-        - ^gopkg.in/yaml.v3.Node$
-      # Allows empty structures in return statements.
-      # Default: false
-      allow-empty-returns: true
+    # NOTE: exhaustruct is disabled by default. Uncomment in linters.enable if you want to use it.
+    # exhaustruct:
+    #   exclude:
+    #     # std libs
+    #     - ^net/http.Client$
+    #     - ^net/http.Cookie$
+    #     - ^net/http.Request$
+    #     - ^net/http.Response$
+    #     - ^net/http.Server$
+    #     - ^net/http.Transport$
+    #     - ^net/url.URL$
+    #     - ^os/exec.Cmd$
+    #     - ^reflect.StructField$
+    #   allow-empty-returns: true
 
     funcorder:
       # Checks if the exported methods of a structure are placed before the non-exported ones.
@@ -315,13 +302,11 @@ linters:
           # Default: true
           skipRecvDeref: false
 
-    godoclint:
-      # List of rules to enable in addition to the default set.
-      # Default: empty
-      enable:
-        # Assert no unused link in godocs.
-        # https://github.com/godoc-lint/godoc-lint?tab=readme-ov-file#no-unused-link
-        - no-unused-link
+    # NOTE: godoclint is disabled by default. Uncomment in linters.enable if you want to use it.
+    # godoclint:
+    #   enable:
+    #     - no-unused-link
+    #     - require-stdlib-doclink
 
     govet:
       # Enable all analyzers.
@@ -339,30 +324,25 @@ linters:
           # Default: false
           strict: true
 
-    inamedparam:
-      # Skips check for interface methods with only a single parameter.
-      # Default: false
-      skip-single-param: true
+    # NOTE: inamedparam is disabled by default. Uncomment in linters.enable if you want to use it.
+    # inamedparam:
+    #   skip-single-param: true
 
-    mnd:
-      # List of function patterns to exclude from analysis.
-      # Values always ignored: `time.Date`,
-      # `strconv.FormatInt`, `strconv.FormatUint`, `strconv.FormatFloat`,
-      # `strconv.ParseInt`, `strconv.ParseUint`, `strconv.ParseFloat`.
-      # Default: []
-      ignored-functions:
-        - args.Error
-        - flag.Arg
-        - flag.Duration.*
-        - flag.Float.*
-        - flag.Int.*
-        - flag.Uint.*
-        - os.Chmod
-        - os.Mkdir.*
-        - os.OpenFile
-        - os.WriteFile
-        - prometheus.ExponentialBuckets.*
-        - prometheus.LinearBuckets
+    # NOTE: mnd is disabled by default. Uncomment in linters.enable if you want to use it.
+    # mnd:
+    #   ignored-functions:
+    #     - args.Error
+    #     - flag.Arg
+    #     - flag.Duration.*
+    #     - flag.Float.*
+    #     - flag.Int.*
+    #     - flag.Uint.*
+    #     - os.Chmod
+    #     - os.Mkdir.*
+    #     - os.OpenFile
+    #     - os.WriteFile
+    #     - prometheus.ExponentialBuckets.*
+    #     - prometheus.LinearBuckets
 
     nakedret:
       # Make an issue if func has more lines of code than this setting, and it has naked returns.
@@ -431,7 +411,6 @@ linters:
         # Omit embedded fields from selector expression.
         # https://staticcheck.dev/docs/checks/#QF1008
         - -QF1008
-        - -ST1003
 
     usetesting:
       # Enable/disable `os.TempDir()` detections.
@@ -447,6 +426,13 @@ linters:
     presets:
       - std-error-handling
       - common-false-positives
+    # Paths to exclude from linting.
+    # Default: []
+    paths:
+      - mocks/
+      - docs/
+      - ".*\\.gen\\.go$"
+      - ".*_mock\\.go$"
     # Excluding configuration per-path, per-linter, per-text and per-source.
     rules:
       - source: 'TODO'
@@ -471,14 +457,3 @@ linters:
           - gosec
           - noctx
           - wrapcheck
-output:
-  formats:
-    code-climate:
-      path: 'gl-code-quality-report.json'
-    text:
-      path: stdout
-      color: true
-    checkstyle:
-      path: 'report.xml'
-    json:
-      path: stdout
