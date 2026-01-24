@@ -1,9 +1,5 @@
 # Go RESTClient
 
-[![pipeline status](https://github.com/arielsrv/go-restclient/badges/main/pipeline.svg)](https://github.com/arielsrv/go-restclient/-/commits/main)
-[![coverage report](https://github.com/arielsrv/go-restclient/badges/main/coverage.svg)](https://github.com/arielsrv/go-restclient/-/commits/main)
-[![release](https://github.com/arielsrv/go-restclient/-/badges/release.svg)](https://github.com/arielsrv/go-restclient/-/releases)
-
 A high-performance HTTP client library for Go with advanced features including caching,
 authentication, metrics, and comprehensive request/response handling.
 
