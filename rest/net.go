@@ -386,17 +386,26 @@ func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 //
 // Returns the configured http.RoundTripper to use for HTTP requests.
 func (r *Client) setupTransport() http.RoundTripper {
-	transportMtxOnce.Do(func() {
-		dfltTransport = &http.Transport{
-			MaxIdleConnsPerHost: http.DefaultMaxIdleConnsPerHost,
-			Proxy:               http.ProxyFromEnvironment,
-			DialContext:         r.getDialContext(),
-		}
-		defaultCheckRedirectFunc = http.Client{}.CheckRedirect
-	})
-
+	timeout := r.getRequestTimeout()
 	// If there's no CustomPool, use the default transport
 	if r.CustomPool == nil {
+		transportMtxOnce.Do(func() {
+			dfltTransport = &http.Transport{
+				MaxIdleConnsPerHost: http.DefaultMaxIdleConnsPerHost,
+				Proxy:               http.ProxyFromEnvironment,
+				DialContext:         r.getDialContext(),
+			}
+			defaultCheckRedirectFunc = http.Client{}.CheckRedirect
+		})
+
+		// Use a local copy of the transport to avoid modifying the shared dfltTransport's
+		// ResponseHeaderTimeout, which could cause race conditions or incorrect timeouts
+		// for other clients sharing it.
+		if transport, ok := dfltTransport.(*http.Transport); ok {
+			tCopy := transport.Clone()
+			tCopy.ResponseHeaderTimeout = timeout
+			return tCopy
+		}
 		return dfltTransport
 	}
 

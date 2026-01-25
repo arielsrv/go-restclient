@@ -3,6 +3,7 @@ package rest_test
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/arielsrv/go-restclient/rest"
 )
@@ -63,7 +64,8 @@ func ExampleClient() {
 	// Create a custom client
 	client := &rest.Client{
 		BaseURL: "https://api.example.com",
-		Timeout: 5000, // 5 seconds
+		Timeout: 5 * time.Second,
+		Name:    "example-client",
 	}
 
 	// Make a request
