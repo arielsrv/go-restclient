@@ -220,7 +220,7 @@ Access the monitoring dashboard at:
 Performance comparison with popular HTTP clients:
 
 | Client | Operations/sec | Latency |
-|--------|---------------|---------|
+| :--- | :--- | :--- |
 | go-restclient | ~2.5M ops/sec | 405ms |
 | resty | ~0.9M ops/sec | 1099ms |
 
@@ -507,8 +507,10 @@ func main() {
 OpenTelemetry (OTel) support is built into the client. When you set `EnableTrace: true`, the client:
 
 - Hooks into Go's `net/http/httptrace`
-- Uses `otelhttptrace.NewClientTrace(ctx)` to create OTel spans around DNS, connect, TLS, and request/response lifecycle events
-- Propagates the active context so your upstream spans (e.g., from handlers or jobs) automatically become parents of HTTP client spans
+- Uses `otelhttptrace.NewClientTrace(ctx)` to create OTel spans around DNS, connect, TLS, and request/response
+  lifecycle events
+- Propagates the active context so your upstream spans (e.g., from handlers or jobs) automatically become
+  parents of HTTP client spans
 
 ### Minimal setup (stdout exporter)
 
@@ -568,7 +570,8 @@ export OTEL_SERVICE_NAME=my-service
 export OTEL_RESOURCE_ATTRIBUTES=deployment.environment=local
 ```
 
-If you prefer a helper, see `examples/trace/main.go`, which demonstrates initialization via our `go-relic` helper and sending spans to an OTLP collector.
+If you prefer a helper, see `examples/trace/main.go`, which demonstrates initialization via our `go-relic`
+helper and sending spans to an OTLP collector.
 
 ### How it works here
 
