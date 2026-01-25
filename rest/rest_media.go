@@ -122,7 +122,7 @@ type JSONMedia struct {
 }
 
 // Marshal converts the given body into JSON format and returns an io.Reader
-// containing the marshaled data.
+// containing the marshaled data. It supports strings, byte slices, structs, and maps.
 func (r JSONMedia) Marshal(body any) (io.Reader, error) {
 	b, err := json.Marshal(body)
 	if err != nil {

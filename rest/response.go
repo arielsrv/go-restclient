@@ -101,10 +101,9 @@ func (r *Response) Raw() string {
 	return r.String()
 }
 
-// FillUp deserializes the response body into the provided value.
-// The value should be a pointer to a struct or map[string]any.
-// The content type of the response is used to determine the deserialization method.
-// Returns an error if deserialization fails or if the content type is not supported.
+// FillUp deserializes the response body into the provided value 'fill'.
+// 'fill' must be a pointer to the type where you want to store the data.
+// It automatically detects the content type (JSON, XML) from the response headers.
 func (r *Response) FillUp(fill any) error {
 	contentType := strings.ToLower(r.Header.Get(CanonicalContentTypeHeader))
 	if contentType == "" {
@@ -129,9 +128,11 @@ func (r *Response) FillUp(fill any) error {
 	return fmt.Errorf("unmarshal fail, unsupported content type: %s", contentType)
 }
 
-// Deserialize is a generic function that deserializes the response body into a value of type T.
-// It returns the deserialized value and any error that occurred during deserialization.
-// Returns an error if the response is nil or if deserialization fails.
+// Deserialize is a generic helper that deserializes the response body into a new value of type T.
+//
+// Example usage:
+//
+//	users, err := rest.Deserialize[[]User](response)
 func Deserialize[T any](response *Response) (T, error) {
 	var dflt T
 	if response == nil {
@@ -147,8 +148,7 @@ func Deserialize[T any](response *Response) (T, error) {
 	return result, nil
 }
 
-// Cached returns true if the response was retrieved from the cache.
-// This can be used to determine if the response came from the server or the cache.
+// Cached returns true if the response was served from the local cache.
 func (r *Response) Cached() bool {
 	if hit, ok := r.cached.Load().(bool); ok {
 		return hit
@@ -157,10 +157,8 @@ func (r *Response) Cached() bool {
 	return false
 }
 
-// Debug returns a string representation of the request and response for debugging.
-// It includes the full request (including headers and body) and the response headers,
-// followed by the response body.
-// This is useful for troubleshooting API interactions.
+// Debug returns a string representation of both the HTTP request and response.
+// This is useful for logging and debugging purposes.
 func (r *Response) Debug() string {
 	var strReq, strResp string
 

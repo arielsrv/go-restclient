@@ -2,86 +2,72 @@ package rest
 
 var dfltClient = Client{}
 
-// Get issues a GET HTTP verb to the specified URL.
+// Get issues a GET HTTP verb to the specified URL using the default client.
 //
-// In Restful, GET is used for "reading" or retrieving a resource.
-// Client should expect a response status code of 200(OK) if resource exists,
-// 404(Not Found) if it doesn't, or 400(Bad Request).
-//
-// Get uses the DefaultBuilder.
+// In RESTful design, GET is used for "reading" or retrieving a resource.
+// Client should expect a response status code of 200 (OK) if the resource exists,
+// 404 (Not Found) if it doesn't, or 400 (Bad Request).
 func Get(url string) *Response {
 	return dfltClient.Get(url)
 }
 
-// Post issues a POST HTTP verb to the specified URL.
+// Post issues a POST HTTP verb to the specified URL using the default client.
 //
-// In Restful, POST is used for "creating" a resource.
-// Client should expect a response status code of 201(Created), 400(Bad Request),
-// 404(Not Found), or 409(Conflict) if resource already exist.
+// In RESTful design, POST is used for "creating" a resource.
+// Client should expect a response status code of 201 (Created), 400 (Bad Request),
+// 404 (Not Found), or 409 (Conflict) if the resource already exists.
 //
-// Body could be any of the form: string, []byte, struct & map.
-//
-// Post uses the DefaultBuilder.
+// Body could be any of the following: string, []byte, struct or map.
 func Post(url string, body any) *Response {
 	return dfltClient.Post(url, body)
 }
 
-// Put issues a PUT HTTP verb to the specified URL.
+// Put issues a PUT HTTP verb to the specified URL using the default client.
 //
-// In Restful, PUT is used for "updating" a resource.
-// Client should expect a response status code of 200(OK), 404(Not Found),
-// or 400(Bad Request). 200(OK) could be also 204(No Content)
+// In RESTful design, PUT is used for "updating" a resource.
+// Client should expect a response status code of 200 (OK), 404 (Not Found),
+// or 400 (Bad Request). 200 (OK) could also be 204 (No Content).
 //
-// Body could be any of the form: string, []byte, struct & map.
-//
-// Put uses the DefaultBuilder.
+// Body could be any of the following: string, []byte, struct or map.
 func Put(url string, body any) *Response {
 	return dfltClient.Put(url, body)
 }
 
-// Patch issues a PATCH HTTP verb to the specified URL
+// Patch issues a PATCH HTTP verb to the specified URL using the default client.
 //
-// In Restful, PATCH is used for "partially updating" a resource.
-// Client should expect a response status code of 200(OK), 404(Not Found),
-// or 400(Bad Request). 200(OK) could be also 204(No Content)
+// In RESTful design, PATCH is used for "partially updating" a resource.
+// Client should expect a response status code of 200 (OK), 404 (Not Found),
+// or 400 (Bad Request). 200 (OK) could also be 204 (No Content).
 //
-// Body could be any of the form: string, []byte, struct & map.
-//
-// Patch uses the DefaultBuilder.
+// Body could be any of the following: string, []byte, struct or map.
 func Patch(url string, body any) *Response {
 	return dfltClient.Patch(url, body)
 }
 
-// Delete issues a DELETE HTTP verb to the specified URL
+// Delete issues a DELETE HTTP verb to the specified URL using the default client.
 //
-// In Restful, DELETE is used to "delete" a resource.
-// Client should expect a response status code of 200(OK), 404(Not Found),
-// or 400(Bad Request).
-//
-// Delete uses the DefaultBuilder.
+// In RESTful design, DELETE is used to "delete" a resource.
+// Client should expect a response status code of 200 (OK), 404 (Not Found),
+// or 400 (Bad Request).
 func Delete(url string) *Response {
 	return dfltClient.Delete(url)
 }
 
-// Head issues a HEAD HTTP verb to the specified URL
+// Head issues a HEAD HTTP verb to the specified URL using the default client.
 //
-// In Restful, HEAD is used to "read" a resource headers only.
-// Client should expect a response status code of 200(OK) if resource exists,
-// 404(Not Found) if it doesn't, or 400(Bad Request).
-//
-// Head uses the DefaultBuilder.
+// In RESTful design, HEAD is used to "read" resource headers only.
+// Client should expect a response status code of 200 (OK) if the resource exists,
+// 404 (Not Found) if it doesn't, or 400 (Bad Request).
 func Head(url string) *Response {
 	return dfltClient.Head(url)
 }
 
-// Options issues a OPTIONS HTTP verb to the specified URL
+// Options issues an OPTIONS HTTP verb to the specified URL using the default client.
 //
-// In Restful, OPTIONS is used to get information about the resource
+// In RESTful design, OPTIONS is used to get information about the resource
 // and supported HTTP verbs.
-// Client should expect a response status code of 200(OK) if resource exists,
-// 404(Not Found) if it doesn't, or 400(Bad Request).
-//
-// Options uses the DefaultBuilder.
+// Client should expect a response status code of 200 (OK) if the resource exists,
+// 404 (Not Found) if it doesn't, or 400 (Bad Request).
 func Options(url string) *Response {
 	return dfltClient.Options(url)
 }

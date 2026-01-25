@@ -1,9 +1,7 @@
 // Package go_restclient is a Go HTTP client library for making RESTful API requests.
 //
-// This package provides a simple and flexible way to make HTTP requests to RESTful APIs.
-// It supports various HTTP methods (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS),
-// different content types (JSON, XML, FORM), and features like caching, authentication,
-// compression, and tracing.
+// This package is a wrapper for the rest subpackage. It is recommended to use the
+// github.com/arielsrv/go-restclient/rest package directly for most use cases.
 //
 // Key features:
 //   - Simple API for making HTTP requests
@@ -17,13 +15,9 @@
 //   - Metrics collection
 //   - Mockup server support for testing
 //
-// The package is organized into several components:
-//   - Client: The main client for making HTTP requests
-//   - Response: Represents an HTTP response with utility methods
-//   - Cache: Caches responses for improved performance
-//   - Media: Handles different content types (JSON, XML, FORM)
+// Example usage (using the rest subpackage):
 //
-// Example usage:
+//	import "github.com/arielsrv/go-restclient/rest"
 //
 //	// Simple GET request
 //	response := rest.Get("https://api.example.com/users")
@@ -33,14 +27,7 @@
 //	    // Handle users...
 //	}
 //
-//	// Custom client with configuration
-//	client := rest.Client{
-//	    BaseURL: "https://api.example.com",
-//	    Timeout: 5 * time.Second,
-//	    ContentType: rest.JSON,
-//	    EnableCache: true,
-//	}
-//	response := client.Get("/users")
+// For more detailed documentation and features, please see the [rest] package.
 //
-// For more examples, see the examples directory.
+// [rest]: https://pkg.go.dev/github.com/arielsrv/go-restclient/rest
 package go_restclient

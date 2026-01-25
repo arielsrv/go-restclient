@@ -23,103 +23,138 @@ var (
 	DefaultConnectTimeout = 1500 * time.Millisecond
 )
 
+// AsyncHTTPClient defines the interface for making asynchronous HTTP requests.
+// It returns a channel that will eventually receive the *Response.
 type AsyncHTTPClient interface {
+	// AsyncGet issues a GET HTTP verb to the specified URL asynchronously.
 	AsyncGet(url string, headers ...http.Header) <-chan *Response
+	// AsyncGetWithContext issues a GET HTTP verb with context to the specified URL asynchronously.
 	AsyncGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+	// AsyncPost issues a POST HTTP verb to the specified URL asynchronously.
 	AsyncPost(url string, body any, headers ...http.Header) <-chan *Response
+	// AsyncPostWithContext issues a POST HTTP verb with context to the specified URL asynchronously.
 	AsyncPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
+	// AsyncPutWithContext issues a PUT HTTP verb with context to the specified URL asynchronously.
 	AsyncPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
+	// AsyncPut issues a PUT HTTP verb to the specified URL asynchronously.
 	AsyncPut(url string, body any, headers ...http.Header) <-chan *Response
+	// AsyncPatch issues a PATCH HTTP verb to the specified URL asynchronously.
 	AsyncPatch(url string, body any, headers ...http.Header) <-chan *Response
+	// AsyncPatchWithContext issues a PATCH HTTP verb with context to the specified URL asynchronously.
 	AsyncPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *Response
+	// AsyncDelete issues a DELETE HTTP verb to the specified URL asynchronously.
 	AsyncDelete(url string, headers ...http.Header) <-chan *Response
+	// AsyncDeleteWithContext issues a DELETE HTTP verb with context to the specified URL asynchronously.
 	AsyncDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+	// AsyncHead issues a HEAD HTTP verb to the specified URL asynchronously.
 	AsyncHead(url string, headers ...http.Header) <-chan *Response
+	// AsyncHeadWithContext issues a HEAD HTTP verb with context to the specified URL asynchronously.
 	AsyncHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
+	// AsyncOptions issues an OPTIONS HTTP verb to the specified URL asynchronously.
 	AsyncOptions(url string, headers ...http.Header) <-chan *Response
+	// AsyncOptionsWithContext issues an OPTIONS HTTP verb with context to the specified URL asynchronously.
 	AsyncOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *Response
 }
 
+// HTTPClient defines the interface for making synchronous HTTP requests.
 type HTTPClient interface {
+	// Get issues a GET HTTP verb to the specified URL.
 	Get(url string, headers ...http.Header) *Response
+	// GetWithContext issues a GET HTTP verb with context to the specified URL.
 	GetWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	// Post issues a POST HTTP verb to the specified URL.
 	Post(url string, body any, headers ...http.Header) *Response
+	// PostWithContext issues a POST HTTP verb with context to the specified URL.
 	PostWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
+	// PutWithContext issues a PUT HTTP verb with context to the specified URL.
 	PutWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
+	// Put issues a PUT HTTP verb to the specified URL.
 	Put(url string, body any, headers ...http.Header) *Response
+	// Patch issues a PATCH HTTP verb to the specified URL.
 	Patch(url string, body any, headers ...http.Header) *Response
+	// PatchWithContext issues a PATCH HTTP verb with context to the specified URL.
 	PatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) *Response
+	// Delete issues a DELETE HTTP verb to the specified URL.
 	Delete(url string, headers ...http.Header) *Response
+	// DeleteWithContext issues a DELETE HTTP verb with context to the specified URL.
 	DeleteWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	// Head issues a HEAD HTTP verb to the specified URL.
 	Head(url string, headers ...http.Header) *Response
+	// HeadWithContext issues a HEAD HTTP verb with context to the specified URL.
 	HeadWithContext(ctx context.Context, url string, headers ...http.Header) *Response
+	// Options issues an OPTIONS HTTP verb to the specified URL.
 	Options(url string, headers ...http.Header) *Response
+	// OptionsWithContext issues an OPTIONS HTTP verb with context to the specified URL.
 	OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response
 }
 
+// HTTPExporter provides access to the underlying http.Client and the Do method.
 type HTTPExporter interface {
+	// RawClient returns the underlying http.Client.
 	RawClient(ctx context.Context) *http.Client
+	// Do executes a standard http.Request.
 	Do(*http.Request) (*http.Response, error)
 }
 
-// Client  is the baseline for creating requests
-// There's a Default Builder that you may use for simple requests
-// Client si thread-safe, and you should store it for later re-used.
+// Client is the main structure for making REST requests.
+// It is thread-safe and should be reused.
+// Use the package-level functions (Get, Post, etc.) for quick requests using a default client,
+// or create a new Client instance for custom configuration.
 type Client struct {
-	// Create a CustomPool if you don't want to share the *dfltTransport*, with others
-	// RESTClient
+	// CustomPool defines a separate internal transport and connection pooling.
+	// If nil, the default transport is used.
 	CustomPool *CustomPool
 
-	// Set Basic Auth for this RESTClient
+	// BasicAuth sets the username and password for Basic Authentication.
 	BasicAuth *BasicAuth
 
-	// Public for custom fine-tuning
+	// Client is the underlying http.Client. If not provided, one will be created.
 	Client *http.Client
 
-	// OAuth Credentials
+	// OAuth credentials for OAuth2 authentication.
 	OAuth *OAuth
 
-	// Default headers for all requests
+	// DefaultHeaders are headers included in every request.
 	DefaultHeaders http.Header
 
-	// Headers to be included in all requests
+	// defaultHeaders stores headers to be included in all requests (internal use).
 	defaultHeaders sync.Map
 
-	// Base URL to be used for each Request. The final URL will be BaseURL + URL.
+	// BaseURL is the prefix for all request URLs. Final URL = BaseURL + path.
 	BaseURL string
 
-	// Set a specific User Agent for this RESTClient
+	// UserAgent is the User-Agent header value for all requests.
 	UserAgent string
 
-	// Public for metrics
+	// Name is a label for the client, used in metrics.
 	Name string
 
-	// Complete request time out.
+	// Timeout is the maximum time for the entire request/response cycle.
 	Timeout time.Duration
 
-	// ConnectTimeout, it bounds the time spent obtaining a successful connection
+	// ConnectTimeout is the maximum time allowed to establish a connection.
 	ConnectTimeout time.Duration
 
-	// ContentType
+	// ContentType specifies the default media type (JSON, XML, Form).
 	ContentType ContentType
 
-	// clientMtx protects the http.Client
+	// clientMtx protects the http.Client creation.
 	clientMtx     sync.Mutex
 	clientMtxOnce sync.Once
 
-	// Enable internal caching of Responses
+	// EnableCache enables internal response caching.
 	EnableCache bool
 
-	// Disable timeout and default timeout = no timeout
+	// DisableTimeout disables any timeout for the requests.
 	DisableTimeout bool
 
-	// Set the http client to follow a redirect if we get a 3xx response
+	// FollowRedirect enables following HTTP redirects (3xx).
 	FollowRedirect bool
 
-	// Enable gzip compression for incoming and outgoing requests
+	// EnableGzip enables Gzip compression for requests and responses.
 	EnableGzip bool
 
-	// Enable tracing
+	// EnableTrace enables OpenTelemetry tracing.
 	EnableTrace bool
 }
 

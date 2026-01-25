@@ -8,19 +8,20 @@ import (
 )
 
 // Key is an interface for types that can be used as cache keys.
-// It supports various primitive types that can be efficiently used as keys.
+// It supports various primitive types that can be used as keys.
 type Key interface {
 	uint64 | string | []byte | byte | int | int32 | uint32 | int64
 }
 
 // Cache is an interface for cache implementations.
-// It provides methods for getting, setting, and setting with TTL values in the cache.
+// It provides methods for getting, setting, and setting with TTL values.
 type Cache[K Key, V any] interface {
 	// Get retrieves a value from the cache by its key.
 	// Returns the value and a boolean indicating whether the key was found.
 	Get(key K) (V, bool)
 
 	// Set adds a value to the cache with the specified key and cost.
+	// The cost can be the size of the value in bytes or any other metric.
 	// Returns true if the value was added successfully.
 	Set(key K, value V, cost int64) bool
 
@@ -56,11 +57,11 @@ const (
 	GB
 )
 
-var (
-	// MaxCacheSize is the maximum byte size to be held by the resourceTTLLfuMap.
-	// Default is 256Mb.
-	MaxCacheSize = 256 * MB
+// MaxCacheSize is the maximum total size of the cache in bytes.
+// Default is 256 MB.
+var MaxCacheSize = 256 * MB
 
+var (
 	// NumCounters is the number of keys to track frequency of (100K).
 	NumCounters = 1e5
 
