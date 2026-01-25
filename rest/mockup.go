@@ -77,9 +77,11 @@ func StartMockupServer() {
 // StopMockupServer stop sending requests to the mockup server.
 func StopMockupServer() {
 	*mockUpEnv = false
-	mockServer.Close()
+	if mockServer != nil {
+		mockServer.Close()
+		mockServer = nil
+	}
 
-	mockServer = nil
 	mockServerURL = nil
 	mux = nil
 }

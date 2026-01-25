@@ -2,6 +2,7 @@ package rest_test
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/arielsrv/go-restclient/rest"
 )
@@ -12,8 +13,22 @@ type ExampleUser struct {
 }
 
 func ExampleGet() {
+	// Start the mockup server for a reproducible example
+	rest.StartMockupServer()
+	defer rest.StopMockupServer()
+	rest.FlushMockups()
+
+	// Configure a mock for the specific URL
+	_ = rest.AddMockups(&rest.Mock{
+		URL:          "https://api.example.com/users/1",
+		HTTPMethod:   "GET",
+		RespHTTPCode: 200,
+		RespBody:     `{"name": "Leanne Graham", "id": 1}`,
+		RespHeaders:  http.Header{"Content-Type": []string{"application/json"}},
+	})
+
 	// Simple GET request using the default client
-	response := rest.Get("https://jsonplaceholder.typicode.com/users/1")
+	response := rest.Get("https://api.example.com/users/1")
 	if !response.IsOk() {
 		fmt.Printf("Error: %v\n", response.Err)
 		return
@@ -31,9 +46,23 @@ func ExampleGet() {
 }
 
 func ExampleClient() {
+	// Start the mockup server for a reproducible example
+	rest.StartMockupServer()
+	defer rest.StopMockupServer()
+	rest.FlushMockups()
+
+	// Configure a mock for the specific URL
+	_ = rest.AddMockups(&rest.Mock{
+		URL:          "https://api.example.com/users/1",
+		HTTPMethod:   "GET",
+		RespHTTPCode: 200,
+		RespBody:     `{"name": "Leanne Graham", "id": 1}`,
+		RespHeaders:  http.Header{"Content-Type": []string{"application/json"}},
+	})
+
 	// Create a custom client
 	client := &rest.Client{
-		BaseURL: "https://jsonplaceholder.typicode.com",
+		BaseURL: "https://api.example.com",
 		Timeout: 5000, // 5 seconds
 	}
 
@@ -41,13 +70,32 @@ func ExampleClient() {
 	response := client.Get("/users/1")
 	if response.IsOk() {
 		fmt.Println("Success!")
+	} else {
+		fmt.Printf("Error: %v\n", response.Err)
+		if response.Response != nil {
+			fmt.Printf("Status: %d\n", response.StatusCode)
+		}
 	}
 	// Output:
 	// Success!
 }
 
 func ExampleResponse_FillUp() {
-	response := rest.Get("https://jsonplaceholder.typicode.com/users/1")
+	// Start the mockup server for a reproducible example
+	rest.StartMockupServer()
+	defer rest.StopMockupServer()
+	rest.FlushMockups()
+
+	// Configure a mock
+	_ = rest.AddMockups(&rest.Mock{
+		URL:          "https://api.example.com/users/1",
+		HTTPMethod:   "GET",
+		RespHTTPCode: 200,
+		RespBody:     `{"name": "Leanne Graham", "id": 1}`,
+		RespHeaders:  http.Header{"Content-Type": []string{"application/json"}},
+	})
+
+	response := rest.Get("https://api.example.com/users/1")
 
 	var user ExampleUser
 	err := response.FillUp(&user)
@@ -60,7 +108,21 @@ func ExampleResponse_FillUp() {
 }
 
 func ExampleDeserialize() {
-	response := rest.Get("https://jsonplaceholder.typicode.com/users/1")
+	// Start the mockup server for a reproducible example
+	rest.StartMockupServer()
+	defer rest.StopMockupServer()
+	rest.FlushMockups()
+
+	// Configure a mock
+	_ = rest.AddMockups(&rest.Mock{
+		URL:          "https://api.example.com/users/1",
+		HTTPMethod:   "GET",
+		RespHTTPCode: 200,
+		RespBody:     `{"name": "Leanne Graham", "id": 1}`,
+		RespHeaders:  http.Header{"Content-Type": []string{"application/json"}},
+	})
+
+	response := rest.Get("https://api.example.com/users/1")
 
 	user, err := rest.Deserialize[ExampleUser](response)
 	if err != nil {

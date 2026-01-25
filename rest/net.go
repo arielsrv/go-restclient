@@ -388,10 +388,9 @@ func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 func (r *Client) setupTransport() http.RoundTripper {
 	transportMtxOnce.Do(func() {
 		dfltTransport = &http.Transport{
-			MaxIdleConnsPerHost:   http.DefaultMaxIdleConnsPerHost,
-			Proxy:                 http.ProxyFromEnvironment,
-			DialContext:           r.getDialContext(),
-			ResponseHeaderTimeout: r.getRequestTimeout(),
+			MaxIdleConnsPerHost: http.DefaultMaxIdleConnsPerHost,
+			Proxy:               http.ProxyFromEnvironment,
+			DialContext:         r.getDialContext(),
 		}
 		defaultCheckRedirectFunc = http.Client{}.CheckRedirect
 	})

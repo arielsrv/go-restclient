@@ -3,7 +3,7 @@ module github.com/arielsrv/go-restclient/examples
 go 1.25.6
 
 require (
-	github.com/arielsrv/go-restclient v0.0.3
+	github.com/arielsrv/go-restclient v0.0.5
 	github.com/prometheus/client_golang v1.23.2
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.39.0

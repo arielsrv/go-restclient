@@ -105,6 +105,16 @@ func (r *Response) Raw() string {
 // 'fill' must be a pointer to the type where you want to store the data.
 // It automatically detects the content type (JSON, XML) from the response headers.
 func (r *Response) FillUp(fill any) error {
+	if r == nil {
+		return errors.New("response is nil")
+	}
+	if r.Err != nil {
+		return r.Err
+	}
+	if r.Response == nil {
+		return errors.New("http.Response is nil")
+	}
+
 	contentType := strings.ToLower(r.Header.Get(CanonicalContentTypeHeader))
 	if contentType == "" {
 		contentType = http.DetectContentType(r.bytes)
@@ -160,15 +170,23 @@ func (r *Response) Cached() bool {
 // Debug returns a string representation of both the HTTP request and response.
 // This is useful for logging and debugging purposes.
 func (r *Response) Debug() string {
+	if r == nil {
+		return "Response is nil"
+	}
+
 	var strReq, strResp string
 
-	if req, err := httputil.DumpRequest(r.Request, true); err != nil {
+	if r.Request == nil {
+		strReq = "Request is nil"
+	} else if req, err := httputil.DumpRequest(r.Request, true); err != nil {
 		strReq = err.Error()
 	} else {
 		strReq = string(req)
 	}
 
-	if resp, err := httputil.DumpResponse(r.Response, false); err != nil {
+	if r.Response == nil {
+		strResp = "Response is nil"
+	} else if resp, err := httputil.DumpResponse(r.Response, false); err != nil {
 		strResp = err.Error()
 	} else {
 		strResp = string(resp)
@@ -192,6 +210,9 @@ func (r *Response) Debug() string {
 // IsOk checks if the response status code is within the 200-399 range.
 // Returns true if the status code indicates success, false otherwise.
 func (r *Response) IsOk() bool {
+	if r == nil || r.Response == nil {
+		return false
+	}
 	return r.StatusCode >= http.StatusOK && r.StatusCode < http.StatusBadRequest
 }
 
@@ -200,8 +221,14 @@ func (r *Response) IsOk() bool {
 // If r.Err is not nil, it returns that error.
 // If the status code is not in the success range, it returns an error with the status code and response body.
 func (r *Response) VerifyIsOkOrError() error {
+	if r == nil {
+		return errors.New("response is nil")
+	}
 	if r.Err != nil {
 		return r.Err
+	}
+	if r.Response == nil {
+		return errors.New("http.Response is nil")
 	}
 
 	if !r.IsOk() {
