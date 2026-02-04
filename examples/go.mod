@@ -1,6 +1,6 @@
 module github.com/arielsrv/go-restclient/examples
 
-go 1.25.6
+go 1.25.7
 
 require (
 	github.com/arielsrv/go-restclient v0.0.5
