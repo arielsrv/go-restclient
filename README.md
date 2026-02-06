@@ -3,7 +3,12 @@
 A high-performance HTTP client library for Go with advanced features including caching,
 authentication, metrics, and comprehensive request/response handling.
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/arielsrv/go-restclient.svg)](https://pkg.go.dev/github.com/arielsrv/go-restclient)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/arielsrv/go-restclient)](https://go.dev/)
+[![Build Status](https://github.com/arielsrv/go-restclient/actions/workflows/go.yml/badge.svg)](https://github.com/arielsrv/go-restclient/actions/workflows/go.yml)
+[![Lint Status](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml/badge.svg)](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml)
 [![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)](https://sonarqube.tooling.dp.iskaypet.com/dashboard?id=iskaypetcom_digital_sre_tools_dev_go-restclient_44a86603-3e76-44e9-b025-4472c8491e3c&codeScope=overall)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## ✨ Features
 
@@ -20,16 +25,18 @@ authentication, metrics, and comprehensive request/response handling.
 
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
-- [Features](#-features)
-- [Examples](#-examples)
 - [Configuration](#-configuration)
-- [Caching](#-caching)
-- [Authentication](#-authentication)
-- [Metrics & Monitoring](#-metrics--monitoring)
-- [OpenTelemetry (Tracing)](#opentelemetry-tracing)
+- [Features](#-features)
+  - [Caching](#-caching)
+  - [Authentication](#-authentication)
+  - [Metrics & Monitoring](#-metrics--monitoring)
+  - [OpenTelemetry (Tracing)](#-opentelemetry-tracing)
+  - [Connection Pooling](#-connection-pooling)
 - [Benchmarks](#-benchmarks)
-- [Connection Pooling](#-connection-pooling)
+- [Examples](#-examples)
 - [Roadmap](#%EF%B8%8F-roadmap)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ## 🚀 Installation
 
@@ -204,9 +211,13 @@ The library automatically exposes Prometheus metrics for monitoring:
 - `__go_restclient_cache_misses_total`: Cache miss count
 - `__go_restclient_cache_ratio`: Cache hit ratio
 
+### Dashboard Preview
+
+![Metrics Dashboard](images/metrics.png)
+
 ### Grafana Dashboard
 
-Access the monitoring dashboard at:
+Access the live monitoring dashboard at:
 [HTTP Clients Dashboard](https://iskaylog.grafana.net/d/ddmgmir2jckxsb/http-clients)
 
 ### Requirements
@@ -502,7 +513,7 @@ func main() {
 }
 ```
 
-## OpenTelemetry (Tracing)
+## 🔭 OpenTelemetry (Tracing)
 
 OpenTelemetry (OTel) support is built into the client. When you set `EnableTrace: true`, the client:
 
