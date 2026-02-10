@@ -1,6 +1,6 @@
 module github.com/arielsrv/go-restclient
 
-go 1.25.7
+go 1.26.0
 
 require (
 	github.com/dgraph-io/ristretto/v2 v2.4.0
