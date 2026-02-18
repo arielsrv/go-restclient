@@ -80,9 +80,8 @@ func Test_setParams_headersAndOptions(t *testing.T) {
 	defer func() { *mockUpEnv = oldMock }()
 
 	// Provide a cache response with validators to exercise If-* headers
-	lm := time.Now().Add(-time.Minute)
 	cr := &Response{Response: &http.Response{Header: http.Header{}}, revalidate: true}
-	cr.lastModified = &lm
+	cr.lastModified = new(time.Now().Add(-time.Minute))
 	cr.etag = "\"tag\""
 
 	c.setParams(req, cr, "http://origin.example.com/resource?a=1")

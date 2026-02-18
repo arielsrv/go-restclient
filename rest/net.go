@@ -604,8 +604,7 @@ func setTTL(response *Response) bool {
 		}
 
 		if ttl > 0 {
-			t := now.Add(time.Duration(ttl) * time.Second)
-			response.ttl = &t
+			response.ttl = new(now.Add(time.Duration(ttl) * time.Second))
 			return true
 		}
 
