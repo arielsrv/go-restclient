@@ -14,8 +14,14 @@ import (
 	"unsafe"
 )
 
+const (
+	responseIsNil = "response is nil"
+	respIsNil     = "Response is nil"
+	httpRespIsNil = "http.Response is nil"
+)
+
 // Response represents an HTTP response from a REST API call.
-// It wraps the standard [http.Response] and provides additional functionality
+// It wraps the standard [http.Response and provides additional functionality
 // for handling REST API responses, including caching, error handling, and
 // content deserialization.
 type Response struct {
@@ -106,13 +112,13 @@ func (r *Response) Raw() string {
 // It automatically detects the content type (JSON, XML) from the response headers.
 func (r *Response) FillUp(fill any) error {
 	if r == nil {
-		return errors.New("response is nil")
+		return errors.New(responseIsNil)
 	}
 	if r.Err != nil {
 		return r.Err
 	}
 	if r.Response == nil {
-		return errors.New("http.Response is nil")
+		return errors.New(httpRespIsNil)
 	}
 
 	contentType := strings.ToLower(r.Header.Get(CanonicalContentTypeHeader))
@@ -146,7 +152,7 @@ func (r *Response) FillUp(fill any) error {
 func Deserialize[T any](response *Response) (T, error) {
 	var dflt T
 	if response == nil {
-		return dflt, errors.New("response is nil")
+		return dflt, errors.New(responseIsNil)
 	}
 
 	var result T
@@ -171,7 +177,7 @@ func (r *Response) Cached() bool {
 // This is useful for logging and debugging purposes.
 func (r *Response) Debug() string {
 	if r == nil {
-		return "Response is nil"
+		return respIsNil
 	}
 
 	var strReq, strResp string
@@ -187,7 +193,7 @@ func (r *Response) Debug() string {
 	}
 
 	if r.Response == nil {
-		strResp = "Response is nil"
+		strResp = respIsNil
 	} else if resp, err := httputil.DumpResponse(r.Response, false); err != nil {
 		strResp = err.Error()
 	} else {
@@ -224,13 +230,13 @@ func (r *Response) IsOk() bool {
 // If the status code is not in the success range, it returns an error with the status code and response body.
 func (r *Response) VerifyIsOkOrError() error {
 	if r == nil {
-		return errors.New("response is nil")
+		return errors.New(responseIsNil)
 	}
 	if r.Err != nil {
 		return r.Err
 	}
 	if r.Response == nil {
-		return errors.New("http.Response is nil")
+		return errors.New(httpRespIsNil)
 	}
 
 	if !r.IsOk() {
