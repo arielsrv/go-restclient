@@ -42,7 +42,7 @@ var (
 // from a Cache-Control header.
 var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
-// timeFormats is a list of time.Parse formats to use when parsing HTTP date headers.
+// timeFormats is a list of [time.Parse] formats to use when parsing HTTP date headers.
 var timeFormats = []string{
 	time.RFC1123, // "Mon, 02 Jan 2006 15:04:05 GMT"
 	time.RFC850,  // "Monday, 02-Jan-06 15:04:05 GMT"
@@ -234,8 +234,8 @@ func (r *Client) handleGZip(request *http.Request, response *http.Response) bool
 }
 
 // setContentReader creates a reader from the given body and content type.
-// It marshals the body according to the specified content type and returns an io.Reader.
-// If body is nil, it returns http.NoBody.
+// It marshals the body according to the specified content type and returns an [io.Reader].
+// If body is nil, it returns [http.NoBody].
 // Returns an error if the content type is not supported or if marshaling fails.
 func setContentReader(body any, contentType ContentType) (io.Reader, error) {
 	if body != nil {
@@ -257,7 +257,7 @@ func setContentReader(body any, contentType ContentType) (io.Reader, error) {
 
 // setRespReader creates a reader from the given request and response.
 // It handles gzip decompression if necessary.
-// Returns an io.ReadCloser for reading the response body.
+// Returns an [io.ReadCloser] for reading the response body.
 func (r *Client) setRespReader(request *http.Request, response *http.Response) (io.ReadCloser, error) {
 	if !r.handleGZip(request, response) {
 		return response.Body, nil
@@ -317,7 +317,7 @@ func checkMockup(reqURL string) (string, string, error) {
 }
 
 // The newHTTPClient sets up the HTTP client for the given request builder.
-// It initializes the client only once per Client instance using sync.Once,
+// It initializes the client only once per [http.Client] instance using [sync.Once],
 // configuring transport, tracing, OAuth, and default headers.
 //
 // The client is configured with:
@@ -327,7 +327,7 @@ func checkMockup(reqURL string) (string, string, error) {
 //   - Default headers
 //   - Redirect handling based on FollowRedirect setting
 //
-// Returns the configured http.Client.
+// Returns the configured [http.Client].
 func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 	r.clientMtxOnce.Do(func() {
 		r.clientMtx.Lock()
@@ -384,7 +384,7 @@ func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 // If a CustomPool is provided, it uses that for transport configuration.
 // Otherwise, it uses the default transport shared across all clients.
 //
-// Returns the configured http.RoundTripper to use for HTTP requests.
+// Returns the configured [http.RoundTripper] to use for HTTP requests.
 func (r *Client) setupTransport() http.RoundTripper {
 	timeout := r.getRequestTimeout()
 	// If there's no CustomPool, use the default transport

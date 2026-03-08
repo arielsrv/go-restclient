@@ -121,7 +121,7 @@ type JSONMedia struct {
 	ContentType string
 }
 
-// Marshal converts the given body into JSON format and returns an io.Reader
+// Marshal converts the given body into JSON format and returns an [io.Reader]
 // containing the marshaled data. It supports strings, byte slices, structs, and maps.
 func (r JSONMedia) Marshal(body any) (io.Reader, error) {
 	b, err := json.Marshal(body)
@@ -160,7 +160,7 @@ type XMLMedia struct {
 	ContentType string
 }
 
-// Marshal converts the given body into XML format and returns an io.Reader
+// Marshal converts the given body into XML format and returns an [io.Reader]
 // containing the marshaled data.
 func (r XMLMedia) Marshal(body any) (io.Reader, error) {
 	b, err := xml.Marshal(body)
@@ -200,8 +200,8 @@ type FormMedia struct {
 	ContentType string
 }
 
-// Marshal converts the given body into form-urlencoded format and returns an io.Reader
-// containing the marshaled data. The body must be of type url.Values.
+// Marshal converts the given body into form-urlencoded format and returns an [io.Reader]
+// containing the marshaled data. The body must be of type [url.Values].
 func (r FormMedia) Marshal(body any) (io.Reader, error) {
 	if values, ok := body.(url.Values); ok {
 		return strings.NewReader(values.Encode()), nil

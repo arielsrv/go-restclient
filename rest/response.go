@@ -15,7 +15,7 @@ import (
 )
 
 // Response represents an HTTP response from a REST API call.
-// It wraps the standard http.Response and provides additional functionality
+// It wraps the standard [http.Response] and provides additional functionality
 // for handling REST API responses, including caching, error handling, and
 // content deserialization.
 type Response struct {
@@ -176,7 +176,9 @@ func (r *Response) Debug() string {
 
 	var strReq, strResp string
 
-	if r.Request == nil {
+	if r.Response == nil {
+		strReq = "Request is nil"
+	} else if r.Request == nil {
 		strReq = "Request is nil"
 	} else if req, err := httputil.DumpRequest(r.Request, true); err != nil {
 		strReq = err.Error()

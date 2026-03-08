@@ -19,7 +19,7 @@ var (
 	// DefaultTimeout is the default timeout for all clients.
 	DefaultTimeout = 500 * time.Millisecond
 	// DefaultConnectTimeout is the time it takes to make a connection
-	// Type: time.Duration.
+	// Type: [time.Duration].
 	DefaultConnectTimeout = 1500 * time.Millisecond
 )
 
@@ -88,7 +88,7 @@ type HTTPClient interface {
 	OptionsWithContext(ctx context.Context, url string, headers ...http.Header) *Response
 }
 
-// HTTPExporter provides access to the underlying http.Client and the Do method.
+// HTTPExporter provides access to the underlying [http.Client] and the Do method.
 type HTTPExporter interface {
 	// RawClient returns the underlying http.Client.
 	RawClient(ctx context.Context) *http.Client
@@ -496,7 +496,7 @@ func (r *Client) AsyncOptionsWithContext(ctx context.Context, url string, header
 	return r.asyncNewRequest(ctx, http.MethodOptions, url, nil, headers...)
 }
 
-// RawClient returns the underlying http.Client used by the RESTClient.
+// RawClient returns the underlying [http.Client] used by the RESTClient.
 func (r *Client) RawClient(ctx context.Context) *http.Client {
 	return r.newHTTPClient(ctx)
 }
