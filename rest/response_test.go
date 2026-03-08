@@ -437,7 +437,6 @@ func TestClient_GetWithContext_ConcurrentResponses(t *testing.T) {
 // TestClient_GetWithContext_ConcurrentMixedOperations tests concurrent operations
 // with different HTTP methods and response types to stress test the client.
 func TestClient_GetWithContext_ConcurrentMixedOperations(t *testing.T) {
-	t.Skip()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -545,7 +544,6 @@ func TestClient_GetWithContext_ConcurrentMixedOperations(t *testing.T) {
 // TestClient_GetWithContext_ConcurrentResponseBufferStress tests extreme concurrency
 // scenarios to stress test response buffer handling.
 func TestClient_GetWithContext_ConcurrentResponseBufferStress(t *testing.T) {
-	t.Skip("enabled for local stress testing")
 	// Create a server that returns responses with different sizes
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		size := r.URL.Query().Get("size")
@@ -1118,7 +1116,6 @@ func TestClient_GetWithContext_ConcurrentMixedOperationsWithCache(t *testing.T) 
 // TestClient_GetWithContext_ConcurrentResponseBufferStressWithCache tests extreme concurrency
 // scenarios with caching enabled to stress test response buffer handling.
 func TestClient_GetWithContext_ConcurrentResponseBufferStressWithCache(t *testing.T) {
-	t.Skip("enabled for local stress testing")
 	// Create a server that returns responses with different sizes
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		size := r.URL.Query().Get("size")
@@ -2142,7 +2139,6 @@ func TestClient_GetWithContext_OAuthAndTracing(t *testing.T) {
 // TestClient_GetWithContext_ResponseMethods tests all response methods
 // to increase coverage of response.go.
 func TestClient_GetWithContext_ResponseMethods(t *testing.T) {
-	t.Skip()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "max-age=60")
