@@ -5,7 +5,7 @@ go 1.26.1
 require (
 	github.com/dgraph-io/ristretto/v2 v2.4.0
 	github.com/stretchr/testify v1.11.1
-	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.67.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.68.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.68.0
 	golang.org/x/oauth2 v0.36.0
 	golang.org/x/sync v0.20.0
