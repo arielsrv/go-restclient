@@ -14,7 +14,7 @@ import (
 
 // This example demonstrates OAuth2 Client Credentials flow.
 //
-// A local httptest.Server acts as the token endpoint so the example runs
+// A local [httptest.Server] acts as the token endpoint so the example runs
 // without real credentials or external network access.
 //
 // In production, replace tokenURL and credentials with your real values:
