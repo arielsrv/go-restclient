@@ -279,12 +279,12 @@ Server response headers:
   ETag: "abc123"
 ```
 
-| Request | What the client sends | Server responds | Result |
-|---|---|---|---|
-| 1st | — | `200` + `ETag: "v1"` | Cached with `revalidate=true` |
-| 2nd | `If-None-Match: "v1"` | `304 Not Modified` | Cached response returned — no body transfer |
-| 2nd (content changed) | `If-None-Match: "v1"` | `200` + `ETag: "v2"` | Cache **force-updated** with new response |
-| 3rd (after update) | `If-None-Match: "v2"` | `304 Not Modified` | Updated cached response returned |
+| Request               | What the client sends | Server responds      | Result                                      |
+|-----------------------|-----------------------|----------------------|---------------------------------------------|
+| 1st                   | —                     | `200` + `ETag: "v1"` | Cached with `revalidate=true`               |
+| 2nd                   | `If-None-Match: "v1"` | `304 Not Modified`   | Cached response returned — no body transfer |
+| 2nd (content changed) | `If-None-Match: "v1"` | `200` + `ETag: "v2"` | Cache **force-updated** with new response   |
+| 3rd (after update)    | `If-None-Match: "v2"` | `304 Not Modified`   | Updated cached response returned            |
 
 > **Key property**: every request hits the network for a cheap conditional check
 > (`304` means no body is transferred). If the content has changed, the new response
