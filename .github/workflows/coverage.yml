@@ -38,7 +38,7 @@ jobs:
           sed -i "s|!\[Coverage\](https://img\.shields\.io/badge/Coverage-[^)]*)|![Coverage](https://img.shields.io/badge/Coverage-${COVERAGE}%25-${COLOR})|g" README.md
 
       - name: Commit badge
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: update coverage badge"
           file_pattern: README.md
