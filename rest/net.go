@@ -220,7 +220,7 @@ func (r *Client) newRequest(
 	// If Cache enable: cache the response.
 	// If we just performed a conditional revalidation and the server returned 200
 	// (content changed), force-update the existing entry so the new ETag/body is stored.
-	// Otherwise use setNX to avoid overwriting a valid cached entry on concurrent requests.
+	// Otherwise, use setNX to avoid overwriting a valid cached entry on concurrent requests.
 	if r.EnableCache && slices.Contains(readVerbs, verb) &&
 		(cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
 		if cacheResponse != nil {
@@ -551,7 +551,7 @@ func (r *Client) setParams(
 			return r.UserAgent
 		}
 
-		return "go-restclient/" + Version + " (iskaypet-sre; +https://github.com/arielsrv/go-restclient)"
+		return "go-restclient/" + Version + " (github; +https://github.com/arielsrv/go-restclient)"
 	}())
 
 	// Encoding
