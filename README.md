@@ -620,12 +620,33 @@ rest.StopMockupServer()   // stop the server and reset state
 
 ## Benchmarks
 
-| Client | Operations/sec | Latency |
-|---|---|---|
-| go-restclient | ~2.5M ops/sec | 405ms |
-| resty | ~0.9M ops/sec | 1099ms |
+All benchmarks run against an **in-process `httptest.Server`** (zero external network latency)
+on an Apple M1 Pro. Source: [`rest/benchmark_compare_test.go`](rest/benchmark_compare_test.go).
 
-*Measured on Apple M3 Pro. See `rest/benchmark_test.go` for details.*
+```bash
+go test ./rest/... -bench=. -benchmem -benchtime=5s -count=1 -run=^$
+```
+
+### Results
+
+| Scenario | Library | ns/op | B/op | allocs/op |
+|---|---|---:|---:|---:|
+| Plain GET | **go-restclient** | 50,885 | 9,705 | 104 |
+| Plain GET | resty/v2 | 48,986 | 9,836 | 91 |
+| Cached GET (TTL) | **go-restclient** | **442** | **280** | **5** |
+| Cached GET (TTL) | resty/v2 *(no cache)* | 49,058 | 9,939 | 92 |
+| Slow GET (100 ms) | **go-restclient** | 101,684,877 | 11,354 | 106 |
+| Slow GET (100 ms) | resty/v2 | 101,631,275 | 10,869 | 93 |
+
+### Takeaways
+
+- **Plain GET**: both libraries are equivalent (~50 µs). go-restclient uses slightly fewer
+  bytes per op; resty has fewer allocations.
+- **Cached GET (TTL)**: this is go-restclient's standout scenario. Once a response is cached,
+  subsequent reads cost only **442 ns** — a **~110× speedup** over a real request, with
+  **97% less memory**. resty has no built-in HTTP cache, so every call pays the full round-trip.
+- **Slow GET**: when the bottleneck is handler/network latency (100 ms here), both
+  libraries perform identically — the HTTP overhead is negligible.
 
 ---
 
