@@ -4,98 +4,82 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"time"
 
 	"github.com/arielsrv/go-restclient/rest"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
 )
 
+// This example demonstrates OAuth2 Client Credentials flow.
+//
+// A local httptest.Server acts as the token endpoint so the example runs
+// without real credentials or external network access.
+//
+// In production, replace tokenURL and credentials with your real values:
+//
+//	OAuth: &rest.OAuth{
+//	    ClientID:     "your-client-id",
+//	    ClientSecret: "your-client-secret",
+//	    TokenURL:     "https://auth.example.com/oauth/token",
+//	    Scopes:       []string{"api:read"},
+//	    AuthStyle:    rest.AuthStyleInHeader,
+//	},
 func main() {
-	client := &rest.Client{
-		Name:           "scapi-client",
-		BaseURL:        "https://c5n0uf3s.api.commercecloud.salesforce.com",
-		Timeout:        time.Millisecond * 1000,
-		ConnectTimeout: time.Millisecond * 5000,
-		ContentType:    rest.JSON,
-		OAuth: &rest.OAuth{
-			ClientID:     "a11d0149-687e-452e-9c94-783d489d4f72",
-			ClientSecret: "Kiwoko@1234",
-			TokenURL:     "https://account.demandware.com/dw/oauth2/access_token",
-			AuthStyle:    rest.AuthStyleInHeader,
-		},
-		EnableTrace: true,
-	}
+	// ── Token server (simulates the OAuth2 authorization server) ─────────────
+	tokenServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{
+  "access_token": "mock-bearer-token-abc123",
+  "token_type":   "Bearer",
+  "expires_in":   3600
+}`)
+	}))
+	defer tokenServer.Close()
 
-	type SitesResponse struct {
-		V    string `json:"_v"`
-		Type string `json:"_type"`
-		Data []struct {
-			Type          string `json:"_type"`
-			ResourceState string `json:"_resource_state"`
-			ID            string `json:"id"`
-			Link          string `json:"link"`
-		} `json:"data"`
-		Count int `json:"count"`
-		Start int `json:"start"`
-		Total int `json:"total"`
-	}
+	// ── API server (simulates the protected resource server) ──────────────────
+	rest.StartMockupServer()
+	defer rest.StopMockupServer()
 
-	ctx := context.Background()
+	const protectedURL = "http://api.example.com/products"
 
-	for {
-		response := client.GetWithContext(ctx, "/product/products/v1/organizations/f_ecom_bdlq_prd/products/BEA10136?siteId=KiwokoES")
-		if response.Err != nil {
-			fmt.Println(response.Err)
-			os.Exit(1)
-		}
-
-		if response.StatusCode != http.StatusOK {
-			fmt.Printf("Status: %d, Body: %s\n", response.StatusCode, response.String())
-			os.Exit(1)
-		}
-
-		var sitesResponse SitesResponse
-		err := response.FillUp(&sitesResponse)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		for i := range sitesResponse.Data {
-			siteResponse := sitesResponse.Data[i]
-			fmt.Printf("Site: %s, Link: %s\n", siteResponse.ID, siteResponse.Link)
-		}
-
-		fmt.Println("Waiting for 10 seconds before exiting...  (Ctrl+C to stop)")
-		time.Sleep(time.Duration(10) * time.Second)
-	}
-}
-
-func init() {
-	spanExporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
+	err := rest.AddMockups(&rest.Mock{
+		URL:          protectedURL,
+		HTTPMethod:   http.MethodGet,
+		RespHTTPCode: http.StatusOK,
+		RespBody:     `[{"id":1,"name":"Widget"},{"id":2,"name":"Gadget"}]`,
+		RespHeaders:  http.Header{"Content-Type": {"application/json"}},
+	})
 	if err != nil {
-		return
+		fmt.Printf("mock setup error: %v\n", err)
+		os.Exit(1)
 	}
 
-	tracerProvider := trace.NewTracerProvider(
-		trace.WithSampler(trace.AlwaysSample()),
-		trace.WithBatcher(spanExporter),
-		trace.WithResource(
-			resource.NewWithAttributes(
-				semconv.SchemaURL,
-				semconv.ServiceNameKey.String("example"),
-			)),
-	)
+	// ── Client configured with OAuth2 ─────────────────────────────────────────
+	client := &rest.Client{
+		Name:           "oauth-example",
+		ContentType:    rest.JSON,
+		Timeout:        5 * time.Second,
+		ConnectTimeout: 5 * time.Second,
+		OAuth: &rest.OAuth{
+			ClientID:     "demo-client-id",
+			ClientSecret: "demo-client-secret",
+			TokenURL:     tokenServer.URL + "/token", // local test server
+			Scopes:       []string{"products:read"},
+			AuthStyle:    rest.AuthStyleInHeader,
+			EndpointParams: url.Values{
+				"audience": {"http://api.example.com"},
+			},
+		},
+	}
 
-	otel.SetTracerProvider(tracerProvider)
-	otel.SetTextMapPropagator(
-		propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}),
-	)
-	otel.Tracer("example")
+	resp := client.GetWithContext(context.Background(), protectedURL)
+	if resp.Err != nil {
+		fmt.Printf("request error: %v\n", resp.Err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Status: %d\n", resp.StatusCode)
+	fmt.Printf("Body:   %s\n", resp.String())
 }

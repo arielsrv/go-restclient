@@ -663,20 +663,23 @@ The `examples/` directory contains runnable programs for every major feature:
 | [`html/`](examples/html/main.go) | Caching with `Last-Modified` |
 | [`gzip/`](examples/gzip/main.go) | Gzip transparent decompression |
 | [`gzip_headers/`](examples/gzip_headers/main.go) | Per-request `Accept-Encoding` |
-| [`oauth/`](examples/oauth/main.go) | OAuth2 Client Credentials |
+| [`oauth/`](examples/oauth/main.go) | OAuth2 Client Credentials (mock token server + mock API) |
 | [`dfltheaders/`](examples/dfltheaders/main.go) | Default + per-request headers |
 | [`headers/`](examples/headers/main.go) | Custom headers |
 | [`xml/`](examples/xml/main.go) | XML content type |
 | [`form/`](examples/form/main.go) | `application/x-www-form-urlencoded` |
 | [`bytes/`](examples/bytes/main.go) | Binary upload / large downloads |
+| [`binary_download/`](examples/binary_download/main.go) | Download a file to disk |
+| [`str/`](examples/str/main.go) | Raw string response handling |
+| [`patch_options/`](examples/patch_options/main.go) | PATCH and OPTIONS verbs |
 | [`redirect/`](examples/redirect/main.go) | Redirect handling |
 | [`timeout/`](examples/timeout/main.go) | Timeout configuration |
 | [`ioc/`](examples/ioc/main.go) | Dependency injection pattern |
 | [`mock/`](examples/mock/main.go) | Mock server usage |
 | [`iterator/`](examples/iterator/main.go) | Async/iterator pattern |
-| [`metrics/`](examples/metrics/main.go) | Prometheus metrics endpoint |
-| [`trace/`](examples/trace/main.go) | OpenTelemetry tracing |
-| [`problem/`](examples/problem/main.go) | RFC 7807 problem details |
+| [`problem/`](examples/problem/main.go) | RFC 7807 problem details (auto-deserialized from `application/problem+json`) |
+| [`metrics/`](examples/metrics/main.go) | Prometheus metrics — starts an HTTP server on `:8081` |
+| [`trace/`](examples/trace/main.go) | OpenTelemetry tracing — starts an HTTP server on `:8081` |
 
 Run any example:
 

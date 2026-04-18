@@ -4,78 +4,84 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
+	"os"
 
 	"github.com/arielsrv/go-restclient/rest"
 )
 
-func main() {
-	var (
-		httpClient  rest.HTTPClient
-		sitesClient ISitesClient
-	)
-
-	httpClient = &rest.Client{
-		Name:        "sitesResponse-httpClient",
-		BaseURL:     "https://api.prod.dp.iskaypet.com",
-		ContentType: rest.JSON,
-		Timeout:     time.Duration(5000) * time.Millisecond,
-	}
-
-	sitesClient = NewSitesClient(httpClient)
-
-	sitesResponse, err := sitesClient.GetSites(context.Background())
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		return
-	}
-
-	for i := range sitesResponse {
-		fmt.Printf("Site: %+v\n", sitesResponse[i])
-	}
+// UserResponse represents a user resource.
+type UserResponse struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Status string `json:"status"`
 }
 
-type SiteResponse struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+// IUsersClient defines the interface — depends on rest.HTTPClient, not the concrete type.
+// This enables dependency injection and easy mocking in tests.
+type IUsersClient interface {
+	GetUsers(ctx context.Context) ([]UserResponse, error)
 }
 
-type ISitesClient interface {
-	GetSites(ctx context.Context) ([]SiteResponse, error)
-}
-
-type SitesClient struct {
+// UsersClient is the concrete implementation wired to an HTTPClient.
+type UsersClient struct {
 	httpClient rest.HTTPClient
 }
 
-func NewSitesClient(
-	httpClient rest.HTTPClient,
-) *SitesClient {
-	return &SitesClient{
-		httpClient: httpClient,
-	}
+// NewUsersClient constructs a UsersClient.
+// In production: pass &rest.Client{...}.
+// In unit tests:  pass a mock that implements rest.HTTPClient.
+func NewUsersClient(httpClient rest.HTTPClient) *UsersClient {
+	return &UsersClient{httpClient: httpClient}
 }
 
-func (r SitesClient) GetSites(ctx context.Context) ([]SiteResponse, error) {
-	apiURL := "/sites"
-
-	headers := make(http.Header)
-	headers.Set("X-Api-Key", "your-api-key")
-
-	response := r.httpClient.GetWithContext(ctx, apiURL, headers)
-	if response.Err != nil {
-		return nil, response.Err
+func (c *UsersClient) GetUsers(ctx context.Context) ([]UserResponse, error) {
+	resp := c.httpClient.GetWithContext(ctx, "/users")
+	if resp.Err != nil {
+		return nil, resp.Err
 	}
-
-	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("status: %d, body: %s", response.StatusCode, response.String())
+	if !resp.IsOk() {
+		return nil, fmt.Errorf("unexpected status %d", resp.StatusCode)
 	}
+	return rest.Deserialize[[]UserResponse](resp)
+}
 
-	var sitesResponse []SiteResponse
-	err := response.FillUp(&sitesResponse)
+func main() {
+	rest.StartMockupServer()
+	defer rest.StopMockupServer()
+
+	err := rest.AddMockups(&rest.Mock{
+		URL:          "http://api.example.com/users",
+		HTTPMethod:   http.MethodGet,
+		RespHTTPCode: http.StatusOK,
+		RespBody: `[
+  {"id":1,"name":"Alice","email":"alice@example.com","status":"active"},
+  {"id":2,"name":"Bob",  "email":"bob@example.com",  "status":"inactive"}
+]`,
+		RespHeaders: http.Header{"Content-Type": {"application/json"}},
+	})
 	if err != nil {
-		return nil, err
+		fmt.Printf("mock error: %v\n", err)
+		os.Exit(1)
 	}
 
-	return sitesResponse, nil
+	// Wire up: inject a real rest.Client — swap for a mock in tests.
+	httpClient := &rest.Client{
+		Name:        "users-client",
+		BaseURL:     "http://api.example.com",
+		ContentType: rest.JSON,
+	}
+
+	var client IUsersClient = NewUsersClient(httpClient)
+
+	users, err := client.GetUsers(context.Background())
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Retrieved %d users:\n", len(users))
+	for _, u := range users {
+		fmt.Printf("  [%d] %s <%s> (%s)\n", u.ID, u.Name, u.Email, u.Status)
+	}
 }

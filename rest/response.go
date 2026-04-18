@@ -141,6 +141,21 @@ func (r *Response) FillUp(fill any) error {
 		}
 	}
 
+	// RFC 6838 structured syntax suffix fallback:
+	// "application/problem+json" → JSON, "application/atom+xml" → XML, etc.
+	if _, suffix, ok := strings.Cut(mediaType, "+"); ok {
+		switch suffix {
+		case "json":
+			if m, found := readMarshalers[JSON]; found {
+				return m.Unmarshal(r.bytes, fill)
+			}
+		case "xml":
+			if m, found := readMarshalers[XML]; found {
+				return m.Unmarshal(r.bytes, fill)
+			}
+		}
+	}
+
 	return fmt.Errorf("unmarshal fail, unsupported content type: %s", contentType)
 }
 

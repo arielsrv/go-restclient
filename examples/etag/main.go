@@ -51,6 +51,9 @@ func main() {
 	fmt.Printf("  Request 1 → status=%d  cached=%t  etag=%q  body=%s\n",
 		a1.StatusCode, a1.Cached(), a1.Header.Get(rest.ETagHeader), a1.String())
 
+	// Give ristretto time to asynchronously commit the cache entry.
+	time.Sleep(15 * time.Millisecond)
+
 	rest.FlushMockups()
 	must(rest.AddMockups(&rest.Mock{
 		URL:          urlA,
@@ -85,6 +88,9 @@ func main() {
 	fmt.Printf("  Request 1 → status=%d  cached=%t  etag=%q  body=%s\n",
 		b1.StatusCode, b1.Cached(), b1.Header.Get(rest.ETagHeader), b1.String())
 
+	// Give ristretto time to asynchronously commit the cache entry.
+	time.Sleep(15 * time.Millisecond)
+
 	// Simulate content change: server returns 200 with a new ETag
 	rest.FlushMockups()
 	must(rest.AddMockups(&rest.Mock{
@@ -99,6 +105,9 @@ func main() {
 	checkResp(b2)
 	fmt.Printf("  Request 2 → status=%d  cached=%t  etag=%q  body=%s\n",
 		b2.StatusCode, b2.Cached(), b2.Header.Get(rest.ETagHeader), b2.String())
+
+	// Give ristretto time to commit the force-updated entry.
+	time.Sleep(15 * time.Millisecond)
 
 	// Cache now has "v2". Next revalidation should return 304 and serve updated body.
 	rest.FlushMockups()
