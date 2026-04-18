@@ -236,7 +236,9 @@ fmt.Println(resp.Debug())
 
 Set `EnableCache: true` on the client. Only read operations (`GET`, `HEAD`, `OPTIONS`) are cached.
 
-The cache backend is [Ristretto](https://github.com/dgraph-io/ristretto) — an LFU cache with TTL support and weak-pointer entries so that the GC can reclaim memory when the system is under pressure. The default maximum size is **256 MB** (configurable via `rest.MaxCacheSize`).
+The cache backend is [Ristretto](https://github.com/dgraph-io/ristretto) — an LFU cache with TTL
+support and weak-pointer entries so that the GC can reclaim memory when the system is under
+pressure. The default maximum size is **256 MB** (configurable via `rest.MaxCacheSize`).
 
 ```go
 client := &rest.Client{
@@ -252,7 +254,7 @@ The behavior depends entirely on which HTTP cache headers the **server** returns
 
 #### Mode 1 — TTL (`Cache-Control: max-age` or `Expires`)
 
-```
+```text
 Server response headers:
   Cache-Control: max-age=60
   (or)
@@ -271,7 +273,7 @@ Server response headers:
 
 #### Mode 2 — ETag (no TTL)
 
-```
+```text
 Server response headers:
   ETag: "abc123"
 ```
@@ -283,7 +285,9 @@ Server response headers:
 | 2nd (content changed) | `If-None-Match: "v1"` | `200` + `ETag: "v2"` | Cache **force-updated** with new response |
 | 3rd (after update) | `If-None-Match: "v2"` | `304 Not Modified` | Updated cached response returned |
 
-> **Key property**: every request hits the network for a cheap conditional check (`304` means no body is transferred). If the content has changed, the new response always replaces the stale one.
+> **Key property**: every request hits the network for a cheap conditional check
+> (`304` means no body is transferred). If the content has changed, the new response
+> always replaces the stale one.
 
 ---
 
@@ -295,17 +299,21 @@ Same as Mode 2 but uses `If-Modified-Since` / `Last-Modified` headers instead of
 
 #### Mode 4 — ETag or Last-Modified + TTL (combined)
 
-Within the TTL window, requests are served from cache with **no network call** (same as Mode 1). After the TTL expires, the cache entry is evicted and a fresh conditional request is made using `If-None-Match` or `If-Modified-Since`.
+Within the TTL window, requests are served from cache with **no network call** (same as Mode 1).
+After the TTL expires, the cache entry is evicted and a fresh conditional request is made using
+`If-None-Match` or `If-Modified-Since`.
 
 ---
 
 ### The `revalidate` flag
 
-Internally, responses are marked with `revalidate = true` when they carry an ETag or Last-Modified but **no** TTL. This flag tells the client to always go to the network for a conditional check rather than returning the cached entry directly.
+Internally, responses are marked with `revalidate = true` when they carry an ETag or Last-Modified
+but **no** TTL. This flag tells the client to always go to the network for a conditional check
+rather than returning the cached entry directly.
 
 ### Cache decision flow
 
-```
+```text
 GET /resource
      │
      ▼
@@ -671,4 +679,3 @@ go test ./rest/... -count=1
 ## License
 
 MIT — see [LICENSE](LICENSE) for details.
-

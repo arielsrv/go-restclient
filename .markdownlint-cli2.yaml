@@ -1,0 +1,47 @@
+config:
+  # MD013 – Line length
+  # Tables and code blocks are naturally wide and render perfectly on GitHub.
+  # We keep a 160-char soft limit for prose but exempt tables and code fences.
+  MD013:
+    line_length: 160
+    tables: false
+    code_blocks: false
+    headings: false
+
+  # MD033 – Inline HTML
+  # GitHub renders a subset of HTML (e.g. <br>, <details>) in Markdown.
+  # Allow it so badges and collapsible sections work without lint errors.
+  MD033:
+    allowed_elements:
+      - br
+      - details
+      - summary
+      - img
+
+  # MD041 – First line should be a top-level heading
+  # Enforced: README must start with an H1.
+  MD041: true
+
+  # MD040 – Fenced code blocks should have a language
+  # Enforced: every ``` block must declare a language so GitHub applies
+  # syntax highlighting. Use "text" for plain-text / ASCII diagrams.
+  MD040: true
+
+  # MD060 – Table column style
+  # "consistent" accepts whichever style is used first in the file.
+  # Both |---|---| and | --- | --- | render identically on GitHub.
+  MD060:
+    style: consistent
+
+  # MD012 – No multiple consecutive blank lines
+  MD012:
+    maximum: 1
+
+  # MD024 – No duplicate headings (scoped per section is fine for READMEs)
+  MD024:
+    siblings_only: true
+
+  # MD026 – No trailing punctuation in headings
+  MD026:
+    punctuation: ".,;:!。，；：！"
+
