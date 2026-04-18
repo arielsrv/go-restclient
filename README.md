@@ -629,24 +629,25 @@ go test ./rest/... -bench=. -benchmem -benchtime=5s -count=1 -run=^$
 
 ### Results
 
-| Scenario | Library | ns/op | B/op | allocs/op |
-|---|---|---:|---:|---:|
-| Plain GET | **go-restclient** | 50,885 | 9,705 | 104 |
-| Plain GET | resty/v2 | 48,986 | 9,836 | 91 |
-| Cached GET (TTL) | **go-restclient** | **442** | **280** | **5** |
-| Cached GET (TTL) | resty/v2 *(no cache)* | 49,058 | 9,939 | 92 |
-| Slow GET (100 ms) | **go-restclient** | 101,684,877 | 11,354 | 106 |
-| Slow GET (100 ms) | resty/v2 | 101,631,275 | 10,869 | 93 |
+| Scenario | Library | ns/op | B/op | allocs/op | vs resty |
+|---|---|---:|---:|---:|---|
+| Plain GET | **go-restclient** | **47,888** | **8,452** | **85** | **+1.7% faster, −7% memory, −7 allocs** |
+| Plain GET | resty/v2 | 48,700 | 9,821 | 91 | baseline |
+| Cached GET (TTL) | **go-restclient** | **125** | **55** | **1** | **390× faster, −99.4% memory** |
+| Cached GET (TTL) | resty/v2 *(no cache)* | 49,509 | 9,913 | 92 | baseline |
+| Slow GET (100 ms) | **go-restclient** | 101,574,787 | **10,173** | **87** | **−16% memory, −6 allocs** |
+| Slow GET (100 ms) | resty/v2 | 101,422,116 | 12,153 | 93 | baseline |
 
 ### Takeaways
 
-- **Plain GET**: both libraries are equivalent (~50 µs). go-restclient uses slightly fewer
-  bytes per op; resty has fewer allocations.
-- **Cached GET (TTL)**: this is go-restclient's standout scenario. Once a response is cached,
-  subsequent reads cost only **442 ns** — a **~110× speedup** over a real request, with
-  **97% less memory**. resty has no built-in HTTP cache, so every call pays the full round-trip.
-- **Slow GET**: when the bottleneck is handler/network latency (100 ms here), both
-  libraries perform identically — the HTTP overhead is negligible.
+- **Plain GET**: go-restclient is faster **and** uses less memory. Savings come from
+  eliminating a redundant `url.Parse` + `fmt.Sprintf`, caching per-request header
+  `[]string` allocations, and inlining the hot path.
+- **Cached GET (TTL)**: once a response is cached, subsequent reads cost only **125 ns**
+  and **55 B** — a **390× speedup** over resty's uncached call. resty has no built-in
+  HTTP cache.
+- **Slow GET**: when the bottleneck is handler latency (100 ms), both libraries perform
+  identically in time. go-restclient still wins on memory (−16%) and allocations (−6).
 
 ---
 

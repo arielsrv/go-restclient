@@ -156,14 +156,15 @@ func TestCoverageImprovement_Net(t *testing.T) {
 	})
 
 	t.Run("checkMockup_InvalidURL", func(t *testing.T) {
-		oldMockUpEnv := *mockUpEnv
-		*mockUpEnv = true
-		defer func() { *mockUpEnv = oldMockUpEnv }()
+		// checkMockup is now inlined in newRequest; test the same invalid-URL path
+		// by making a real request through the client while mock is active.
+		StartMockupServer()
+		defer StopMockupServer()
 
-		invalidURL := "http://[::1]:invalid"
-		_, _, err := checkMockup(invalidURL)
-		if err == nil {
-			t.Error("expected error for invalid URL in checkMockup")
+		c := &Client{}
+		resp := c.Get("http://[::1]:invalid/path")
+		if resp.Err == nil {
+			t.Error("expected error for invalid URL")
 		}
 	})
 }

@@ -129,6 +129,18 @@ type Client struct {
 	// Name is a label for the client, used in metrics.
 	Name string
 
+	// cachedUserAgentHdr is the pre-allocated []string for the User-Agent header value,
+	// computed once during client initialization to avoid per-request allocations.
+	cachedUserAgentHdr []string
+
+	// cachedAcceptHdr is the pre-allocated []string for the Accept header value,
+	// derived from the configured ContentType marshaler.
+	cachedAcceptHdr []string
+
+	// cachedContentTypeHdr is the pre-allocated []string for the Content-Type header
+	// value, used for write verbs (POST, PUT, PATCH).
+	cachedContentTypeHdr []string
+
 	// Timeout is the maximum time for the entire request/response cycle.
 	Timeout time.Duration
 
@@ -138,9 +150,10 @@ type Client struct {
 	// ContentType specifies the default media type (JSON, XML, Form).
 	ContentType ContentType
 
-	// clientMtx protects the http.Client creation.
-	clientMtx     sync.Mutex
 	clientMtxOnce sync.Once
+
+	// clientMtx protects the http.Client creation.
+	clientMtx sync.Mutex
 
 	// EnableCache enables internal response caching.
 	EnableCache bool

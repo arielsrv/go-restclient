@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"os"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -25,14 +24,17 @@ import (
 
 var Version = "1.0.0"
 
+// hdrKeepAlive and hdrNoCache are package-level shared slices for static header values.
+// They are assigned directly into request.Header (map entry), which is safe because:
+//   - Header.Set/Add replaces the slice reference, never mutating the backing array
+//   - cap == 1 forces append to create a new backing array if anyone calls Header.Add
+var (
+	hdrKeepAlive = []string{"keep-alive"}
+	hdrNoCache   = []string{"no-cache"}
+)
+
 // HTTP method categorization for internal use.
 var (
-	// readVerbs contains HTTP methods that are considered "read" operations.
-	// These methods are eligible for caching.
-	readVerbs = []string{http.MethodGet, http.MethodHead, http.MethodOptions}
-
-	// contentVerbs contains HTTP methods that typically include a request body.
-	contentVerbs = []string{http.MethodPost, http.MethodPut, http.MethodPatch}
 
 	// defaultCheckRedirectFunc is the default function used to handle HTTP redirects.
 	defaultCheckRedirectFunc func(request *http.Request, via []*http.Request) error
@@ -104,18 +106,17 @@ func (r *Client) newRequest(
 	body any,
 	headers ...http.Header,
 ) *Response {
-	validURL, err := url.Parse(fmt.Sprintf("%s%s", r.BaseURL, apiURL))
-	if err != nil {
-		return &Response{
-			Err: err,
-		}
-	}
+	// Fast URL build: simple concatenation avoids a redundant url.Parse + String() round-trip.
+	// http.NewRequestWithContext already calls url.Parse internally, so URL validation
+	// (and any resulting error) is handled there — no need to do it twice.
+	apiURL = r.BaseURL + apiURL
 
-	apiURL = validURL.String()
+	// Pre-compute read-verb check once; reused for both cache lookup and cache store.
+	isReadVerb := verb == http.MethodGet || verb == http.MethodHead || verb == http.MethodOptions
 
 	var cacheResponse *Response
 	// If Cache enable && operation is read: Cache GET
-	if r.EnableCache && slices.Contains(readVerbs, verb) {
+	if r.EnableCache && isReadVerb {
 		if value, hit := resourceCache.get(apiURL); hit {
 			cacheResponse = value
 			if cacheResponse != nil {
@@ -135,13 +136,17 @@ func (r *Client) newRequest(
 		}
 	}
 
-	// Change URL to point to Mockup server
-	var cacheURL string
-	apiURL, cacheURL, err = checkMockup(apiURL)
-	if err != nil {
-		return &Response{
-			Err: err,
+	// Inline checkMockup: on the hot path (mock disabled) this is a single atomic load —
+	// no function call, no string copy.
+	cacheURL := apiURL
+	if *mockUpEnv {
+		rURL, mErr := url.Parse(apiURL)
+		if mErr != nil {
+			return &Response{Err: mErr}
 		}
+		rURL.Scheme = mockServerURL.Scheme
+		rURL.Host = mockServerURL.Host
+		apiURL = rURL.String()
 	}
 
 	// Enable trace if enabled
@@ -203,30 +208,25 @@ func (r *Client) newRequest(
 
 	setProblem(response)
 
-	// Cache headers
-	cacheHeaders := struct {
-		TTL          bool
-		LastModified bool
-		ETag         bool
-	}{
-		TTL:          setTTL(response),
-		LastModified: setLastModified(response),
-		ETag:         setETag(response),
-	}
+	// Only compute cache-validation headers when caching is enabled.
+	// setTTL / setLastModified / setETag each perform header lookups and regexp
+	// matching; skipping them on the non-cache path saves ~10 calls per request.
+	if r.EnableCache && isReadVerb {
+		ttl := setTTL(response)
+		lastModified := setLastModified(response)
+		etag := setETag(response)
 
-	// Must revalidate response if necessary
-	response.revalidate = !cacheHeaders.TTL && (cacheHeaders.LastModified || cacheHeaders.ETag)
+		response.revalidate = !ttl && (lastModified || etag)
 
-	// If Cache enable: cache the response.
-	// If we just performed a conditional revalidation and the server returned 200
-	// (content changed), force-update the existing entry so the new ETag/body is stored.
-	// Otherwise, use setNX to avoid overwriting a valid cached entry on concurrent requests.
-	if r.EnableCache && slices.Contains(readVerbs, verb) &&
-		(cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
-		if cacheResponse != nil {
-			resourceCache.set(cacheURL, response)
-		} else {
-			resourceCache.setNX(cacheURL, response)
+		if ttl || lastModified || etag {
+			// Content changed after revalidation: force-update the existing entry so
+			// the new ETag/body replaces the stale one (fixes the setNX-skip bug).
+			// First-time insertion uses setNX to avoid races on concurrent requests.
+			if cacheResponse != nil {
+				resourceCache.set(cacheURL, response)
+			} else {
+				resourceCache.setNX(cacheURL, response)
+			}
 		}
 	}
 
@@ -297,32 +297,6 @@ func setProblem(result *Response) {
 	}
 }
 
-// checkMockup checks if the request URL should be redirected to a mockup server.
-// If mockup mode is enabled, it replaces the scheme and host of the URL with
-// those of the mockup server, while preserving the original URL for caching.
-//
-// Returns:
-//   - The URL to use for the request (may be modified for mockup)
-//   - The original URL to use for caching
-//   - Any error that occurred during URL parsing
-func checkMockup(reqURL string) (string, string, error) {
-	cacheURL := reqURL
-
-	if *mockUpEnv {
-		rURL, err := url.Parse(reqURL)
-		if err != nil {
-			return reqURL, cacheURL, err
-		}
-
-		rURL.Scheme = mockServerURL.Scheme
-		rURL.Host = mockServerURL.Host
-
-		return rURL.String(), cacheURL, nil
-	}
-
-	return reqURL, cacheURL, nil
-}
-
 // The newHTTPClient sets up the HTTP client for the given request builder.
 // It initializes the client only once per [http.Client] instance using [sync.Once],
 // configuring transport, tracing, OAuth, and default headers.
@@ -366,6 +340,28 @@ func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 
 		for key, value := range r.DefaultHeaders {
 			r.defaultHeaders.Store(key, value)
+		}
+
+		// Pre-compute User-Agent as a []string once so setParams can assign it
+		// directly into the header map without a per-request string concat or
+		// []string allocation.
+		ua := r.UserAgent
+		if ua == "" {
+			ua = "go-restclient/" + Version + " (github; +https://github.com/arielsrv/go-restclient)"
+		}
+		r.cachedUserAgentHdr = []string{ua}
+
+		// Pre-compute Accept and Content-Type header values from the configured
+		// ContentType marshaler. DefaultHeaders() creates a new http.Header map
+		// (3 allocs) on every call; caching the []string avoids that entirely.
+		if marshaler, found := contentMarshalers[r.ContentType]; found {
+			hdrs := marshaler.DefaultHeaders()
+			if vals := hdrs[CanonicalAcceptHeader]; len(vals) > 0 {
+				r.cachedAcceptHdr = []string{vals[0]}
+			}
+			if vals := hdrs[CanonicalContentTypeHeader]; len(vals) > 0 {
+				r.cachedContentTypeHdr = []string{vals[0]}
+			}
 		}
 	})
 
@@ -531,9 +527,10 @@ func (r *Client) setParams(
 	cacheURL string,
 	paramHeaders ...http.Header,
 ) {
-	// Default headers
-	request.Header.Set(ConnectionHeader, "keep-alive")
-	request.Header.Set(CacheControlHeader, "no-cache")
+	// Direct map assignment with pre-allocated shared slices avoids the []string{val}
+	// allocation that Header.Set creates on every call.
+	request.Header[ConnectionHeader] = hdrKeepAlive
+	request.Header[CacheControlHeader] = hdrNoCache
 
 	// If mockup
 	if *mockUpEnv {
@@ -545,20 +542,42 @@ func (r *Client) setParams(
 		request.SetBasicAuth(r.BasicAuth.Username, r.BasicAuth.Password)
 	}
 
-	// User Agent
-	request.Header.Set(UserAgentHeader, func() string {
-		if r.UserAgent != "" {
-			return r.UserAgent
+	// User-Agent: use pre-allocated []string from client init — no closure, no concat.
+	// Fall back to on-the-fly computation if newHTTPClient hasn't run yet (e.g. in tests).
+	userAgentHdr := r.cachedUserAgentHdr
+	if userAgentHdr == nil {
+		ua := r.UserAgent
+		if ua == "" {
+			ua = "go-restclient/" + Version + " (github; +https://github.com/arielsrv/go-restclient)"
 		}
+		userAgentHdr = []string{ua}
+	}
+	request.Header[UserAgentHeader] = userAgentHdr
 
-		return "go-restclient/" + Version + " (github; +https://github.com/arielsrv/go-restclient)"
-	}())
-
-	// Encoding
-	if marshaler, found := contentMarshalers[r.ContentType]; found {
-		request.Header.Set(CanonicalAcceptHeader, marshaler.DefaultHeaders().Get(CanonicalAcceptHeader))
-		if slices.Contains(contentVerbs, request.Method) {
-			request.Header.Set(CanonicalContentTypeHeader, marshaler.DefaultHeaders().Get(CanonicalContentTypeHeader))
+	// Accept / Content-Type: use cached []string values from client init.
+	// This replaces two DefaultHeaders() calls that each allocated a new http.Header map
+	// (1 map + 2 slices = 3 allocs) per request.
+	// Fall back to DefaultHeaders() if the client hasn't been initialized yet.
+	acceptHdr := r.cachedAcceptHdr
+	ctHdr := r.cachedContentTypeHdr
+	if acceptHdr == nil {
+		if marshaler, found := contentMarshalers[r.ContentType]; found {
+			hdrs := marshaler.DefaultHeaders()
+			if vals := hdrs[CanonicalAcceptHeader]; len(vals) > 0 {
+				acceptHdr = []string{vals[0]}
+			}
+			if vals := hdrs[CanonicalContentTypeHeader]; len(vals) > 0 {
+				ctHdr = []string{vals[0]}
+			}
+		}
+	}
+	if acceptHdr != nil {
+		request.Header[CanonicalAcceptHeader] = acceptHdr
+		switch request.Method {
+		case http.MethodPost, http.MethodPut, http.MethodPatch:
+			if ctHdr != nil {
+				request.Header[CanonicalContentTypeHeader] = ctHdr
+			}
 		}
 	}
 
