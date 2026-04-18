@@ -1,0 +1,15 @@
+site_name: go-restclient
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+
