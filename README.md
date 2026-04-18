@@ -1,7 +1,6 @@
-# Go RESTClient
+# go-restclient
 
-A high-performance HTTP client library for Go with advanced features including caching,
-authentication, metrics, and comprehensive request/response handling.
+> A high-performance, feature-rich HTTP client for Go — with smart caching, OAuth2, async requests, OpenTelemetry tracing, and a built-in mock server.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/arielsrv/go-restclient.svg)](https://pkg.go.dev/github.com/arielsrv/go-restclient)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/arielsrv/go-restclient)](https://go.dev/)
@@ -9,177 +8,341 @@ authentication, metrics, and comprehensive request/response handling.
 [![Lint Status](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml/badge.svg)](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## ✨ Features
+---
 
-- **HTTP Methods**: Full support for GET, POST, PUT, PATCH, DELETE, HEAD & OPTIONS
-- **Smart Caching**: Response caching based on HTTP headers (`cache-control`, `last-modified`, `etag`, `expires`)
-- **Content Types**: Automatic marshaling/unmarshaling for JSON, XML, and Form data
-- **Authentication**: Built-in support for Basic Auth and OAuth2 Client Credentials
-- **Connection Pooling**: Configurable connection pools for optimal performance
-- **Metrics & Tracing**: Prometheus metrics and OpenTelemetry tracing support
-- **Error Handling**: RFC7807 Problem Details support
-- **Concurrent Safety**: Thread-safe operations with proper mutex protection
+## Table of Contents
 
-## 📋 Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Client Configuration](#client-configuration)
+- [HTTP Methods & Response Handling](#http-methods--response-handling)
+- [Caching — How It Works](#caching--how-it-works)
+- [Authentication](#authentication)
+- [Async Requests](#async-requests)
+- [Gzip Compression](#gzip-compression)
+- [Connection Pooling](#connection-pooling)
+- [OpenTelemetry Tracing](#opentelemetry-tracing)
+- [RFC 7807 Problem Details](#rfc-7807-problem-details)
+- [Built-in Mock Server](#built-in-mock-server)
+- [Benchmarks](#benchmarks)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [License](#license)
 
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Configuration](#-configuration)
-- [Features](#-features)
-  - [Caching](#-caching)
-  - [Authentication](#-authentication)
-  - [Metrics & Monitoring](#-metrics--monitoring)
-  - [OpenTelemetry (Tracing)](#-opentelemetry-tracing)
-  - [Connection Pooling](#-connection-pooling)
-- [Benchmarks](#-benchmarks)
-- [Examples](#-examples)
-- [Roadmap](#%EF%B8%8F-roadmap)
-- [Contributing](#-contributing)
-- [License](#-license)
+---
 
-## 🚀 Installation
+## Features
+
+| Category | What you get |
+|---|---|
+| **HTTP Methods** | `GET` `POST` `PUT` `PATCH` `DELETE` `HEAD` `OPTIONS` — sync and async variants, all with `WithContext` support |
+| **Smart Caching** | TTL via `Cache-Control` / `Expires`, ETag + Last-Modified revalidation, Ristretto LFU backend, weak-pointer GC safety |
+| **Content Types** | JSON, XML, `application/x-www-form-urlencoded` — auto-detect on response via `Content-Type` header |
+| **Authentication** | Basic Auth and OAuth2 Client Credentials (header, params, or auto-detect style) |
+| **Async Requests** | Channel-based async API — non-blocking, buffered, closed automatically |
+| **Gzip** | `EnableGzip` flag — adds `Accept-Encoding: gzip` and decompresses transparently |
+| **Connection Pooling** | Shared default transport or per-client `CustomPool` with proxy support |
+| **OpenTelemetry** | `EnableTrace` — integrates `otelhttp` + `otelhttptrace` for full span propagation |
+| **RFC 7807** | Automatic `application/problem+json` / `application/problem+xml` deserialization |
+| **Mock Server** | Built-in `StartMockupServer()` / `AddMockups()` for unit testing without real HTTP |
+| **Concurrency** | Thread-safe — mutex-protected client initialization, sync-atomic cache flags |
+
+> **Requires Go 1.23+** (uses the `weak` package for GC-safe cache pointers)
+
+---
+
+## Installation
 
 ```bash
-go get github.com/arielsrv/go-restclient@latest
+go get github.com/arielsrv/go-restclient
 ```
 
-## ⚡ Quick Start
+---
+
+## Quick Start
+
+### Using the package-level default client
 
 ```go
 package main
 
 import (
-    "context"
     "fmt"
-    "net/http"
-    "time"
-
     "github.com/arielsrv/go-restclient/rest"
 )
 
-func main() {
-    // Create context with timeout
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
-
-    // Initialize REST client
-    client := &rest.Client{
-        Name:           "my-api-client",
-        BaseURL:        "https://api.example.com",
-        ContentType:    rest.JSON,
-        Timeout:        2 * time.Second,
-        ConnectTimeout: 5 * time.Second,
-        EnableCache:    true,
-        EnableTrace:    true,
-    }
-
-    // Make request
-    response := client.GetWithContext(ctx, "/users")
-    if response.Err != nil {
-        fmt.Printf("Error: %v\n", response.Err)
-        return
-    }
-
-    // Handle response
-    if !response.IsOk() {
-        fmt.Printf("HTTP %d: %s\n", response.StatusCode, response.String())
-        return
-    }
-
-    // Parse JSON response
-    var users []User
-    if err := response.FillUp(&users); err != nil {
-        fmt.Printf("Parse error: %v\n", err)
-        return
-    }
-
-    fmt.Printf("Retrieved %d users\n", len(users))
+type User struct {
+    ID   int    `json:"id"`
+    Name string `json:"name"`
 }
 
-type User struct {
-    ID    int    `json:"id"`
-    Name  string `json:"name"`
-    Email string `json:"email"`
+func main() {
+    response := rest.Get("https://gorest.co.in/public/v2/users/1")
+    if response.Err != nil {
+        panic(response.Err)
+    }
+
+    var user User
+    if err := response.FillUp(&user); err != nil {
+        panic(err)
+    }
+    fmt.Printf("User: %+v\n", user)
 }
 ```
 
-## 🔧 Configuration
-
-### Client Configuration
+### Using a custom `Client`
 
 ```go
 client := &rest.Client{
-    // Required
-    Name: "my-client",
-    
-    // Optional
-    BaseURL:        "https://api.example.com",
-    ContentType:    rest.JSON, // rest.JSON, rest.XML, rest.FORM
-    Timeout:        2 * time.Second,
-    ConnectTimeout: 5 * time.Second,
-    EnableCache:    true,
-    EnableTrace:    true,
+    Name:        "my-service",
+    BaseURL:     "https://api.example.com",
+    ContentType: rest.JSON,
+    Timeout:     2 * time.Second,
+    EnableCache: true,
+}
+
+// Typed deserialization using generics
+response := client.GetWithContext(ctx, "/users/1")
+user, err := rest.Deserialize[User](response)
+```
+
+---
+
+## Client Configuration
+
+```go
+client := &rest.Client{
+    // Identity
+    Name:    "my-service",        // label used in metrics; defaults to hostname
+    BaseURL: "https://api.example.com",
+
+    // Timeouts
+    Timeout:        2 * time.Second,  // response-header timeout (default: 500ms)
+    ConnectTimeout: 5 * time.Second,  // TCP dial timeout (default: 1500ms)
+    DisableTimeout: false,            // set true to disable all timeouts
+
+    // Encoding
+    ContentType: rest.JSON,   // rest.JSON | rest.XML | rest.FORM
+
+    // Features
+    EnableCache:    true,   // enable HTTP response caching
+    EnableGzip:     true,   // send Accept-Encoding: gzip, decompress response
+    EnableTrace:    true,   // enable OpenTelemetry tracing
+    FollowRedirect: true,   // follow 3xx redirects (default: false)
     UserAgent:      "MyApp/1.0",
-    FollowRedirect: true,
-    DisableTimeout: false,
-    
-    // Authentication
+
+    // Authentication (mutually exclusive — OAuth takes precedence)
     BasicAuth: &rest.BasicAuth{
         Username: "user",
         Password: "pass",
     },
-    
     OAuth: &rest.OAuth{
         ClientID:     "client_id",
         ClientSecret: "client_secret",
-        TokenURL:     "https://oauth.example.com/token",
-        AuthStyle:    rest.AuthStyleInHeader,
+        TokenURL:     "https://auth.example.com/token",
+        Scopes:       []string{"read", "write"},
+        AuthStyle:    rest.AuthStyleInHeader, // AuthStyleAutoDetect | AuthStyleInHeader | AuthStyleInParams
     },
-    
-    // Connection Pool
+
+    // Default headers applied to every request
+    DefaultHeaders: http.Header{
+        "X-Tenant-ID": {"acme-corp"},
+    },
+
+    // Custom connection pool (optional)
     CustomPool: &rest.CustomPool{
-        Transport: &http.Transport{
-            MaxIdleConns:        100,
-            MaxConnsPerHost:     100,
-            MaxIdleConnsPerHost: 100,
-            IdleConnTimeout:     90 * time.Second,
-        },
+        MaxIdleConnsPerHost: 100,
+        Proxy:               "http://proxy.internal:8080",
     },
 }
 ```
 
-## 💾 Caching
+### Configuration reference
 
-The library provides intelligent response caching based on HTTP headers:
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `Name` | `string` | hostname | Identifier used in Prometheus metrics |
+| `BaseURL` | `string` | `""` | Prefix prepended to every request URL |
+| `Timeout` | `Duration` | 500ms | Response-header read timeout |
+| `ConnectTimeout` | `Duration` | 1500ms | TCP dial timeout |
+| `DisableTimeout` | `bool` | `false` | Disables all timeouts |
+| `ContentType` | `ContentType` | `JSON` | Default body encoding for requests |
+| `EnableCache` | `bool` | `false` | Enables HTTP response caching |
+| `EnableGzip` | `bool` | `false` | Enables gzip compression |
+| `EnableTrace` | `bool` | `false` | Enables OpenTelemetry tracing |
+| `FollowRedirect` | `bool` | `false` | Follows 3xx redirects automatically |
+| `UserAgent` | `string` | `go-restclient/…` | Custom `User-Agent` header |
+| `BasicAuth` | `*BasicAuth` | `nil` | Basic Auth credentials |
+| `OAuth` | `*OAuth` | `nil` | OAuth2 Client Credentials config |
+| `DefaultHeaders` | `http.Header` | `nil` | Headers applied to every request |
+| `CustomPool` | `*CustomPool` | `nil` | Per-client transport / connection pool |
 
-- **Cache-Control**: Respects `max-age`, `no-cache`, `no-store` directives
-- **ETag**: Supports ETag-based validation
-- **Last-Modified**: Uses modification dates for cache validation
-- **Expires**: Respects expiration headers
+---
+
+## HTTP Methods & Response Handling
+
+### Synchronous
 
 ```go
-client := &rest.Client{
-    Name:        "cached-client",
-    EnableCache: true, // Enable caching
-}
+// Read
+resp := client.Get("/users")
+resp := client.GetWithContext(ctx, "/users", optionalHeaders...)
+resp := client.Head("/users")
+resp := client.Options("/users")
 
-// First request - hits the server
-response1 := client.Get("/api/data")
-
-// Second request - served from cache (if valid)
-response2 := client.Get("/api/data")
+// Write
+resp := client.Post("/users", body)
+resp := client.Put("/users/1", body)
+resp := client.Patch("/users/1", partial)
+resp := client.Delete("/users/1")
 ```
 
-## 🔐 Authentication
+### Working with `*Response`
 
-### Basic Authentication
+```go
+// Check for transport error
+if resp.Err != nil { ... }
+
+// Check HTTP status (2xx–3xx)
+if !resp.IsOk() { ... }
+
+// Unified error check (transport + status)
+if err := resp.VerifyIsOkOrError(); err != nil { ... }
+
+// Deserialize body (auto-detects Content-Type)
+var user User
+resp.FillUp(&user)
+
+// Generic helper
+user, err := rest.Deserialize[User](resp)
+
+// Raw body
+fmt.Println(resp.String())
+
+// Was this served from cache?
+fmt.Println(resp.Cached())
+
+// RFC 7807 problem (populated automatically)
+fmt.Println(resp.Problem)
+
+// Full request+response dump for debugging
+fmt.Println(resp.Debug())
+```
+
+---
+
+## Caching — How It Works
+
+Set `EnableCache: true` on the client. Only read operations (`GET`, `HEAD`, `OPTIONS`) are cached.
+
+The cache backend is [Ristretto](https://github.com/dgraph-io/ristretto) — an LFU cache with TTL support and weak-pointer entries so that the GC can reclaim memory when the system is under pressure. The default maximum size is **256 MB** (configurable via `rest.MaxCacheSize`).
 
 ```go
 client := &rest.Client{
-    Name: "basic-auth-client",
+    EnableCache: true,
+}
+```
+
+### Caching modes
+
+The behavior depends entirely on which HTTP cache headers the **server** returns.
+
+---
+
+#### Mode 1 — TTL (`Cache-Control: max-age` or `Expires`)
+
+```
+Server response headers:
+  Cache-Control: max-age=60
+  (or)
+  Expires: Mon, 21 Apr 2026 12:00:00 GMT
+```
+
+| Request | What happens |
+|---|---|
+| 1st | Hits the server → response stored with TTL |
+| 2nd … Nth (within TTL) | Served **directly from cache** — no network call |
+| After TTL expires | Cache entry evicted → fresh request to the server |
+
+> **Best for**: static or slowly-changing resources. Zero network overhead within the TTL window.
+
+---
+
+#### Mode 2 — ETag (no TTL)
+
+```
+Server response headers:
+  ETag: "abc123"
+```
+
+| Request | What the client sends | Server responds | Result |
+|---|---|---|---|
+| 1st | — | `200` + `ETag: "v1"` | Cached with `revalidate=true` |
+| 2nd | `If-None-Match: "v1"` | `304 Not Modified` | Cached response returned — no body transfer |
+| 2nd (content changed) | `If-None-Match: "v1"` | `200` + `ETag: "v2"` | Cache **force-updated** with new response |
+| 3rd (after update) | `If-None-Match: "v2"` | `304 Not Modified` | Updated cached response returned |
+
+> **Key property**: every request hits the network for a cheap conditional check (`304` means no body is transferred). If the content has changed, the new response always replaces the stale one.
+
+---
+
+#### Mode 3 — Last-Modified (no TTL)
+
+Same as Mode 2 but uses `If-Modified-Since` / `Last-Modified` headers instead of `If-None-Match` / `ETag`.
+
+---
+
+#### Mode 4 — ETag or Last-Modified + TTL (combined)
+
+Within the TTL window, requests are served from cache with **no network call** (same as Mode 1). After the TTL expires, the cache entry is evicted and a fresh conditional request is made using `If-None-Match` or `If-Modified-Since`.
+
+---
+
+### The `revalidate` flag
+
+Internally, responses are marked with `revalidate = true` when they carry an ETag or Last-Modified but **no** TTL. This flag tells the client to always go to the network for a conditional check rather than returning the cached entry directly.
+
+### Cache decision flow
+
+```
+GET /resource
+     │
+     ▼
+ Cache hit?
+     │
+   ──┴──
+  No    Yes
+  │      │
+  │    revalidate=false? ──► return cached response
+  │      │
+  │    revalidate=true
+  │      │
+  │      ▼
+  │   Send conditional request (If-None-Match / If-Modified-Since)
+  │      │
+  │   ───┴───────────────────
+  │   304              200
+  │   │                │
+  │   return        force-update cache
+  │   cached        return new response
+  │   response
+  │
+  ▼
+Send fresh request → cache response → return
+```
+
+---
+
+## Authentication
+
+### Basic Auth
+
+```go
+client := &rest.Client{
     BasicAuth: &rest.BasicAuth{
-        Username: "username",
-        Password: "password",
+        Username: "alice",
+        Password: "s3cr3t",
     },
 }
 ```
@@ -188,753 +351,324 @@ client := &rest.Client{
 
 ```go
 client := &rest.Client{
-    Name: "oauth-client",
     OAuth: &rest.OAuth{
-        ClientID:     "your_client_id",
-        ClientSecret: "your_client_secret",
-        TokenURL:     "https://oauth.example.com/token",
-        AuthStyle:    rest.AuthStyleInHeader, // or rest.AuthStyleInParams
+        ClientID:     "my-client",
+        ClientSecret: "my-secret",
+        TokenURL:     "https://auth.example.com/oauth/token",
+        Scopes:       []string{"api:read"},
+        AuthStyle:    rest.AuthStyleInHeader,
+        // EndpointParams: url.Values{"audience": {"https://api.example.com"}},
     },
 }
 ```
 
-## 📊 Metrics & Monitoring
+> OAuth2 takes precedence over Basic Auth. The library handles token acquisition and refresh automatically using `golang.org/x/oauth2`.
 
-The library automatically exposes Prometheus metrics for monitoring:
+---
 
-### Available Metrics
+## Async Requests
 
-- `__go_restclient_requests_total`: Total request count by status code
-- `__go_restclient_durations_seconds`: Request duration percentiles
-- `__go_restclient_cache_hits_total`: Cache hit count
-- `__go_restclient_cache_misses_total`: Cache miss count
-- `__go_restclient_cache_ratio`: Cache hit ratio
+Every HTTP method has an async variant that returns a `<-chan *Response`. The channel is buffered (size 1) and closed automatically after the response is sent.
 
-### Grafana Dashboard
+```go
+ch := client.AsyncGet("/users")
 
-Access the live monitoring dashboard at:
-[HTTP Clients Dashboard](https://iskaylog.grafana.net/d/ddmgmir2jckxsb/http-clients)
+// Do other work here...
 
-### Requirements
+resp := <-ch
+if resp.Err != nil {
+    // handle error
+}
 
-- Prometheus collector endpoint enabled
-- Environment variable set (`dev|uat|pro|any`)
-- Application name variable set (`APP_NAME`)
+var users []User
+resp.FillUp(&users)
+```
 
-## 📈 Benchmarks
+```go
+// Multiple concurrent requests
+ch1 := client.AsyncGetWithContext(ctx, "/users")
+ch2 := client.AsyncGetWithContext(ctx, "/products")
 
-Performance comparison with popular HTTP clients:
+users, _ := rest.Deserialize[[]User](<-ch1)
+products, _ := rest.Deserialize[[]Product](<-ch2)
+```
 
-| Client | Operations/sec | Latency |
-| :--- | :--- | :--- |
-| go-restclient | ~2.5M ops/sec | 405ms |
-| resty | ~0.9M ops/sec | 1099ms |
+---
 
-*Benchmarks run on Apple M3 Pro*
-
-## 🔗 Connection Pooling
-
-Optimize performance with proper connection pool configuration:
+## Gzip Compression
 
 ```go
 client := &rest.Client{
-    Name: "optimized-client",
+    EnableGzip: true,
+}
+
+// The client automatically:
+// 1. Adds "Accept-Encoding: gzip" to every request
+// 2. Decompresses gzip responses transparently
+resp := client.Get("/large-dataset")
+```
+
+You can also send the header manually per-request if you prefer not to enable it globally:
+
+```go
+headers := http.Header{"Accept-Encoding": {"gzip"}}
+resp := client.GetWithContext(ctx, "/data", headers)
+```
+
+---
+
+## Connection Pooling
+
+By default, all `Client` instances share a single `*http.Transport` (the global default pool). If you need per-client isolation, a custom pool, or a proxy:
+
+```go
+client := &rest.Client{
+    CustomPool: &rest.CustomPool{
+        MaxIdleConnsPerHost: 100,
+        Proxy:               "http://proxy.internal:3128",
+    },
+}
+```
+
+Or bring your own transport:
+
+```go
+client := &rest.Client{
     CustomPool: &rest.CustomPool{
         Transport: &http.Transport{
-            MaxIdleConns:        100,  // Maximum idle connections
-            MaxConnsPerHost:     100,  // Maximum connections per host
-            MaxIdleConnsPerHost: 100,  // Maximum idle connections per host
+            MaxIdleConns:        200,
+            MaxConnsPerHost:     200,
+            MaxIdleConnsPerHost: 200,
             IdleConnTimeout:     90 * time.Second,
-            ResponseHeaderTimeout: 2 * time.Second,
         },
     },
 }
 ```
 
-**Benefits:**
-- Reduces TIME_WAIT states
-- Enables persistent connections
-- Improves response times
-- Reduces CPU usage
+---
 
-## 📚 Examples
+## OpenTelemetry Tracing
 
-Explore comprehensive examples in the `examples/` directory:
+Set `EnableTrace: true` and the client will:
 
-### Basic Usage
+- Hook into `net/http/httptrace` to create OTel spans for DNS, connect, TLS, and request/response lifecycle events
+- Use the incoming `ctx` to propagate the active span, so HTTP client spans become children of your service spans automatically
 
-#### Simple JSON Requests
 ```go
-// examples/basic/main.go
 client := &rest.Client{
-    Name:        "example-client",
-    BaseURL:     "https://gorest.co.in/public/v2",
-    ContentType: rest.JSON,
-    Timeout:     2 * time.Second,
-}
-
-response := client.Get("/users")
-if response.Err != nil {
-    log.Fatal(response.Err)
-}
-
-var users []User
-if err := response.FillUp(&users); err != nil {
-    log.Fatal(err)
-}
-```
-
-#### Using Generics for Type Safety
-```go
-// examples/generics/main.go
-type UserResponse struct {
-    Name   string `json:"name"`
-    Email  string `json:"email"`
-    Gender string `json:"gender"`
-    Status string `json:"status"`
-    ID     int    `json:"id"`
-}
-
-// Typed deserialization with generics
-usersResponse, err := rest.Deserialize[[]UserResponse](response)
-if err != nil {
-    log.Fatal(err)
-}
-```
-
-#### Custom Headers and Default Headers
-```go
-// examples/dfltheaders/main.go
-client := &rest.Client{
-    Name:           "example-client",
-    BaseURL:        "https://gorest.co.in/public/v2",
-    ContentType:    rest.JSON,
-    DefaultHeaders: http.Header{
-        "X-Static-Header": {"My-Static-Value"},
-    },
-}
-
-// Dynamic headers for specific requests
-headers := make(http.Header)
-headers.Set("My-Dynamic-Header-1", "My-Dynamic-Value-1")
-headers.Set("My-Dynamic-Header-2", "My-Dynamic-Value-2")
-
-response := client.GetWithContext(ctx, "/users", headers)
-```
-
-### Authentication
-
-#### OAuth2 Client Credentials
-```go
-// examples/oauth/main.go
-client := &rest.Client{
-    Name:        "ocapi-client",
-    BaseURL:     "https://www.kiwoko.com/s/-/dw/data/v22_6",
-    ContentType: rest.JSON,
-    OAuth: &rest.OAuth{
-        ClientID:     "your_client_id",
-        ClientSecret: "your_client_secret",
-        TokenURL:     "https://account.demandware.com/dw/oauth2/access_token",
-        AuthStyle:    rest.AuthStyleInHeader,
-    },
+    Name:        "my-service",
     EnableTrace: true,
 }
+
+// Initialize your TracerProvider before making requests
+// (see examples/trace/main.go for a full OTLP setup)
+resp := client.GetWithContext(ctx, "https://api.example.com/data")
 ```
 
-### Content Types
-
-#### XML Requests
-```go
-// examples/xml/main.go
-client := &rest.Client{
-    BaseURL:     "https://gorest.co.in/public/v2",
-    ContentType: rest.XML,
-}
-
-var usersResponse struct {
-    XMLName string `xml:"objects"`
-    List    []struct {
-        Name   string `xml:"name"`
-        Email  string `xml:"email"`
-        Gender string `xml:"gender"`
-        Status string `xml:"status"`
-        ID     int    `xml:"id"`
-    } `xml:"object"`
-}
-
-response := client.Get("/users.xml")
-err := response.FillUp(&usersResponse)
-```
-
-#### Form Data Submission
-```go
-// examples/form/main.go
-client := &rest.Client{
-    Name:        "example-client",
-    BaseURL:     "https://httpbin.org",
-    ContentType: rest.FORM,
-}
-
-values := url.Values{}
-values.Set("key1", "value1")
-values.Set("key2", "value2")
-
-response := client.PostWithContext(ctx, "/post", values)
-```
-
-### Advanced Features
-
-#### Gzip Compression
-```go
-// examples/gzip/main.go
-client := &rest.Client{
-    Name:           "httpbin-client",
-    BaseURL:        "https://httpbin.org",
-    ContentType:    rest.JSON,
-    EnableGzip:     true,
-    DefaultHeaders: http.Header{"Accept-Encoding": []string{"gzip"}},
-}
-
-headers := make(http.Header)
-headers.Add("Accept-Encoding", "gzip")
-
-response := client.GetWithContext(ctx, "/gzip", headers)
-```
-
-#### File Upload and Binary Data
-```go
-// examples/bytes/main.go
-client := &rest.Client{
-    Name:    "example-client",
-    BaseURL: "https://httpbin.org",
-}
-
-// Download large files
-apiURL := fmt.Sprintf("/bytes/%d", 1*rest.MB)
-response := client.GetWithContext(ctx, apiURL)
-
-// Stream bytes
-apiURL = fmt.Sprintf("/stream-bytes/%d", 1*rest.MB)
-response = client.GetWithContext(ctx, apiURL)
-```
-
-#### Redirect Handling
-```go
-// examples/redirect/main.go
-client := &rest.Client{
-    Name:           "example-client",
-    ContentType:    rest.JSON,
-    FollowRedirect: true, // Enable automatic redirect following
-}
-
-response := client.Get("https://tinyurl.com/39da2yt4")
-```
-
-### Caching and Performance
-
-#### Response Caching
-```go
-// examples/iskaypet/main.go
-client := &rest.Client{
-    Name:        "sites-client",
-    BaseURL:     "https://api.prod.dp.iskaypet.com",
-    ContentType: rest.JSON,
-    EnableCache: true,
-}
-
-// First request - hits the server
-response1 := client.Get("/sites")
-log.Infof("Cache-Control: %v", response1.Header.Get("Cache-Control"))
-
-// Second request - served from cache (if valid)
-response2 := client.Get("/sites")
-log.Infof("Cache-Control: %v", response2.Header.Get("Cache-Control"))
-```
-
-### Monitoring and Observability
-
-#### Metrics Collection
-```go
-// examples/metrics/main.go
-import "github.com/prometheus/client_golang/prometheus/promhttp"
-
-func main() {
-    http.Handle("/metrics", promhttp.Handler())
-    
-    client := &rest.Client{
-        BaseURL:     "https://httpbin.org",
-        ContentType: rest.JSON,
-        Name:        "gorest-client",
-        EnableCache: true,
-    }
-    
-    // Simulate API requests
-    go func() {
-        for {
-            apiURL := fmt.Sprintf("/cache/%d", random(1, 100))
-            response := client.GetWithContext(ctx, apiURL)
-            log.Infof("GET %s, Status: %d", apiURL, response.StatusCode)
-        }
-    }()
-    
-    server := &http.Server{Addr: ":8081"}
-    server.ListenAndServe()
-}
-```
-
-#### Request Tracing
-```go
-// examples/trace/main.go
-import "gitlab.com/iskaypetcom/digital/sre/tools/dev/go-relic/otel/tracing"
-
-func main() {
-    app, err := tracing.New(ctx, tracing.WithAppName("MyExample"))
-    defer app.Shutdown(ctx)
-    
-    client := &rest.Client{
-        BaseURL:     "https://httpbin.org",
-        ContentType: rest.JSON,
-        Name:        "gorest-client",
-        EnableTrace: true,
-    }
-    
-    // Create transaction for tracing
-    txnCtx, txn := tracing.NewTransaction(ctx, "MyHTTPRequest")
-    response := client.GetWithContext(txnCtx, "/cache/123")
-    if response.Err != nil {
-        txn.NoticeError(response.Err)
-    }
-    txn.End()
-}
-```
-
-## 🔭 OpenTelemetry (Tracing)
-
-OpenTelemetry (OTel) support is built into the client. When you set `EnableTrace: true`, the client:
-
-- Hooks into Go's `net/http/httptrace`
-- Uses `otelhttptrace.NewClientTrace(ctx)` to create OTel spans around DNS, connect, TLS, and request/response
-  lifecycle events
-- Propagates the active context so your upstream spans (e.g., from handlers or jobs) automatically become
-  parents of HTTP client spans
-
-### Minimal setup (stdout exporter)
+### Minimal stdout setup (for local development)
 
 ```go
 import (
-    "context"
-    "time"
-
-    "github.com/arielsrv/go-restclient/rest"
     "go.opentelemetry.io/otel"
     "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-    "go.opentelemetry.io/otel/sdk/resource"
     sdktrace "go.opentelemetry.io/otel/sdk/trace"
-    semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
 )
 
 func initTracing() func(context.Context) error {
     exp, _ := stdouttrace.New(stdouttrace.WithPrettyPrint())
-    tp := sdktrace.NewTracerProvider(
-        sdktrace.WithBatcher(exp),
-        sdktrace.WithResource(resource.NewWithAttributes(
-            semconv.SchemaURL,
-            semconv.ServiceNameKey.String("my-service"),
-        )),
-    )
+    tp := sdktrace.NewTracerProvider(sdktrace.WithBatcher(exp))
     otel.SetTracerProvider(tp)
     return tp.Shutdown
 }
-
-func main() {
-    shutdown := initTracing()
-    defer shutdown(context.Background())
-
-    client := &rest.Client{
-        Name:        "example-client",
-        BaseURL:     "https://httpbin.org",
-        ContentType: rest.JSON,
-        EnableTrace: true,
-    }
-
-    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-    defer cancel()
-
-    resp := client.GetWithContext(ctx, "/get")
-    _ = resp
-}
 ```
 
-### Using OTLP and a Collector
-
-Most production setups send traces to an OTel Collector (or directly to vendors). Common environment variables:
+### Common OTLP environment variables
 
 ```bash
-export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317        # gRPC
-# export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318      # HTTP/proto
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 export OTEL_SERVICE_NAME=my-service
 export OTEL_RESOURCE_ATTRIBUTES=deployment.environment=local
 ```
 
-If you prefer a helper, see `examples/trace/main.go`, which demonstrates initialization via our `go-relic`
-helper and sending spans to an OTLP collector.
+---
 
-### How it works here
+## RFC 7807 Problem Details
 
-- Field `EnableTrace` on `rest.Client` activates client-side tracing hooks in `rest/net.go`:
-  - `httptrace.WithClientTrace(ctx, otelhttptrace.NewClientTrace(ctx))`
-- You get granular spans for name resolution, connection, TLS, and request lifecycle
-- The client respects the incoming `ctx` so your trace tree remains intact across calls
-
-### References & examples
-
-- Complete example: `examples/trace/main.go`
-- OAuth + tracing example: `examples/oauth/main.go`
-- Grafana dashboard JSONs for metrics are available in the `grafana/` directory and a preview image `images/metrics.png`
-
-### Design Patterns
-
-#### Dependency Injection (IoC)
-```go
-// examples/ioc/main.go
-type ISitesClient interface {
-    GetSites(ctx context.Context) ([]SiteResponse, error)
-}
-
-type SitesClient struct {
-    httpClient rest.HTTPClient
-}
-
-func NewSitesClient(httpClient rest.HTTPClient) *SitesClient {
-    return &SitesClient{httpClient: httpClient}
-}
-
-func (r SitesClient) GetSites(ctx context.Context) ([]SiteResponse, error) {
-    headers := make(http.Header)
-    headers.Set("X-Api-Key", "your-api-key")
-    
-    response := r.httpClient.GetWithContext(ctx, "/sites", headers)
-    if response.Err != nil {
-        return nil, response.Err
-    }
-    
-    var sitesResponse []SiteResponse
-    err := response.FillUp(&sitesResponse)
-    return sitesResponse, err
-}
-
-// Usage
-httpClient := &rest.Client{
-    Name:        "sitesResponse-httpClient",
-    BaseURL:     "https://api.prod.dp.iskaypet.com",
-    ContentType: rest.JSON,
-}
-
-sitesClient := NewSitesClient(httpClient)
-sites, err := sitesClient.GetSites(context.Background())
-```
-
-### Testing with Mock Server
-
-The library provides a built-in mock server for testing HTTP clients without making real network requests.
-
-#### Basic Mock Setup
-```go
-// examples/mock/main.go
-package main
-
-import (
-    "context"
-    "fmt"
-    "net/http"
-    "time"
-
-    "github.com/arielsrv/go-restclient/rest"
-)
-
-func main() {
-    // Start the mock server
-    rest.StartMockupServer()
-    defer rest.StopMockupServer()
-
-    // Define mock responses
-    userMock := &rest.Mock{
-        URL:          "https://api.example.com/users",
-        HTTPMethod:   http.MethodGet,
-        RespHTTPCode: http.StatusOK,
-        RespBody:     `[{"id":1,"name":"John Doe","email":"john@example.com"}]`,
-        RespHeaders: http.Header{
-            "Content-Type": {"application/json"},
-            "Cache-Control": {"max-age=3600"},
-        },
-    }
-
-    // Add mock to the server
-    err := rest.AddMockups(userMock)
-    if err != nil {
-        fmt.Printf("Error adding mock: %v\n", err)
-        return
-    }
-
-    // Create client and make request
-    client := &rest.Client{
-        Name:        "test-client",
-        BaseURL:     "https://api.example.com",
-        ContentType: rest.JSON,
-        Timeout:     5 * time.Second,
-    }
-
-    response := client.GetWithContext(context.Background(), "/users")
-    if response.Err != nil {
-        fmt.Printf("Error: %v\n", response.Err)
-        return
-    }
-
-    fmt.Printf("Status: %d\n", response.StatusCode)
-    fmt.Printf("Body: %s\n", response.String())
-    fmt.Printf("Cache-Control: %s\n", response.Header.Get("Cache-Control"))
-}
-```
-
-#### Advanced Mock with Headers and Timeout
-```go
-// Mock with request headers validation and timeout
-func testWithHeaders() {
-    rest.StartMockupServer()
-    defer rest.StopMockupServer()
-
-    // Mock that validates request headers
-    authMock := &rest.Mock{
-        URL:          "https://api.example.com/protected",
-        HTTPMethod:   http.MethodGet,
-        ReqHeaders: http.Header{
-            "Authorization": {"Bearer valid-token"},
-            "X-API-Key":     {"test-key"},
-        },
-        RespHTTPCode: http.StatusOK,
-        RespBody:     `{"message":"Access granted"}`,
-        Timeout:      100 * time.Millisecond, // Simulate network delay
-    }
-
-    rest.AddMockups(authMock)
-
-    client := &rest.Client{
-        Name:        "auth-client",
-        BaseURL:     "https://api.example.com",
-        ContentType: rest.JSON,
-    }
-
-    // Add required headers
-    headers := make(http.Header)
-    headers.Set("Authorization", "Bearer valid-token")
-    headers.Set("X-API-Key", "test-key")
-
-    response := client.GetWithContext(context.Background(), "/protected", headers)
-    fmt.Printf("Response: %s\n", response.String())
-}
-```
-
-#### Mock for Different HTTP Methods
-```go
-func testMultipleMethods() {
-    rest.StartMockupServer()
-    defer rest.StopMockupServer()
-
-    // GET mock
-    getMock := &rest.Mock{
-        URL:          "https://api.example.com/users/1",
-        HTTPMethod:   http.MethodGet,
-        RespHTTPCode: http.StatusOK,
-        RespBody:     `{"id":1,"name":"John Doe"}`,
-    }
-
-    // POST mock
-    postMock := &rest.Mock{
-        URL:          "https://api.example.com/users",
-        HTTPMethod:   http.MethodPost,
-        ReqBody:      `{"name":"Jane Doe","email":"jane@example.com"}`,
-        RespHTTPCode: http.StatusCreated,
-        RespBody:     `{"id":2,"name":"Jane Doe","email":"jane@example.com"}`,
-    }
-
-    // PUT mock
-    putMock := &rest.Mock{
-        URL:          "https://api.example.com/users/1",
-        HTTPMethod:   http.MethodPut,
-        ReqBody:      `{"name":"John Updated"}`,
-        RespHTTPCode: http.StatusOK,
-        RespBody:     `{"id":1,"name":"John Updated"}`,
-    }
-
-    // DELETE mock
-    deleteMock := &rest.Mock{
-        URL:          "https://api.example.com/users/1",
-        HTTPMethod:   http.MethodDelete,
-        RespHTTPCode: http.StatusNoContent,
-        RespBody:     "",
-    }
-
-    rest.AddMockups(getMock, postMock, putMock, deleteMock)
-
-    client := &rest.Client{
-        Name:        "crud-client",
-        BaseURL:     "https://api.example.com",
-        ContentType: rest.JSON,
-    }
-
-    // Test GET
-    response := client.Get("/users/1")
-    fmt.Printf("GET Response: %s\n", response.String())
-
-    // Test POST
-    userData := map[string]string{
-        "name":  "Jane Doe",
-        "email": "jane@example.com",
-    }
-    response = client.Post("/users", userData)
-    fmt.Printf("POST Response: %s\n", response.String())
-
-    // Test PUT
-    updateData := map[string]string{"name": "John Updated"}
-    response = client.Put("/users/1", updateData)
-    fmt.Printf("PUT Response: %s\n", response.String())
-
-    // Test DELETE
-    response = client.Delete("/users/1")
-    fmt.Printf("DELETE Status: %d\n", response.StatusCode)
-}
-```
-
-#### Mock for Error Scenarios
-```go
-func testErrorScenarios() {
-    rest.StartMockupServer()
-    defer rest.StopMockupServer()
-
-    // 404 Not Found mock
-    notFoundMock := &rest.Mock{
-        URL:          "https://api.example.com/users/999",
-        HTTPMethod:   http.MethodGet,
-        RespHTTPCode: http.StatusNotFound,
-        RespBody:     `{"error":"User not found"}`,
-    }
-
-    // 500 Internal Server Error mock
-    serverErrorMock := &rest.Mock{
-        URL:          "https://api.example.com/error",
-        HTTPMethod:   http.MethodGet,
-        RespHTTPCode: http.StatusInternalServerError,
-        RespBody:     `{"error":"Internal server error"}`,
-    }
-
-    // Timeout mock
-    timeoutMock := &rest.Mock{
-        URL:          "https://api.example.com/slow",
-        HTTPMethod:   http.MethodGet,
-        RespHTTPCode: http.StatusOK,
-        RespBody:     `{"message":"Slow response"}`,
-        Timeout:      10 * time.Second, // Very slow response
-    }
-
-    rest.AddMockups(notFoundMock, serverErrorMock, timeoutMock)
-
-    client := &rest.Client{
-        Name:        "error-test-client",
-        BaseURL:     "https://api.example.com",
-        ContentType: rest.JSON,
-        Timeout:     2 * time.Second, // Client timeout
-    }
-
-    // Test 404
-    response := client.Get("/users/999")
-    fmt.Printf("404 Status: %d, Body: %s\n", response.StatusCode, response.String())
-
-    // Test 500
-    response = client.Get("/error")
-    fmt.Printf("500 Status: %d, Body: %s\n", response.StatusCode, response.String())
-
-    // Test timeout
-    response = client.Get("/slow")
-    if response.Err != nil {
-        fmt.Printf("Timeout Error: %v\n", response.Err)
-    }
-}
-```
-
-#### Running Mock Examples
-
-```bash
-# Run basic mock example
-go run examples/mock/main.go
-
-# Run with mock flag for testing
-go test -mock ./...
-
-# Programmatically start mock server
-rest.StartMockupServer()
-defer rest.StopMockupServer()
-```
-
-### HTML Content Handling
+If a response has a `Content-Type` of `application/problem+json` or `application/problem+xml`, the library automatically deserializes the body into `response.Problem`:
 
 ```go
-client := &rest.Client{
-    Name:           "html-client",
-    EnableGzip:     true,
-    EnableCache:    true,
+resp := client.Get("/resource")
+
+if resp.Problem != nil {
+    fmt.Printf("type:   %s\n", resp.Problem.Type)
+    fmt.Printf("title:  %s\n", resp.Problem.Title)
+    fmt.Printf("detail: %s\n", resp.Problem.Detail)
+    fmt.Printf("status: %d\n", resp.Problem.Status)
 }
-
-response1 := client.Get("https://example.com/page.html")
-fmt.Printf("Response cached: %t\n", response1.Cached())
-
-// Second request may be served from cache
-response2 := client.Get("https://example.com/page.html")
-fmt.Printf("Response cached: %t\n", response2.Cached())
 ```
 
-### Running Examples
-
-Execute any example directly:
-
-```bash
-# Basic JSON example
-go run examples/basic/main.go
-
-# OAuth2 example
-go run examples/oauth/main.go
-
-# Mock server example
-go run examples/mock/main.go
-
-# Metrics example with Prometheus
-ENV=local APP_NAME=example go run examples/metrics/main.go
-
-# Tracing example
-go run examples/trace/main.go
-```
-
-### Live Example
-
-```bash
-ENV=local APP_NAME=example go run github.com/arielsrv/go-restclient/examples/metrics@latest
-```
-
-## 🛣️ Roadmap
-
-- [ ] **Distributed Caching**: Configurable non-HTTP-RFC distributed cache support
-- [ ] **Custom Encoders**: Configurable JSON encoder/decoder (e.g., [go-json](https://github.com/goccy/go-json))
-- [ ] **Interceptors**: Custom request/response interceptors as pipelines
-- [ ] **PKCE Support**: OAuth2 PKCE flow implementation
-- [ ] **Rate Limiting**: Built-in rate limiting capabilities
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our contributing guidelines for more details.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+The `Problem` struct follows [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) and supports both JSON and XML formats.
 
 ---
 
-**Built with ❤️ by the Iskaypetcom team**
+## Built-in Mock Server
+
+The library ships with a complete HTTP mock server, designed for unit testing — no real network calls required.
+
+### Basic usage
+
+```go
+func TestMyClient(t *testing.T) {
+    rest.StartMockupServer()
+    defer rest.StopMockupServer()
+
+    err := rest.AddMockups(&rest.Mock{
+        URL:          "https://api.example.com/users/1",
+        HTTPMethod:   http.MethodGet,
+        RespHTTPCode: http.StatusOK,
+        RespBody:     `{"id":1,"name":"Alice"}`,
+        RespHeaders:  http.Header{"Content-Type": {"application/json"}},
+    })
+    require.NoError(t, err)
+
+    client := &rest.Client{Name: "test"}
+    resp := client.Get("https://api.example.com/users/1")
+
+    require.NoError(t, resp.Err)
+    require.Equal(t, http.StatusOK, resp.StatusCode)
+    require.Equal(t, `{"id":1,"name":"Alice"}`, resp.String())
+}
+```
+
+### Mock fields
+
+| Field | Type | Description |
+|---|---|---|
+| `URL` | `string` | Full URL to match (query params are order-normalized) |
+| `HTTPMethod` | `string` | HTTP method to match (`http.MethodGet`, etc.) |
+| `RespHTTPCode` | `int` | Status code to return |
+| `RespBody` | `string` | Response body |
+| `RespHeaders` | `http.Header` | Response headers |
+| `ReqHeaders` | `http.Header` | Expected request headers (informational) |
+| `ReqBody` | `string` | Expected request body (informational) |
+| `Timeout` | `time.Duration` | Simulate a slow/timeout response |
+
+### Simulating caching headers
+
+```go
+rest.AddMockups(&rest.Mock{
+    URL:          "https://api.example.com/data",
+    HTTPMethod:   http.MethodGet,
+    RespHTTPCode: http.StatusOK,
+    RespBody:     `{"version":1}`,
+    RespHeaders: http.Header{
+        "Content-Type":  {"application/json"},
+        "Cache-Control": {"max-age=60"},
+    },
+})
+```
+
+### Simulating ETag revalidation
+
+```go
+// First call: return 200 + ETag
+rest.AddMockups(&rest.Mock{
+    URL:          "https://api.example.com/resource",
+    HTTPMethod:   http.MethodGet,
+    RespHTTPCode: http.StatusOK,
+    RespBody:     `{"version":1}`,
+    RespHeaders:  http.Header{"ETag": {"v1"}, "Content-Type": {"application/json"}},
+})
+
+client := &rest.Client{EnableCache: true}
+r1 := client.Get("https://api.example.com/resource") // 200, cached
+
+// Replace mock to simulate 304
+rest.FlushMockups()
+rest.AddMockups(&rest.Mock{
+    URL:          "https://api.example.com/resource",
+    HTTPMethod:   http.MethodGet,
+    RespHTTPCode: http.StatusNotModified,
+})
+
+r2 := client.Get("https://api.example.com/resource") // served from cache
+fmt.Println(r2.Cached()) // true
+```
+
+### Using the `-mock` CLI flag
+
+```bash
+go test -mock ./...
+```
+
+### Managing mocks
+
+```go
+rest.FlushMockups()       // clear all registered mocks
+rest.StopMockupServer()   // stop the server and reset state
+```
+
+---
+
+## Benchmarks
+
+| Client | Operations/sec | Latency |
+|---|---|---|
+| go-restclient | ~2.5M ops/sec | 405ms |
+| resty | ~0.9M ops/sec | 1099ms |
+
+*Measured on Apple M3 Pro. See `rest/benchmark_test.go` for details.*
+
+---
+
+## Examples
+
+The `examples/` directory contains runnable programs for every major feature:
+
+| Example | Description |
+|---|---|
+| [`basic/`](examples/basic/main.go) | Simple JSON GET + POST |
+| [`generics/`](examples/generics/main.go) | Typed deserialization with `rest.Deserialize[T]` |
+| [`etag/`](examples/etag/main.go) | ETag revalidation — unchanged (304) and content-changed (200 → force-update) |
+| [`html/`](examples/html/main.go) | Caching with `Last-Modified` |
+| [`gzip/`](examples/gzip/main.go) | Gzip transparent decompression |
+| [`gzip_headers/`](examples/gzip_headers/main.go) | Per-request `Accept-Encoding` |
+| [`oauth/`](examples/oauth/main.go) | OAuth2 Client Credentials |
+| [`dfltheaders/`](examples/dfltheaders/main.go) | Default + per-request headers |
+| [`headers/`](examples/headers/main.go) | Custom headers |
+| [`xml/`](examples/xml/main.go) | XML content type |
+| [`form/`](examples/form/main.go) | `application/x-www-form-urlencoded` |
+| [`bytes/`](examples/bytes/main.go) | Binary upload / large downloads |
+| [`redirect/`](examples/redirect/main.go) | Redirect handling |
+| [`timeout/`](examples/timeout/main.go) | Timeout configuration |
+| [`ioc/`](examples/ioc/main.go) | Dependency injection pattern |
+| [`mock/`](examples/mock/main.go) | Mock server usage |
+| [`iterator/`](examples/iterator/main.go) | Async/iterator pattern |
+| [`metrics/`](examples/metrics/main.go) | Prometheus metrics endpoint |
+| [`trace/`](examples/trace/main.go) | OpenTelemetry tracing |
+| [`problem/`](examples/problem/main.go) | RFC 7807 problem details |
+
+Run any example:
+
+```bash
+go run examples/basic/main.go
+go run examples/etag/main.go
+ENV=local APP_NAME=example go run examples/metrics/main.go
+```
+
+---
+
+## Contributing
+
+Issues and pull requests are welcome. Please make sure all tests pass before submitting:
+
+```bash
+go test ./rest/... -count=1
+```
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.
+
