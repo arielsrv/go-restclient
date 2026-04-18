@@ -33,7 +33,7 @@ tasks:
 
   race:
     cmds:
-      - CGO_ENABLED=0 go test -race -count 5 ./...
+      - CGO_ENABLED=0 go test -race -count 10 ./...
 
   test:
     cmds:
