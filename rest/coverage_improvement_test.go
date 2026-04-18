@@ -9,6 +9,32 @@ import (
 	"testing"
 )
 
+// errReader is an [io.ReadCloser] whose Read always returns an error.
+// Used to force [httputil.DumpRequest] to fail when reading the request body.
+type errReader struct{}
+
+func (errReader) Read(_ []byte) (int, error) { return 0, errors.New("read error") }
+func (errReader) Close() error               { return nil }
+
+func TestCoverageImprovement_Debug_DumpRequestError(t *testing.T) {
+	// Covers response.go:204-206 — httputil.DumpRequest returns an error.
+	req, _ := http.NewRequest(http.MethodPost, "http://example.com", errReader{})
+	r := &Response{
+		Response: &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     make(http.Header),
+			Body:       http.NoBody,
+			Request:    req,
+		},
+		bytes: []byte("body"),
+	}
+	debug := r.Debug()
+	// strReq should contain the DumpRequest error message, not a formatted request.
+	if strings.Contains(debug, "POST / HTTP") {
+		t.Errorf("expected DumpRequest to fail, but got formatted request in: %q", debug)
+	}
+}
+
 func TestCoverageImprovement_Response_XML_SuffixFallback(t *testing.T) {
 	// Covers response.go:152-155 — "application/atom+xml" → "+xml" suffix → XML unmarshal.
 	type xmlDoc struct {
