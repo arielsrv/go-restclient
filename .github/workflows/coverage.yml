@@ -11,7 +11,7 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           persist-credentials: true
           fetch-depth: 0
@@ -21,23 +21,24 @@ jobs:
         with:
           go-version: '1.26.2'
 
-      - name: Install Task
-        uses: go-task/setup-task@v2
-
-      - name: Download
-        run: task download
-
       - name: Run coverage
-        run: go test ./rest/... -covermode=count -coverprofile=coverage.out
+        run: |
+          go test ./rest/... -covermode=count -coverprofile=coverage.out
+          COVERAGE=$(go tool cover -func=coverage.out | grep '^total:' | awk '{print $3}' | tr -d '%')
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
 
-      - name: Generate coverage badge
-        uses: tj-actions/coverage-badge-go@v3
-        with:
-          filename: coverage.out
+      - name: Update badge in README
+        run: |
+          PCTINT=$(echo "$COVERAGE" | cut -d'.' -f1)
+          if [ "$PCTINT" -ge 90 ]; then COLOR="brightgreen"
+          elif [ "$PCTINT" -ge 75 ]; then COLOR="green"
+          elif [ "$PCTINT" -ge 60 ]; then COLOR="yellow"
+          else COLOR="red"
+          fi
+          sed -i "s|!\[Coverage\](https://img\.shields\.io/badge/Coverage-[^)]*)|![Coverage](https://img.shields.io/badge/Coverage-${COVERAGE}%25-${COLOR})|g" README.md
 
       - name: Commit badge
-        uses: stefanzweifel/git-auto-commit-action@v7
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update coverage badge"
           file_pattern: README.md
-
