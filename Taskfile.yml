@@ -8,7 +8,6 @@ env:
   COVERAGE_HTML_FILE: coverage.html
 
 tasks:
-
   markdown:
     cmds:
       - markdownlint-cli2 "**/*.md" "#vendor"
