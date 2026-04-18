@@ -1,12 +1,70 @@
 package rest
 
 import (
+	"encoding/xml"
 	"errors"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
 )
+
+func TestCoverageImprovement_Response_XML_SuffixFallback(t *testing.T) {
+	// Covers response.go:152-155 — "application/atom+xml" → "+xml" suffix → XML unmarshal.
+	type xmlDoc struct {
+		XMLName xml.Name `xml:"root"`
+		Value   string   `xml:"value"`
+	}
+	r := &Response{
+		Response: &http.Response{
+			Header: http.Header{
+				CanonicalContentTypeHeader: []string{"application/atom+xml"},
+			},
+		},
+		bytes: []byte(`<root><value>hello</value></root>`),
+	}
+	var doc xmlDoc
+	if err := r.FillUp(&doc); err != nil {
+		t.Fatalf("expected successful XML unmarshal via suffix fallback, got: %v", err)
+	}
+	if doc.Value != "hello" {
+		t.Errorf("unexpected value: %q", doc.Value)
+	}
+}
+
+func TestCoverageImprovement_Debug_NilRequest(t *testing.T) {
+	// Covers response.go:202-204 — r.Response != nil but r.Response.Request == nil.
+	r := &Response{
+		Response: &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     make(http.Header),
+			Body:       http.NoBody,
+			Request:    nil, // http.Response.Request field is nil
+		},
+	}
+	debug := r.Debug()
+	if !strings.Contains(debug, "Request is nil") {
+		t.Errorf("expected 'Request is nil' in debug output, got: %q", debug)
+	}
+}
+
+func TestCoverageImprovement_Net_Additional(t *testing.T) {
+	t.Run("setRespReader_GzipError", func(t *testing.T) {
+		c := &Client{}
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+		req.Header.Set("Accept-Encoding", "gzip")
+		resp := &http.Response{
+			Header: http.Header{
+				"Content-Encoding": []string{"gzip"},
+			},
+			Body: io.NopCloser(strings.NewReader("not a gzip stream")),
+		}
+		_, err := c.setRespReader(req, resp)
+		if err == nil {
+			t.Error("expected error for invalid gzip stream in setRespReader")
+		}
+	})
+}
 
 func TestCoverageImprovement_Response(t *testing.T) {
 	t.Run("IsOk_NilResponse", func(t *testing.T) {
@@ -139,7 +197,6 @@ func TestCoverageImprovement_Response(t *testing.T) {
 
 func TestCoverageImprovement_Net(t *testing.T) {
 	t.Run("setProblem", func(t *testing.T) {
-		// Test when Content-Type contains "problem" but unmarshal fails
 		r := &Response{
 			Response: &http.Response{
 				Header: http.Header{
@@ -149,15 +206,12 @@ func TestCoverageImprovement_Net(t *testing.T) {
 			bytes: []byte("invalid json"),
 		}
 		setProblem(r)
-		// It should return early without panic
 		if r.Problem != nil {
 			t.Errorf("Problem should be nil (unmarshal failed), got %+v", r.Problem)
 		}
 	})
 
 	t.Run("checkMockup_InvalidURL", func(t *testing.T) {
-		// checkMockup is now inlined in newRequest; test the same invalid-URL path
-		// by making a real request through the client while mock is active.
 		StartMockupServer()
 		defer StopMockupServer()
 
@@ -170,24 +224,5 @@ func TestCoverageImprovement_Net(t *testing.T) {
 }
 
 func TestCoverageImprovement_RegisterMetrics(t *testing.T) {
-	// Just call it to cover the empty function
 	registerMetrics(nil)
-}
-
-func TestCoverageImprovement_Net_Additional(t *testing.T) {
-	t.Run("setRespReader_GzipError", func(t *testing.T) {
-		c := &Client{}
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
-		req.Header.Set("Accept-Encoding", "gzip")
-		resp := &http.Response{
-			Header: http.Header{
-				"Content-Encoding": []string{"gzip"},
-			},
-			Body: io.NopCloser(strings.NewReader("not a gzip stream")),
-		}
-		_, err := c.setRespReader(req, resp)
-		if err == nil {
-			t.Error("expected error for invalid gzip stream in setRespReader")
-		}
-	})
 }

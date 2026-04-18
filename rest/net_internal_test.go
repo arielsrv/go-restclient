@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"net/http"
 	"testing"
 	"time"
@@ -126,5 +127,101 @@ func Test_setParams_headersAndOptions(t *testing.T) {
 	// Validators from cacheResponse when revalidate=true prefer If-None-Match first
 	if req.Header.Get(IfNoneMatchHeader) == "" && req.Header.Get(IfModifiedSinceHeader) == "" {
 		t.Errorf("expected some revalidation header to be set")
+	}
+}
+
+func Test_setTTL_maxAgeZero(t *testing.T) {
+	resp := &Response{Response: &http.Response{Header: http.Header{}}}
+	resp.Header.Set(CacheControlHeader, "max-age=0")
+	if setTTL(resp) {
+		t.Fatal("expected setTTL to return false for max-age=0")
+	}
+}
+
+func Test_setLastModified_invalidDate(t *testing.T) {
+	resp := &Response{Response: &http.Response{Header: http.Header{}}}
+	resp.Header.Set(LastModifiedHeader, "not-a-valid-date")
+	if setLastModified(resp) {
+		t.Fatal("expected setLastModified to return false for invalid date")
+	}
+}
+
+func Test_setParams_defaultUserAgent(t *testing.T) {
+	// cachedUserAgentHdr is nil because newHTTPClient was never called,
+	// and UserAgent is empty → exercises the ua=="" fallback branch.
+	c := &Client{ContentType: JSON}
+	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	c.setParams(req, nil, "http://example.com")
+	if got := req.Header.Get(UserAgentHeader); got == "" {
+		t.Error("expected a default User-Agent to be set")
+	}
+}
+
+// customRoundTripper is a non-*http.Transport RoundTripper used to cover
+// the fallback branches in setupTransport.
+type customRoundTripper struct{}
+
+func (customRoundTripper) RoundTrip(_ *http.Request) (*http.Response, error) {
+	return nil, nil
+}
+
+func Test_setupTransport_nonHttpTransport_dflt(t *testing.T) {
+	// Ensure transportMtxOnce has already fired so it won't overwrite dfltTransport.
+	c0 := &Client{}
+	_ = c0.setupTransport()
+
+	// Replace dfltTransport with a custom type to hit the "return dfltTransport" branch.
+	old := dfltTransport
+	dfltTransport = customRoundTripper{}
+	defer func() { dfltTransport = old }()
+
+	c := &Client{}
+	tr := c.setupTransport()
+	if _, ok := tr.(*http.Transport); ok {
+		t.Error("expected non-http.Transport to be returned")
+	}
+}
+
+func Test_setupTransport_customPool_nonHttpTransport(t *testing.T) {
+	// CustomPool.Transport is already set to a non-*http.Transport →
+	// hits the "return r.CustomPool.Transport" branch at line 442.
+	c := &Client{
+		CustomPool: &CustomPool{Transport: customRoundTripper{}},
+	}
+	tr := c.setupTransport()
+	if _, ok := tr.(customRoundTripper); !ok {
+		t.Error("expected customRoundTripper to be returned")
+	}
+}
+
+func Test_newRequest_invalidMethod(t *testing.T) {
+	// An HTTP method containing a space is rejected by http.NewRequestWithContext,
+	// covering the error-return branch at net.go:162.
+	c := &Client{}
+	resp := c.newRequest(context.Background(), "INVALID METHOD", "http://example.com", nil)
+	if resp.Err == nil {
+		t.Error("expected error for invalid HTTP method")
+	}
+}
+
+// Test_setTTL_fromCacheControlAndExpires already covers the invalid-Atoi path
+// (max-age=abc) but the regex (\d+) makes it unreachable; tested below for completeness.
+func Test_setLastModified_empty(t *testing.T) {
+	resp := &Response{Response: &http.Response{Header: http.Header{}}}
+	// No Last-Modified header → returns false immediately.
+	if setLastModified(resp) {
+		t.Fatal("expected false when Last-Modified header is absent")
+	}
+}
+
+func Test_setTTL_expiredExpires(t *testing.T) {
+	// Expires in the past → setTTL returns false (no future TTL).
+	resp := &Response{Response: &http.Response{Header: http.Header{}}}
+	resp.Header.Set(ExpiresHeader, time.Now().Add(-10*time.Second).Format(time.RFC1123))
+	if setTTL(resp) {
+		t.Fatal("expected false for already-expired Expires header")
 	}
 }
