@@ -217,10 +217,17 @@ func (r *Client) newRequest(
 	// Must revalidate response if necessary
 	response.revalidate = !cacheHeaders.TTL && (cacheHeaders.LastModified || cacheHeaders.ETag)
 
-	// If Cache enable: Cache SENA
+	// If Cache enable: cache the response.
+	// If we just performed a conditional revalidation and the server returned 200
+	// (content changed), force-update the existing entry so the new ETag/body is stored.
+	// Otherwise use setNX to avoid overwriting a valid cached entry on concurrent requests.
 	if r.EnableCache && slices.Contains(readVerbs, verb) &&
 		(cacheHeaders.TTL || cacheHeaders.LastModified || cacheHeaders.ETag) {
-		resourceCache.setNX(cacheURL, response)
+		if cacheResponse != nil {
+			resourceCache.set(cacheURL, response)
+		} else {
+			resourceCache.setNX(cacheURL, response)
+		}
 	}
 
 	return response

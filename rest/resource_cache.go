@@ -106,6 +106,15 @@ func (r *resourceTTLLfuMap) setNX(url string, response *Response) {
 	if _, hit := r.get(url); hit {
 		return
 	}
+	r.set(url, response)
+}
+
+// set unconditionally stores a response in the cache, overwriting any existing entry.
+// It is used to update a cache entry after a successful revalidation where the server
+// returned a new response (e.g., 200 with a different ETag or Last-Modified value).
+// If the response has a TTL, it sets the value with the TTL.
+// Otherwise, it sets the value without a TTL.
+func (r *resourceTTLLfuMap) set(url string, response *Response) {
 	cost := response.size()
 	if ttl := response.ttl; ttl != nil {
 		r.lowLevelCache.SetWithTTL(url, weak.Make(response), cost, time.Until(*ttl))

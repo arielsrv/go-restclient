@@ -66,6 +66,7 @@ func setup() {
 	tmux.HandleFunc("/cache/user", usersCache)
 	tmux.HandleFunc("/cache/expires/user", usersCacheWithExpires)
 	tmux.HandleFunc("/cache/etag/user", usersEtag)
+	tmux.HandleFunc("/cache/etag/user/changed", usersEtagChanged)
 	tmux.HandleFunc("/cache/lastmodified/user", usersLastModified)
 	tmux.HandleFunc("/cache/lastmodified/user/err", usersLastModifiedErr)
 	tmux.HandleFunc("/slow/cache/user", slowUsersCache)
@@ -187,6 +188,32 @@ func usersLastModified(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("Last-Modified", lastModifiedDate.Format(time.RFC1123))
+		writer.Write(b)
+	}
+}
+
+// usersEtagChanged simulates an endpoint where content can change between requests.
+//   - No ETag in request   → 200 with ETag "etag-v1"
+//   - If-None-Match: etag-v1 → 200 with ETag "etag-v2" (content changed)
+//   - If-None-Match: etag-v2 → 304 Not Modified
+func usersEtagChanged(writer http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		return
+	}
+
+	etag := req.Header.Get("If-None-Match")
+	switch etag {
+	case "etag-v2":
+		writer.WriteHeader(http.StatusNotModified)
+	case "etag-v1":
+		b, _ := json.Marshal(users)
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Header().Set("ETag", "etag-v2")
+		writer.Write(b)
+	default:
+		b, _ := json.Marshal(users)
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Header().Set("ETag", "etag-v1")
 		writer.Write(b)
 	}
 }

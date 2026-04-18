@@ -32,7 +32,7 @@ func main() {
 
 	// Make a GET request (context optional)
 	response := client.GetWithContext(ctx, "/users", headers)
-	if response.Err != nil {
+	if response != nil && response.Err != nil {
 		fmt.Printf("Error: %v\n", response.Err)
 		os.Exit(1)
 	}

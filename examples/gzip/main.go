@@ -21,6 +21,7 @@ func main() {
 		DefaultHeaders: http.Header{
 			"Accept-Encoding": []string{"gzip"},
 		}, // default Accept-Encoding header (optionally customize it)
+		EnableCache: true,
 	}
 
 	// Enable gzip compression for the request (or use EnableGzip option in the client settings)
