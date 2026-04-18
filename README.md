@@ -35,19 +35,19 @@
 
 ## Features
 
-| Category | What you get |
-|---|---|
-| **HTTP Methods** | `GET` `POST` `PUT` `PATCH` `DELETE` `HEAD` `OPTIONS` — sync and async variants, all with `WithContext` support |
-| **Smart Caching** | TTL via `Cache-Control` / `Expires`, ETag + Last-Modified revalidation, Ristretto LFU backend, weak-pointer GC safety |
-| **Content Types** | JSON, XML, `application/x-www-form-urlencoded` — auto-detect on response via `Content-Type` header |
-| **Authentication** | Basic Auth and OAuth2 Client Credentials (header, params, or auto-detect style) |
-| **Async Requests** | Channel-based async API — non-blocking, buffered, closed automatically |
-| **Gzip** | `EnableGzip` flag — adds `Accept-Encoding: gzip` and decompresses transparently |
-| **Connection Pooling** | Shared default transport or per-client `CustomPool` with proxy support |
-| **OpenTelemetry** | `EnableTrace` — integrates `otelhttp` + `otelhttptrace` for full span propagation |
-| **RFC 7807** | Automatic `application/problem+json` / `application/problem+xml` deserialization |
-| **Mock Server** | Built-in `StartMockupServer()` / `AddMockups()` for unit testing without real HTTP |
-| **Concurrency** | Thread-safe — mutex-protected client initialization, sync-atomic cache flags |
+| Category               | What you get                                                                                                          |
+|------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| **HTTP Methods**       | `GET` `POST` `PUT` `PATCH` `DELETE` `HEAD` `OPTIONS` — sync and async variants, all with `WithContext` support        |
+| **Smart Caching**      | TTL via `Cache-Control` / `Expires`, ETag + Last-Modified revalidation, Ristretto LFU backend, weak-pointer GC safety |
+| **Content Types**      | JSON, XML, `application/x-www-form-urlencoded` — auto-detect on response via `Content-Type` header                    |
+| **Authentication**     | Basic Auth and OAuth2 Client Credentials (header, params, or auto-detect style)                                       |
+| **Async Requests**     | Channel-based async API — non-blocking, buffered, closed automatically                                                |
+| **Gzip**               | `EnableGzip` flag — adds `Accept-Encoding: gzip` and decompresses transparently                                       |
+| **Connection Pooling** | Shared default transport or per-client `CustomPool` with proxy support                                                |
+| **OpenTelemetry**      | `EnableTrace` — integrates `otelhttp` + `otelhttptrace` for full span propagation                                     |
+| **RFC 7807**           | Automatic `application/problem+json` / `application/problem+xml` deserialization                                      |
+| **Mock Server**        | Built-in `StartMockupServer()` / `AddMockups()` for unit testing without real HTTP                                    |
+| **Concurrency**        | Thread-safe — mutex-protected client initialization, sync-atomic cache flags                                          |
 
 > **Requires Go 1.23+** (uses the `weak` package for GC-safe cache pointers)
 
