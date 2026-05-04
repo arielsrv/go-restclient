@@ -87,6 +87,10 @@ const (
 	IfNoneMatchHeader = "If-None-Match"
 )
 
+const (
+	GZip = "gzip"
+)
+
 // newRequest creates a new HTTP request and returns the response.
 // It handles URL validation, caching, content type marshaling, mockup server redirection,
 // tracing, metrics collection, and response processing.
@@ -237,7 +241,7 @@ func (r *Client) newRequest(
 // Returns true if the response is gzip-encoded and the client is configured to handle it.
 func (r *Client) handleGZip(request *http.Request, response *http.Response) bool {
 	return (r.EnableGzip ||
-		request.Header.Get(AcceptEncodingHeader) == "gzip") && response.Header.Get(ContentEncodingHeader) == "gzip"
+		request.Header.Get(AcceptEncodingHeader) == GZip) && response.Header.Get(ContentEncodingHeader) == GZip
 }
 
 // setContentReader creates a reader from the given body and content type.
@@ -583,7 +587,7 @@ func (r *Client) setParams(
 
 	// Gzip Encoding
 	if r.EnableGzip {
-		request.Header.Set(AcceptEncodingHeader, "gzip")
+		request.Header.Set(AcceptEncodingHeader, GZip)
 	}
 
 	if cacheResponse != nil && cacheResponse.revalidate {
