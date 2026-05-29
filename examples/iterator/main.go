@@ -87,7 +87,8 @@ func main() {
 			BaseURL:     "https://gorest.co.in",                 // optional parameters
 			ContentType: rest.JSON,                              // rest.JSON by default (rest.XML, rest.FORM, etc.)
 			Timeout:     time.Millisecond * time.Duration(2000), // transmission timeout
-		}))
+		}),
+	)
 
 	users, err := usersService.GetUsers(ctx)
 	if err != nil {
