@@ -44,7 +44,7 @@
 | **Async Requests**     | Channel-based async API — non-blocking, buffered, closed automatically                                                |
 | **Gzip**               | `EnableGzip` flag — adds `Accept-Encoding: gzip` and decompresses transparently                                       |
 | **Connection Pooling** | Shared default transport or per-client `CustomPool` with proxy support                                                |
-| **OpenTelemetry**      | `EnableTrace` — integrates `otelhttp` + `otelhttptrace` for full span propagation                                     |
+| **OpenTelemetry**      | `EnableTrace` — `otelhttp` span per request (named `METHOD /path`) with nested `otelhttptrace` sub-spans (DNS/Connect/TLS) and W3C context propagation |
 | **RFC 7807**           | Automatic `application/problem+json` / `application/problem+xml` deserialization                                      |
 | **Mock Server**        | Built-in `StartMockupServer()` / `AddMockups()` for unit testing without real HTTP                                    |
 | **Concurrency**        | Thread-safe — mutex-protected client initialization, sync-atomic cache flags                                          |
@@ -460,8 +460,10 @@ client := &rest.Client{
 
 Set `EnableTrace: true` and the client will:
 
-- Hook into `net/http/httptrace` to create OTel spans for DNS, connect, TLS, and request/response lifecycle events
-- Use the incoming `ctx` to propagate the active span, so HTTP client spans become children of your service spans automatically
+- Wrap the HTTP transport with `otelhttp`, creating one span per outbound request
+- Install `otelhttptrace` **as a child** of that span via `otelhttp.WithClientTrace`, so DNS, connect, TLS, getconn, request/response events are nested under the HTTP span (not orphaned roots)
+- Name spans as `METHOD /path` (e.g. `GET /users/42`) instead of the generic `HTTP GET`, so endpoints are distinguishable in the tracing backend
+- Use the incoming `ctx` to propagate the active span — HTTP client spans become children of your service spans, and the W3C `traceparent` header is injected into the outgoing request automatically
 
 ```go
 client := &rest.Client{
