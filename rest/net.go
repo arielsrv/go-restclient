@@ -153,10 +153,12 @@ func (r *Client) newRequest(
 		apiURL = rURL.String()
 	}
 
-	// Enable trace if enabled
-	if r.EnableTrace {
-		ctx = httptrace.WithClientTrace(ctx, otelhttptrace.NewClientTrace(ctx))
-	}
+	// Enable trace if enabled.
+	// NOTE: the OpenTelemetry httptrace client trace is installed via
+	// otelhttp.WithClientTrace at transport construction (see newHTTPClient),
+	// so that the sub-spans (DNS, Connect, TLS, ...) are children of the
+	// HTTP span created by otelhttp. Installing it here on the request
+	// context (before the otelhttp span exists) would orphan those events.
 
 	// Create a new HTTP client
 	httpClient := r.newHTTPClient(ctx)
@@ -320,7 +322,24 @@ func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 
 		tr := r.setupTransport()
 		if r.EnableTrace {
-			tr = otelhttp.NewTransport(tr)
+			tr = otelhttp.NewTransport(
+				tr,
+				// Make httptrace events (DNS, Connect, TLS, ...) children of the
+				// HTTP span created by otelhttp. The ctx passed to the callback
+				// already carries the HTTP span.
+				otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+					return otelhttptrace.NewClientTrace(ctx)
+				}),
+				// Use METHOD + path as the span name so endpoints are
+				// distinguishable in the tracing backend, instead of the
+				// default generic "HTTP GET".
+				otelhttp.WithSpanNameFormatter(func(_ string, req *http.Request) string {
+					if req.URL != nil && req.URL.Path != "" {
+						return req.Method + " " + req.URL.Path
+					}
+					return "HTTP " + req.Method
+				}),
+			)
 		}
 		r.Client = &http.Client{Transport: tr}
 
