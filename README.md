@@ -7,7 +7,7 @@
 [![Build Status](https://github.com/arielsrv/go-restclient/actions/workflows/go.yml/badge.svg)](https://github.com/arielsrv/go-restclient/actions/workflows/go.yml)
 [![Lint Status](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml/badge.svg)](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Coverage](https://img.shields.io/badge/Coverage-97.9%25-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-98.8%25-brightgreen)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
