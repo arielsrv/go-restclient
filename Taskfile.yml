@@ -39,6 +39,10 @@ tasks:
     cmds:
       - go test -v ./...
 
+  test:nil:
+    cmds:
+      - go tool nilaway ./...
+
   test:report:
     cmds:
       - go tool gotestsum --junitfile report.xml --format testname

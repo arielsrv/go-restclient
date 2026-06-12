@@ -132,7 +132,7 @@ func (r *Client) newRequest(
 	// Inline checkMockup: on the hot path (mock disabled) this is a single atomic load —
 	// no function call, no string copy.
 	cacheURL := apiURL
-	if *mockUpEnv {
+	if *mockUpEnv && mockServerURL != nil {
 		rURL, mErr := url.Parse(apiURL)
 		if mErr != nil {
 			return &Response{Err: mErr}
@@ -161,10 +161,13 @@ func (r *Client) newRequest(
 	if err != nil {
 		return &Response{Err: err}
 	}
+	if httpResponse == nil {
+		return &Response{Err: errors.New("nil http response")}
+	}
 	defer func(Body io.ReadCloser) { _ = Body.Close() }(httpResponse.Body)
 
 	// If we get a 304, return httpResponse from cache
-	if httpResponse.StatusCode == http.StatusNotModified {
+	if httpResponse.StatusCode == http.StatusNotModified && cacheResponse != nil {
 		return cacheResponse
 	}
 
@@ -192,7 +195,7 @@ func isReadVerb(verb string) bool {
 // return value is true when the cached entry can be served directly
 // without contacting the upstream server.
 func (r *Client) lookupCache(apiURL string, isReadVerb bool) (*Response, bool) {
-	if !r.EnableCache || !isReadVerb {
+	if !r.EnableCache || !isReadVerb || resourceCache == nil {
 		return nil, false
 	}
 	value, hit := resourceCache.get(apiURL)
@@ -231,6 +234,9 @@ func (r *Client) storeInCache(cacheURL string, response, cacheResponse *Response
 	response.revalidate = !ttl && (lastModified || etag)
 
 	if !ttl && !lastModified && !etag {
+		return
+	}
+	if resourceCache == nil {
 		return
 	}
 	// Content changed after revalidation: force-update the existing entry so

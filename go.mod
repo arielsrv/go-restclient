@@ -143,6 +143,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kisielk/errcheck v1.10.0 // indirect
 	github.com/kkHAIKE/contextcheck v1.1.6 // indirect
+	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/knadh/koanf/parsers/yaml v1.1.0 // indirect
 	github.com/knadh/koanf/providers/env v1.1.0 // indirect
@@ -253,6 +254,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/nilaway v0.0.0-20260612163715-2d8907f431ca // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
@@ -280,6 +282,7 @@ tool (
 	github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 	github.com/oligot/go-mod-upgrade
 	github.com/vektra/mockery/v3
+	go.uber.org/nilaway/cmd/nilaway
 	golang.org/x/vuln/cmd/govulncheck
 	gotest.tools/gotestsum
 	mvdan.cc/gofumpt

@@ -481,5 +481,6 @@ func Test_Do(t *testing.T) {
 	require.NoError(t, err)
 	response, err := client.Do(request)
 	require.NoError(t, err)
+	require.NotNil(t, response)
 	require.Equal(t, http.StatusNotFound, response.StatusCode)
 }

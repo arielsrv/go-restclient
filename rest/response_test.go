@@ -1766,6 +1766,9 @@ func executeRequest(
 		resp = client.OptionsWithContext(ctx, path, headers)
 	}
 
+	if resp == nil {
+		return nil, errors.New("unsupported method: " + method)
+	}
 	return resp, resp.Err
 }
 

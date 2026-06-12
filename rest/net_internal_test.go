@@ -9,6 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 // Test helpers in net.go that are unexported. We keep tests in package rest
@@ -273,7 +275,8 @@ func Test_setRespReader_gzipCloseError(t *testing.T) {
 	truncated := buf.Bytes()[:buf.Len()-4]
 
 	c := &Client{}
-	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	require.NoError(t, err)
 	req.Header.Set("Accept-Encoding", "gzip")
 	httpResp := &http.Response{
 		Header: http.Header{"Content-Encoding": []string{"gzip"}},

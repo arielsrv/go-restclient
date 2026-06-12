@@ -220,6 +220,10 @@ func usersEtagChanged(writer http.ResponseWriter, req *http.Request) {
 
 func usersLastModifiedErr(writer http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodGet {
+		if len(users) == 0 {
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		b, _ := json.Marshal(users[0])
 
 		writer.Header().Set("Content-Type", "application/json")
@@ -291,7 +295,12 @@ func usersForm(writer http.ResponseWriter, req *http.Request) {
 
 		u := new(User)
 		u.ID = 3
-		u.Name = form["name"][0]
+		names, ok := form["name"]
+		if !ok || len(names) == 0 {
+			writer.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		u.Name = names[0]
 
 		ub, err := json.Marshal(u)
 		if err != nil {
@@ -326,6 +335,10 @@ func usersBytes(writer http.ResponseWriter, req *http.Request) {
 
 func oneUser(writer http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodGet {
+		if len(users) == 0 {
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		b, _ := json.Marshal(users[0])
 
 		writer.Header().Set("Content-Type", "application/json")
@@ -336,6 +349,10 @@ func oneUser(writer http.ResponseWriter, req *http.Request) {
 
 	// Put
 	if req.Method == http.MethodPut || req.Method == http.MethodPatch {
+		if len(users) == 0 {
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		b, _ := json.Marshal(users[0])
 
 		writer.Header().Set("Content-Type", "application/json")
