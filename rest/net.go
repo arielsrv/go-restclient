@@ -116,28 +116,17 @@ func (r *Client) newRequest(
 	apiURL = r.BaseURL + apiURL
 
 	// Pre-compute read-verb check once; reused for both cache lookup and cache store.
-	isReadVerb := verb == http.MethodGet || verb == http.MethodHead || verb == http.MethodOptions
+	isReadVerb := isReadVerb(verb)
 
-	var cacheResponse *Response
-	// If Cache enable && operation is read: Cache GET
-	if r.EnableCache && isReadVerb {
-		if value, hit := resourceCache.get(apiURL); hit {
-			cacheResponse = value
-			if cacheResponse != nil {
-				cacheResponse.Hit()
-				if !cacheResponse.revalidate {
-					return cacheResponse
-				}
-			}
-		}
+	cacheResponse, fromCache := r.lookupCache(apiURL, isReadVerb)
+	if fromCache {
+		return cacheResponse
 	}
 
 	// Prepare contentReader for the body
 	contentReader, err := setContentReader(body, r.ContentType)
 	if err != nil {
-		return &Response{
-			Err: err,
-		}
+		return &Response{Err: err}
 	}
 
 	// Inline checkMockup: on the hot path (mock disabled) this is a single atomic load —
@@ -159,84 +148,99 @@ func (r *Client) newRequest(
 	// so that the sub-spans (DNS, Connect, TLS, ...) are children of the
 	// HTTP span created by otelhttp. Installing it here on the request
 	// context (before the otelhttp span exists) would orphan those events.
-
-	// Create a new HTTP client
 	httpClient := r.newHTTPClient(ctx)
 
-	// Create a new HTTP request
 	request, err := http.NewRequestWithContext(ctx, verb, apiURL, contentReader)
 	if err != nil {
-		return &Response{
-			Err: err,
-		}
+		return &Response{Err: err}
 	}
 
-	// Set extra parameters
 	r.setParams(request, cacheResponse, cacheURL, headers...)
 
-	// Make the request
 	httpResponse, err := httpClient.Do(request)
-	// Error handling
 	if err != nil {
-		return &Response{
-			Err: err,
-		}
+		return &Response{Err: err}
 	}
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(httpResponse.Body)
+	defer func(Body io.ReadCloser) { _ = Body.Close() }(httpResponse.Body)
 
 	// If we get a 304, return httpResponse from cache
 	if httpResponse.StatusCode == http.StatusNotModified {
 		return cacheResponse
 	}
 
-	respReader, err := r.setRespReader(request, httpResponse)
+	response, err := r.buildResponse(request, httpResponse)
 	if err != nil {
-		return &Response{
-			Err: err,
-		}
-	}
-
-	// Read httpResponse
-	respBody, err := io.ReadAll(respReader)
-	if err != nil {
-		return &Response{
-			Err: err,
-		}
-	}
-
-	// Create a new response
-	response := &Response{
-		Response: httpResponse,
-		bytes:    respBody,
+		return &Response{Err: err}
 	}
 
 	setProblem(response)
 
 	// Only compute cache-validation headers when caching is enabled.
-	// setTTL / setLastModified / setETag each perform header lookups and regexp
-	// matching; skipping them on the non-cache path saves ~10 calls per request.
 	if r.EnableCache && isReadVerb {
-		ttl := setTTL(response)
-		lastModified := setLastModified(response)
-		etag := setETag(response)
-
-		response.revalidate = !ttl && (lastModified || etag)
-
-		if ttl || lastModified || etag {
-			// Content changed after revalidation: force-update the existing entry so
-			// the new ETag/body replaces the stale one (fixes the setNX-skip bug).
-			// First-time insertion uses setNX to avoid races on concurrent requests.
-			if cacheResponse != nil {
-				resourceCache.set(cacheURL, response)
-			} else {
-				resourceCache.setNX(cacheURL, response)
-			}
-		}
+		r.storeInCache(cacheURL, response, cacheResponse)
 	}
 
 	return response
+}
+
+// isReadVerb reports whether verb is a cache-eligible HTTP read method.
+func isReadVerb(verb string) bool {
+	return verb == http.MethodGet || verb == http.MethodHead || verb == http.MethodOptions
+}
+
+// lookupCache returns the cached response for apiURL if any. The second
+// return value is true when the cached entry can be served directly
+// without contacting the upstream server.
+func (r *Client) lookupCache(apiURL string, isReadVerb bool) (*Response, bool) {
+	if !r.EnableCache || !isReadVerb {
+		return nil, false
+	}
+	value, hit := resourceCache.get(apiURL)
+	if !hit || value == nil {
+		return value, false
+	}
+	value.Hit()
+	if !value.revalidate {
+		return value, true
+	}
+	return value, false
+}
+
+// buildResponse reads the HTTP body (decompressing gzip when applicable)
+// and wraps it into a Response.
+func (r *Client) buildResponse(request *http.Request, httpResponse *http.Response) (*Response, error) {
+	respReader, err := r.setRespReader(request, httpResponse)
+	if err != nil {
+		return nil, err
+	}
+	respBody, err := io.ReadAll(respReader)
+	if err != nil {
+		return nil, err
+	}
+	return &Response{Response: httpResponse, bytes: respBody}, nil
+}
+
+// storeInCache persists response under cacheURL, honouring revalidation
+// semantics (set vs setNX). It is a no-op when no cache-validation
+// header (TTL / Last-Modified / ETag) is present.
+func (r *Client) storeInCache(cacheURL string, response, cacheResponse *Response) {
+	ttl := setTTL(response)
+	lastModified := setLastModified(response)
+	etag := setETag(response)
+
+	response.revalidate = !ttl && (lastModified || etag)
+
+	if !ttl && !lastModified && !etag {
+		return
+	}
+	// Content changed after revalidation: force-update the existing entry so
+	// the new ETag/body replaces the stale one (fixes the setNX-skip bug).
+	// First-time insertion uses setNX to avoid races on concurrent requests.
+	if cacheResponse != nil {
+		resourceCache.set(cacheURL, response)
+	} else {
+		resourceCache.setNX(cacheURL, response)
+	}
 }
 
 // handleGZip checks if GZip compression is enabled for the given request and response.
@@ -320,88 +324,109 @@ func (r *Client) newHTTPClient(ctx context.Context) *http.Client {
 		r.clientMtx.Lock()
 		defer r.clientMtx.Unlock()
 
-		tr := r.setupTransport()
-		if r.EnableTrace {
-			tr = otelhttp.NewTransport(
-				tr,
-				// Make httptrace events (DNS, Connect, TLS, ...) children of the
-				// HTTP span created by otelhttp. The ctx passed to the callback
-				// already carries the HTTP span.
-				otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
-					return otelhttptrace.NewClientTrace(ctx)
-				}),
-				// Use METHOD + path as the span name so endpoints are
-				// distinguishable in the tracing backend, instead of the
-				// default generic "HTTP GET".
-				otelhttp.WithSpanNameFormatter(func(_ string, req *http.Request) string {
-					if req.URL != nil && req.URL.Path != "" {
-						return req.Method + " " + req.URL.Path
-					}
-					return "HTTP " + req.Method
-				}),
-			)
-		}
-		r.Client = &http.Client{Transport: tr}
-
-		// Redirect handling
-		if !r.FollowRedirect {
-			r.Client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
-				return errors.New("avoided redirect attempt")
-			}
-		} else {
-			r.Client.CheckRedirect = defaultCheckRedirectFunc
-		}
-
-		// Default name
-		if r.Name == "" {
-			if hostname, err := os.Hostname(); err == nil {
-				r.Name = hostname
-			} else {
-				r.Name = "undefined"
-			}
-		}
-
-		for key, value := range r.DefaultHeaders {
-			r.defaultHeaders.Store(key, value)
-		}
-
-		// Pre-compute User-Agent as a []string once so setParams can assign it
-		// directly into the header map without a per-request string concat or
-		// []string allocation.
-		ua := r.UserAgent
-		if ua == "" {
-			ua = "go-restclient/" + Version + " (github; +https://github.com/arielsrv/go-restclient)"
-		}
-		r.cachedUserAgentHdr = []string{ua}
-
-		// Pre-compute Accept and Content-Type header values from the configured
-		// ContentType marshaler. DefaultHeaders() creates a new http.Header map
-		// (3 allocs) on every call; caching the []string avoids that entirely.
-		if marshaler, found := contentMarshalers[r.ContentType]; found {
-			hdrs := marshaler.DefaultHeaders()
-			if vals := hdrs[CanonicalAcceptHeader]; len(vals) > 0 {
-				r.cachedAcceptHdr = []string{vals[0]}
-			}
-			if vals := hdrs[CanonicalContentTypeHeader]; len(vals) > 0 {
-				r.cachedContentTypeHdr = []string{vals[0]}
-			}
-		}
+		r.Client = &http.Client{Transport: r.buildTransport()}
+		r.configureRedirect()
+		r.ensureName()
+		r.loadDefaultHeaders()
+		r.precomputeCachedHeaders()
 	})
 
 	if r.OAuth != nil {
-		oauthConfig := &clientcredentials.Config{
-			ClientID:       r.OAuth.ClientID,
-			ClientSecret:   r.OAuth.ClientSecret,
-			TokenURL:       r.OAuth.TokenURL,
-			AuthStyle:      oauth2.AuthStyle(r.OAuth.AuthStyle),
-			Scopes:         r.OAuth.Scopes,
-			EndpointParams: r.OAuth.EndpointParams,
-		}
-
-		return oauthConfig.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
+		return r.oauthClient(ctx)
 	}
-
 	return r.Client
+}
+
+// buildTransport returns the configured RoundTripper, optionally wrapped
+// with the OpenTelemetry transport when tracing is enabled.
+func (r *Client) buildTransport() http.RoundTripper {
+	tr := r.setupTransport()
+	if !r.EnableTrace {
+		return tr
+	}
+	return otelhttp.NewTransport(
+		tr,
+		// Make httptrace events (DNS, Connect, TLS, ...) children of the
+		// HTTP span created by otelhttp. The ctx passed to the callback
+		// already carries the HTTP span.
+		otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+			return otelhttptrace.NewClientTrace(ctx)
+		}),
+		// Use METHOD + path as the span name so endpoints are
+		// distinguishable in the tracing backend, instead of the
+		// default generic "HTTP GET".
+		otelhttp.WithSpanNameFormatter(func(_ string, req *http.Request) string {
+			if req.URL != nil && req.URL.Path != "" {
+				return req.Method + " " + req.URL.Path
+			}
+			return "HTTP " + req.Method
+		}),
+	)
+}
+
+// configureRedirect wires CheckRedirect according to FollowRedirect.
+func (r *Client) configureRedirect() {
+	if !r.FollowRedirect {
+		r.Client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
+			return errors.New("avoided redirect attempt")
+		}
+		return
+	}
+	r.Client.CheckRedirect = defaultCheckRedirectFunc
+}
+
+// ensureName assigns a default Name (the OS hostname when available).
+func (r *Client) ensureName() {
+	if r.Name != "" {
+		return
+	}
+	if hostname, err := os.Hostname(); err == nil {
+		r.Name = hostname
+		return
+	}
+	r.Name = "undefined"
+}
+
+// loadDefaultHeaders copies DefaultHeaders into the lock-free [sync.Map].
+func (r *Client) loadDefaultHeaders() {
+	for key, value := range r.DefaultHeaders {
+		r.defaultHeaders.Store(key, value)
+	}
+}
+
+// precomputeCachedHeaders pre-allocates User-Agent, Accept and
+// Content-Type slices used in the request hot path.
+func (r *Client) precomputeCachedHeaders() {
+	ua := r.UserAgent
+	if ua == "" {
+		ua = "go-restclient/" + Version + " (github; +https://github.com/arielsrv/go-restclient)"
+	}
+	r.cachedUserAgentHdr = []string{ua}
+
+	marshaler, found := contentMarshalers[r.ContentType]
+	if !found {
+		return
+	}
+	hdrs := marshaler.DefaultHeaders()
+	if vals := hdrs[CanonicalAcceptHeader]; len(vals) > 0 {
+		r.cachedAcceptHdr = []string{vals[0]}
+	}
+	if vals := hdrs[CanonicalContentTypeHeader]; len(vals) > 0 {
+		r.cachedContentTypeHdr = []string{vals[0]}
+	}
+}
+
+// oauthClient returns an OAuth2 client-credentials client wrapping r.Client.
+func (r *Client) oauthClient(ctx context.Context) *http.Client {
+	oauthConfig := &clientcredentials.Config{
+		ClientID:       r.OAuth.ClientID,
+		ClientSecret:   r.OAuth.ClientSecret,
+		TokenURL:       r.OAuth.TokenURL,
+		AuthStyle:      oauth2.AuthStyle(r.OAuth.AuthStyle),
+		Scopes:         r.OAuth.Scopes,
+		EndpointParams: r.OAuth.EndpointParams,
+	}
+	return oauthConfig.Client(context.WithValue(ctx, oauth2.HTTPClient, r.Client))
 }
 
 // setupTransport sets up the HTTP transport for the client.
@@ -555,77 +580,109 @@ func (r *Client) setParams(
 	request.Header[ConnectionHeader] = hdrKeepAlive
 	request.Header[CacheControlHeader] = hdrNoCache
 
-	// If mockup
 	if *mockUpEnv {
 		request.Header.Set(XOriginalURLHeader, cacheURL)
 	}
 
-	// Basic Auth
 	if r.BasicAuth != nil && r.OAuth == nil {
 		request.SetBasicAuth(r.BasicAuth.Username, r.BasicAuth.Password)
 	}
 
-	// User-Agent: use pre-allocated []string from client init — no closure, no concat.
-	// Fall back to on-the-fly computation if newHTTPClient hasn't run yet (e.g. in tests).
-	userAgentHdr := r.cachedUserAgentHdr
-	if userAgentHdr == nil {
-		ua := r.UserAgent
-		if ua == "" {
-			ua = "go-restclient/" + Version + " (github; +https://github.com/arielsrv/go-restclient)"
-		}
-		userAgentHdr = []string{ua}
-	}
-	request.Header[UserAgentHeader] = userAgentHdr
+	request.Header[UserAgentHeader] = r.userAgentHeader()
+	r.applyContentNegotiation(request)
 
-	// Accept / Content-Type: use cached []string values from client init.
-	// This replaces two DefaultHeaders() calls that each allocated a new http.Header map
-	// (1 map + 2 slices = 3 allocs) per request.
-	// Fall back to DefaultHeaders() if the client hasn't been initialized yet.
-	acceptHdr := r.cachedAcceptHdr
-	ctHdr := r.cachedContentTypeHdr
-	if acceptHdr == nil {
-		if marshaler, found := contentMarshalers[r.ContentType]; found {
-			hdrs := marshaler.DefaultHeaders()
-			if vals := hdrs[CanonicalAcceptHeader]; len(vals) > 0 {
-				acceptHdr = []string{vals[0]}
-			}
-			if vals := hdrs[CanonicalContentTypeHeader]; len(vals) > 0 {
-				ctHdr = []string{vals[0]}
-			}
-		}
-	}
-	if acceptHdr != nil {
-		request.Header[CanonicalAcceptHeader] = acceptHdr
-		switch request.Method {
-		case http.MethodPost, http.MethodPut, http.MethodPatch:
-			if ctHdr != nil {
-				request.Header[CanonicalContentTypeHeader] = ctHdr
-			}
-		}
-	}
-
-	// Gzip Encoding
 	if r.EnableGzip {
 		request.Header.Set(AcceptEncodingHeader, GZip)
 	}
 
-	if cacheResponse != nil && cacheResponse.revalidate {
-		switch {
-		case cacheResponse.etag != "":
-			request.Header.Set(IfNoneMatchHeader, cacheResponse.etag)
-		case cacheResponse.lastModified != nil:
-			request.Header.Set(IfModifiedSinceHeader, cacheResponse.lastModified.Format(time.RFC1123))
+	applyCacheValidationHeaders(request, cacheResponse)
+	r.applyDefaultHeaders(request)
+	applyParamHeaders(request, paramHeaders)
+}
+
+// userAgentHeader returns the cached User-Agent header slice, computing
+// one on the fly when newHTTPClient hasn't run yet (e.g. in tests).
+func (r *Client) userAgentHeader() []string {
+	if r.cachedUserAgentHdr != nil {
+		return r.cachedUserAgentHdr
+	}
+	ua := r.UserAgent
+	if ua == "" {
+		ua = "go-restclient/" + Version + " (github; +https://github.com/arielsrv/go-restclient)"
+	}
+	return []string{ua}
+}
+
+// applyContentNegotiation sets Accept and (for write verbs) Content-Type
+// headers using cached values, falling back to the marshaler defaults
+// when the client hasn't been initialized yet.
+func (r *Client) applyContentNegotiation(request *http.Request) {
+	acceptHdr := r.cachedAcceptHdr
+	ctHdr := r.cachedContentTypeHdr
+	if acceptHdr == nil {
+		acceptHdr, ctHdr = r.lookupContentNegotiationHeaders()
+	}
+	if acceptHdr == nil {
+		return
+	}
+	request.Header[CanonicalAcceptHeader] = acceptHdr
+
+	switch request.Method {
+	case http.MethodPost, http.MethodPut, http.MethodPatch:
+		if ctHdr != nil {
+			request.Header[CanonicalContentTypeHeader] = ctHdr
 		}
 	}
+}
 
+// lookupContentNegotiationHeaders resolves Accept / Content-Type slices
+// from the configured marshaler. Returns (nil, nil) when the content
+// type is unsupported.
+func (r *Client) lookupContentNegotiationHeaders() ([]string, []string) {
+	marshaler, found := contentMarshalers[r.ContentType]
+	if !found {
+		return nil, nil
+	}
+	hdrs := marshaler.DefaultHeaders()
+	var accept, ct []string
+	if vals := hdrs[CanonicalAcceptHeader]; len(vals) > 0 {
+		accept = []string{vals[0]}
+	}
+	if vals := hdrs[CanonicalContentTypeHeader]; len(vals) > 0 {
+		ct = []string{vals[0]}
+	}
+	return accept, ct
+}
+
+// applyCacheValidationHeaders sets If-None-Match / If-Modified-Since
+// headers when a revalidation candidate is available.
+func applyCacheValidationHeaders(request *http.Request, cacheResponse *Response) {
+	if cacheResponse == nil || !cacheResponse.revalidate {
+		return
+	}
+	switch {
+	case cacheResponse.etag != "":
+		request.Header.Set(IfNoneMatchHeader, cacheResponse.etag)
+	case cacheResponse.lastModified != nil:
+		request.Header.Set(IfModifiedSinceHeader, cacheResponse.lastModified.Format(time.RFC1123))
+	}
+}
+
+// applyDefaultHeaders copies the client-level default headers into the
+// outgoing request.
+func (r *Client) applyDefaultHeaders(request *http.Request) {
 	r.defaultHeaders.Range(func(key, value any) bool {
-		values := value.([]string)
+		values, _ := value.([]string)
+		k, _ := key.(string)
 		for _, v := range values {
-			request.Header.Add(key.(string), v)
+			request.Header.Add(k, v)
 		}
 		return true
 	})
+}
 
+// applyParamHeaders appends per-call header overrides to the request.
+func applyParamHeaders(request *http.Request, paramHeaders []http.Header) {
 	for _, headers := range paramHeaders {
 		for k, values := range headers {
 			for _, v := range values {

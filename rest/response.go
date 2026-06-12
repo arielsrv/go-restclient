@@ -8,6 +8,7 @@ import (
 	"mime"
 	"net/http"
 	"net/http/httputil"
+	"slices"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -111,6 +112,29 @@ func (r *Response) Raw() string {
 // 'fill' must be a pointer to the type where you want to store the data.
 // It automatically detects the content type (JSON, XML) from the response headers.
 func (r *Response) FillUp(fill any) error {
+	if err := r.validateForFillUp(); err != nil {
+		return err
+	}
+
+	mediaType, err := r.resolveMediaType()
+	if err != nil {
+		return err
+	}
+
+	if m := findUnmarshalerByMediaType(mediaType); m != nil {
+		return m.Unmarshal(r.bytes, fill)
+	}
+
+	if m := findUnmarshalerBySuffix(mediaType); m != nil {
+		return m.Unmarshal(r.bytes, fill)
+	}
+
+	return fmt.Errorf("unmarshal fail, unsupported content type: %s", mediaType)
+}
+
+// validateForFillUp returns an error if the response cannot be used for
+// deserialization (nil receiver, prior error, or missing HTTP response).
+func (r *Response) validateForFillUp() error {
 	if r == nil {
 		return errors.New(responseIsNil)
 	}
@@ -120,43 +144,52 @@ func (r *Response) FillUp(fill any) error {
 	if r.Response == nil {
 		return errors.New(httpRespIsNil)
 	}
+	return nil
+}
 
+// resolveMediaType extracts the canonical media type from the response,
+// falling back to body sniffing when the Content-Type header is absent.
+func (r *Response) resolveMediaType() (string, error) {
 	contentType := strings.ToLower(r.Header.Get(CanonicalContentTypeHeader))
 	if contentType == "" {
 		contentType = http.DetectContentType(r.bytes)
 	}
-
 	mediaType, _, err := mime.ParseMediaType(contentType)
 	if err != nil {
-		return fmt.Errorf("invalid content type: %s", contentType)
+		return "", fmt.Errorf("invalid content type: %s", contentType)
 	}
+	return mediaType, nil
+}
 
+// findUnmarshalerByMediaType returns the unmarshaler whose default
+// Content-Type values match the given media type, or nil if none match.
+func findUnmarshalerByMediaType(mediaType string) MediaUnmarshaler {
 	for mediaContent := range maps.Values(readMarshalers) {
-		values := mediaContent.DefaultHeaders().Values(CanonicalContentTypeHeader)
-		for i := range values {
-			value := values[i]
-			if mediaType == value {
-				return mediaContent.Unmarshal(r.bytes, fill)
-			}
+		if slices.Contains(mediaContent.DefaultHeaders().Values(CanonicalContentTypeHeader), mediaType) {
+			return mediaContent
 		}
 	}
+	return nil
+}
 
-	// RFC 6838 structured syntax suffix fallback:
-	// "application/problem+json" → JSON, "application/atom+xml" → XML, etc.
-	if _, suffix, ok := strings.Cut(mediaType, "+"); ok {
-		switch suffix {
-		case "json":
-			if m, found := readMarshalers[JSON]; found {
-				return m.Unmarshal(r.bytes, fill)
-			}
-		case "xml":
-			if m, found := readMarshalers[XML]; found {
-				return m.Unmarshal(r.bytes, fill)
-			}
+// findUnmarshalerBySuffix implements the RFC 6838 structured syntax
+// suffix fallback (e.g. "application/problem+json" → JSON).
+func findUnmarshalerBySuffix(mediaType string) MediaUnmarshaler {
+	_, suffix, ok := strings.Cut(mediaType, "+")
+	if !ok {
+		return nil
+	}
+	switch suffix {
+	case "json":
+		if m, found := readMarshalers[JSON]; found {
+			return m
+		}
+	case "xml":
+		if m, found := readMarshalers[XML]; found {
+			return m
 		}
 	}
-
-	return fmt.Errorf("unmarshal fail, unsupported content type: %s", contentType)
+	return nil
 }
 
 // Deserialize is a generic helper that deserializes the response body into a new value of type T.

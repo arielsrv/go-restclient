@@ -7,5 +7,8 @@ import (
 )
 
 // registerMetrics is a placeholder for cache metrics registration.
-func registerMetrics(cache *ristretto.Cache[string, weak.Pointer[Response]]) {
+// It is intentionally empty: metrics integration is opt-in and will be
+// wired by consumers (e.g. Prometheus collectors) via the cache instance.
+func registerMetrics(_ *ristretto.Cache[string, weak.Pointer[Response]]) {
+	// Intentionally left blank — see doc comment above.
 }
