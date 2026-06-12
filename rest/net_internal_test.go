@@ -377,3 +377,40 @@ func Test_newRequest_MockEnvWithNilServerURL(t *testing.T) {
 	resp := c.newRequest(t.Context(), http.MethodGet, "/", nil)
 	require.NotNil(t, resp)
 }
+
+// Test_lookupContentNegotiationHeaders_Unsupported covers the (nil, nil) early
+// return when ContentType is not in the contentMarshalers map.
+func Test_lookupContentNegotiationHeaders_Unsupported(t *testing.T) {
+	c := &Client{ContentType: ContentType(999)}
+	accept, ct := c.lookupContentNegotiationHeaders()
+	require.Nil(t, accept)
+	require.Nil(t, ct)
+}
+
+// Test_applyContentNegotiation_Unsupported covers the early return in
+// applyContentNegotiation when no Accept header can be resolved.
+func Test_applyContentNegotiation_Unsupported(t *testing.T) {
+	c := &Client{ContentType: ContentType(999)}
+	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	require.NoError(t, err)
+	c.applyContentNegotiation(req)
+	require.Empty(t, req.Header.Get(CanonicalAcceptHeader))
+	require.Empty(t, req.Header.Get(CanonicalContentTypeHeader))
+}
+
+// Test_precomputeCachedHeaders_Unsupported covers the early return when the
+// configured ContentType has no marshaler registered.
+func Test_precomputeCachedHeaders_Unsupported(t *testing.T) {
+	c := &Client{ContentType: ContentType(999), UserAgent: "ua"}
+	c.precomputeCachedHeaders()
+	require.Equal(t, []string{"ua"}, c.cachedUserAgentHdr)
+	require.Nil(t, c.cachedAcceptHdr)
+	require.Nil(t, c.cachedContentTypeHdr)
+}
+
+// Test_findUnmarshalerBySuffix_UnknownSuffix covers the final `return nil`
+// branch in findUnmarshalerBySuffix when the suffix isn't json or xml.
+func Test_findUnmarshalerBySuffix_UnknownSuffix(t *testing.T) {
+	require.Nil(t, findUnmarshalerBySuffix("application/something+yaml"))
+	require.Nil(t, findUnmarshalerBySuffix("text/plain"))
+}
