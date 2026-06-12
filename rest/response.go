@@ -234,7 +234,7 @@ func (r *Response) Debug() string {
 		strReq = "Request is nil"
 	} else if r.Request == nil {
 		strReq = "Request is nil"
-	} else if req, err := httputil.DumpRequest(r.Request, true); err != nil {
+	} else if req, err := httputil.DumpRequest(r.Request, true); err != nil { // NOSONAR: opt-in debug helper; callers control invocation
 		strReq = err.Error()
 	} else {
 		strReq = string(req)
@@ -242,7 +242,7 @@ func (r *Response) Debug() string {
 
 	if r.Response == nil {
 		strResp = respIsNil
-	} else if resp, err := httputil.DumpResponse(r.Response, false); err != nil {
+	} else if resp, err := httputil.DumpResponse(r.Response, false); err != nil { // NOSONAR: opt-in debug helper; body excluded
 		strResp = err.Error()
 	} else {
 		strResp = string(resp)

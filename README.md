@@ -8,6 +8,15 @@
 [![Lint Status](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml/badge.svg)](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Coverage](https://img.shields.io/badge/Coverage-98.1%25-brightgreen)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=bugs)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=arielsrv_go-restclient&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=arielsrv_go-restclient)
 
 ---
 

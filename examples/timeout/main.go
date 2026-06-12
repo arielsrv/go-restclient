@@ -11,7 +11,7 @@ import (
 func main() {
 	client := &rest.Client{
 		Name:    "timeout-client",
-		BaseURL: "https://10.255.255.1", // IP no enrutable para forzar timeout
+		BaseURL: "https://10.255.255.1", // NOSONAR: non-routable IP intentionally used to force a connection timeout in this example
 		Timeout: 1 * time.Second,
 	}
 
