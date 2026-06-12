@@ -31,7 +31,7 @@ jobs:
         # --require-hashes forces use of the locked digests in docs/requirements.txt
         # --only-binary :all: prevents arbitrary setup.py execution from sdist tarballs
         # docs/requirements.txt is generated via: pip-compile --generate-hashes docs/requirements.in
-        run: pip install --require-hashes --only-binary :all: -r docs/requirements.txt
+        run: "pip install --require-hashes --only-binary :all: -r docs/requirements.txt"
 
       - name: Deploy to GitHub Pages
         run: mkdocs gh-deploy --force
