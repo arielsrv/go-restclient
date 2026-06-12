@@ -18,6 +18,8 @@ cloud.google.com/go/pubsub v1.3.1 h1:ukjixP1wl0LpnZ6LWtZJ0mX5tBmjp1f8Sqer8Z2OMUU
 cloud.google.com/go/storage v1.10.0 h1:STgFzyU5/8miMl0//zKh2aQeTyeaUH3WN9bSUiJ09bA=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9 h1:VpgP7xuJadIUuKccphEpTJnWhS2jkQyMt6Y7pJCD7fY=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802 h1:1BDTz0u9nC3//pOCMdNH+CiXJVYJh5UQNCOBG7jbELc=
+github.com/LandonTClipp/example-go-repo v0.1.2 h1:R4kP4EcCPuRy4l8iV8Bt1fZwLfbG7kZv7FEn+c7HxME=
+github.com/LandonTClipp/example-go-repo v0.1.2/go.mod h1:aKxggDcybo4AWkfCrBXcgBGqAxP+G+KT4OULG0bTQvQ=
 github.com/MirrexOne/unqueryvet v1.4.0 h1:6KAkqqW2KUnkl9Z0VuTphC3IXRPoFqEkJEtyxxHj5eQ=
 github.com/MirrexOne/unqueryvet v1.4.0/go.mod h1:IWwCwMQlSWjAIteW0t+28Q5vouyktfujzYznSIWiuOg=
 github.com/alecthomas/chroma/v2 v2.21.1 h1:FaSDrp6N+3pphkNKU6HPCiYLgm8dbe5UXIXcoBhZSWA=

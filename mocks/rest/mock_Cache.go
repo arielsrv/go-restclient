@@ -73,7 +73,7 @@ type MockCache_Get_Call[K rest.Key, V any] struct {
 
 // Get is a helper method to define mock.On call
 //   - key K
-func (_e *MockCache_Expecter[K, V]) Get(key interface{}) *MockCache_Get_Call[K, V] {
+func (_e *MockCache_Expecter[K, V]) Get(key any) *MockCache_Get_Call[K, V] {
 	return &MockCache_Get_Call[K, V]{Call: _e.mock.On("Get", key)}
 }
 
@@ -126,7 +126,7 @@ type MockCache_Set_Call[K rest.Key, V any] struct {
 //   - key K
 //   - value V
 //   - cost int64
-func (_e *MockCache_Expecter[K, V]) Set(key interface{}, value interface{}, cost interface{}) *MockCache_Set_Call[K, V] {
+func (_e *MockCache_Expecter[K, V]) Set(key any, value any, cost any) *MockCache_Set_Call[K, V] {
 	return &MockCache_Set_Call[K, V]{Call: _e.mock.On("Set", key, value, cost)}
 }
 
@@ -190,7 +190,7 @@ type MockCache_SetWithTTL_Call[K rest.Key, V any] struct {
 //   - value V
 //   - cost int64
 //   - ttl time.Duration
-func (_e *MockCache_Expecter[K, V]) SetWithTTL(key interface{}, value interface{}, cost interface{}, ttl interface{}) *MockCache_SetWithTTL_Call[K, V] {
+func (_e *MockCache_Expecter[K, V]) SetWithTTL(key any, value any, cost any, ttl any) *MockCache_SetWithTTL_Call[K, V] {
 	return &MockCache_SetWithTTL_Call[K, V]{Call: _e.mock.On("SetWithTTL", key, value, cost, ttl)}
 }
 

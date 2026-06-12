@@ -73,7 +73,7 @@ type MockHTTPExporter_Do_Call struct {
 
 // Do is a helper method to define mock.On call
 //   - request *http.Request
-func (_e *MockHTTPExporter_Expecter) Do(request interface{}) *MockHTTPExporter_Do_Call {
+func (_e *MockHTTPExporter_Expecter) Do(request any) *MockHTTPExporter_Do_Call {
 	return &MockHTTPExporter_Do_Call{Call: _e.mock.On("Do", request)}
 }
 
@@ -126,7 +126,7 @@ type MockHTTPExporter_RawClient_Call struct {
 
 // RawClient is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockHTTPExporter_Expecter) RawClient(ctx interface{}) *MockHTTPExporter_RawClient_Call {
+func (_e *MockHTTPExporter_Expecter) RawClient(ctx any) *MockHTTPExporter_RawClient_Call {
 	return &MockHTTPExporter_RawClient_Call{Call: _e.mock.On("RawClient", ctx)}
 }
 

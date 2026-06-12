@@ -42,11 +42,11 @@ func (_m *MockAsyncHTTPClient) EXPECT() *MockAsyncHTTPClient_Expecter {
 // AsyncDelete provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncDelete(url string, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, url)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -74,9 +74,9 @@ type MockAsyncHTTPClient_AsyncDelete_Call struct {
 // AsyncDelete is a helper method to define mock.On call
 //   - url string
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncDelete(url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncDelete_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncDelete(url any, headers ...any) *MockAsyncHTTPClient_AsyncDelete_Call {
 	return &MockAsyncHTTPClient_AsyncDelete_Call{Call: _e.mock.On("AsyncDelete",
-		append([]interface{}{url}, headers...)...)}
+		append([]any{url}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncDelete_Call) Run(run func(url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncDelete_Call {
@@ -114,11 +114,11 @@ func (_c *MockAsyncHTTPClient_AsyncDelete_Call) RunAndReturn(run func(url string
 // AsyncDeleteWithContext provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncDeleteWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, ctx, url)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -147,9 +147,9 @@ type MockAsyncHTTPClient_AsyncDeleteWithContext_Call struct {
 //   - ctx context.Context
 //   - url string
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncDeleteWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncDeleteWithContext_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncDeleteWithContext(ctx any, url any, headers ...any) *MockAsyncHTTPClient_AsyncDeleteWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncDeleteWithContext_Call{Call: _e.mock.On("AsyncDeleteWithContext",
-		append([]interface{}{ctx, url}, headers...)...)}
+		append([]any{ctx, url}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncDeleteWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncDeleteWithContext_Call {
@@ -192,11 +192,11 @@ func (_c *MockAsyncHTTPClient_AsyncDeleteWithContext_Call) RunAndReturn(run func
 // AsyncGet provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncGet(url string, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, url)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -224,9 +224,9 @@ type MockAsyncHTTPClient_AsyncGet_Call struct {
 // AsyncGet is a helper method to define mock.On call
 //   - url string
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncGet(url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncGet_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncGet(url any, headers ...any) *MockAsyncHTTPClient_AsyncGet_Call {
 	return &MockAsyncHTTPClient_AsyncGet_Call{Call: _e.mock.On("AsyncGet",
-		append([]interface{}{url}, headers...)...)}
+		append([]any{url}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncGet_Call) Run(run func(url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncGet_Call {
@@ -264,11 +264,11 @@ func (_c *MockAsyncHTTPClient_AsyncGet_Call) RunAndReturn(run func(url string, h
 // AsyncGetWithContext provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncGetWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, ctx, url)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -297,9 +297,9 @@ type MockAsyncHTTPClient_AsyncGetWithContext_Call struct {
 //   - ctx context.Context
 //   - url string
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncGetWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncGetWithContext_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncGetWithContext(ctx any, url any, headers ...any) *MockAsyncHTTPClient_AsyncGetWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncGetWithContext_Call{Call: _e.mock.On("AsyncGetWithContext",
-		append([]interface{}{ctx, url}, headers...)...)}
+		append([]any{ctx, url}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncGetWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncGetWithContext_Call {
@@ -342,11 +342,11 @@ func (_c *MockAsyncHTTPClient_AsyncGetWithContext_Call) RunAndReturn(run func(ct
 // AsyncHead provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncHead(url string, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, url)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -374,9 +374,9 @@ type MockAsyncHTTPClient_AsyncHead_Call struct {
 // AsyncHead is a helper method to define mock.On call
 //   - url string
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncHead(url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncHead_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncHead(url any, headers ...any) *MockAsyncHTTPClient_AsyncHead_Call {
 	return &MockAsyncHTTPClient_AsyncHead_Call{Call: _e.mock.On("AsyncHead",
-		append([]interface{}{url}, headers...)...)}
+		append([]any{url}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncHead_Call) Run(run func(url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncHead_Call {
@@ -414,11 +414,11 @@ func (_c *MockAsyncHTTPClient_AsyncHead_Call) RunAndReturn(run func(url string, 
 // AsyncHeadWithContext provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncHeadWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, ctx, url)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -447,9 +447,9 @@ type MockAsyncHTTPClient_AsyncHeadWithContext_Call struct {
 //   - ctx context.Context
 //   - url string
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncHeadWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncHeadWithContext_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncHeadWithContext(ctx any, url any, headers ...any) *MockAsyncHTTPClient_AsyncHeadWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncHeadWithContext_Call{Call: _e.mock.On("AsyncHeadWithContext",
-		append([]interface{}{ctx, url}, headers...)...)}
+		append([]any{ctx, url}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncHeadWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncHeadWithContext_Call {
@@ -492,11 +492,11 @@ func (_c *MockAsyncHTTPClient_AsyncHeadWithContext_Call) RunAndReturn(run func(c
 // AsyncOptions provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncOptions(url string, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, url)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -524,9 +524,9 @@ type MockAsyncHTTPClient_AsyncOptions_Call struct {
 // AsyncOptions is a helper method to define mock.On call
 //   - url string
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncOptions(url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncOptions_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncOptions(url any, headers ...any) *MockAsyncHTTPClient_AsyncOptions_Call {
 	return &MockAsyncHTTPClient_AsyncOptions_Call{Call: _e.mock.On("AsyncOptions",
-		append([]interface{}{url}, headers...)...)}
+		append([]any{url}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncOptions_Call) Run(run func(url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncOptions_Call {
@@ -564,11 +564,11 @@ func (_c *MockAsyncHTTPClient_AsyncOptions_Call) RunAndReturn(run func(url strin
 // AsyncOptionsWithContext provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncOptionsWithContext(ctx context.Context, url string, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, ctx, url)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -597,9 +597,9 @@ type MockAsyncHTTPClient_AsyncOptionsWithContext_Call struct {
 //   - ctx context.Context
 //   - url string
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncOptionsWithContext(ctx interface{}, url interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncOptionsWithContext_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncOptionsWithContext(ctx any, url any, headers ...any) *MockAsyncHTTPClient_AsyncOptionsWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncOptionsWithContext_Call{Call: _e.mock.On("AsyncOptionsWithContext",
-		append([]interface{}{ctx, url}, headers...)...)}
+		append([]any{ctx, url}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncOptionsWithContext_Call) Run(run func(ctx context.Context, url string, headers ...http.Header)) *MockAsyncHTTPClient_AsyncOptionsWithContext_Call {
@@ -642,11 +642,11 @@ func (_c *MockAsyncHTTPClient_AsyncOptionsWithContext_Call) RunAndReturn(run fun
 // AsyncPatch provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncPatch(url string, body any, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, url, body)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -675,9 +675,9 @@ type MockAsyncHTTPClient_AsyncPatch_Call struct {
 //   - url string
 //   - body any
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncPatch(url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPatch_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncPatch(url any, body any, headers ...any) *MockAsyncHTTPClient_AsyncPatch_Call {
 	return &MockAsyncHTTPClient_AsyncPatch_Call{Call: _e.mock.On("AsyncPatch",
-		append([]interface{}{url, body}, headers...)...)}
+		append([]any{url, body}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncPatch_Call) Run(run func(url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPatch_Call {
@@ -720,11 +720,11 @@ func (_c *MockAsyncHTTPClient_AsyncPatch_Call) RunAndReturn(run func(url string,
 // AsyncPatchWithContext provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncPatchWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, ctx, url, body)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -754,9 +754,9 @@ type MockAsyncHTTPClient_AsyncPatchWithContext_Call struct {
 //   - url string
 //   - body any
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncPatchWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPatchWithContext_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncPatchWithContext(ctx any, url any, body any, headers ...any) *MockAsyncHTTPClient_AsyncPatchWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncPatchWithContext_Call{Call: _e.mock.On("AsyncPatchWithContext",
-		append([]interface{}{ctx, url, body}, headers...)...)}
+		append([]any{ctx, url, body}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncPatchWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPatchWithContext_Call {
@@ -804,11 +804,11 @@ func (_c *MockAsyncHTTPClient_AsyncPatchWithContext_Call) RunAndReturn(run func(
 // AsyncPost provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncPost(url string, body any, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, url, body)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -837,9 +837,9 @@ type MockAsyncHTTPClient_AsyncPost_Call struct {
 //   - url string
 //   - body any
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncPost(url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPost_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncPost(url any, body any, headers ...any) *MockAsyncHTTPClient_AsyncPost_Call {
 	return &MockAsyncHTTPClient_AsyncPost_Call{Call: _e.mock.On("AsyncPost",
-		append([]interface{}{url, body}, headers...)...)}
+		append([]any{url, body}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncPost_Call) Run(run func(url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPost_Call {
@@ -882,11 +882,11 @@ func (_c *MockAsyncHTTPClient_AsyncPost_Call) RunAndReturn(run func(url string, 
 // AsyncPostWithContext provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncPostWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, ctx, url, body)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -916,9 +916,9 @@ type MockAsyncHTTPClient_AsyncPostWithContext_Call struct {
 //   - url string
 //   - body any
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncPostWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPostWithContext_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncPostWithContext(ctx any, url any, body any, headers ...any) *MockAsyncHTTPClient_AsyncPostWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncPostWithContext_Call{Call: _e.mock.On("AsyncPostWithContext",
-		append([]interface{}{ctx, url, body}, headers...)...)}
+		append([]any{ctx, url, body}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncPostWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPostWithContext_Call {
@@ -966,11 +966,11 @@ func (_c *MockAsyncHTTPClient_AsyncPostWithContext_Call) RunAndReturn(run func(c
 // AsyncPut provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncPut(url string, body any, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, url, body)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -999,9 +999,9 @@ type MockAsyncHTTPClient_AsyncPut_Call struct {
 //   - url string
 //   - body any
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncPut(url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPut_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncPut(url any, body any, headers ...any) *MockAsyncHTTPClient_AsyncPut_Call {
 	return &MockAsyncHTTPClient_AsyncPut_Call{Call: _e.mock.On("AsyncPut",
-		append([]interface{}{url, body}, headers...)...)}
+		append([]any{url, body}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncPut_Call) Run(run func(url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPut_Call {
@@ -1044,11 +1044,11 @@ func (_c *MockAsyncHTTPClient_AsyncPut_Call) RunAndReturn(run func(url string, b
 // AsyncPutWithContext provides a mock function for the type MockAsyncHTTPClient
 func (_mock *MockAsyncHTTPClient) AsyncPutWithContext(ctx context.Context, url string, body any, headers ...http.Header) <-chan *rest.Response {
 	// http.Header
-	_va := make([]interface{}, len(headers))
+	_va := make([]any, len(headers))
 	for _i := range headers {
 		_va[_i] = headers[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, ctx, url, body)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
@@ -1078,9 +1078,9 @@ type MockAsyncHTTPClient_AsyncPutWithContext_Call struct {
 //   - url string
 //   - body any
 //   - headers ...http.Header
-func (_e *MockAsyncHTTPClient_Expecter) AsyncPutWithContext(ctx interface{}, url interface{}, body interface{}, headers ...interface{}) *MockAsyncHTTPClient_AsyncPutWithContext_Call {
+func (_e *MockAsyncHTTPClient_Expecter) AsyncPutWithContext(ctx any, url any, body any, headers ...any) *MockAsyncHTTPClient_AsyncPutWithContext_Call {
 	return &MockAsyncHTTPClient_AsyncPutWithContext_Call{Call: _e.mock.On("AsyncPutWithContext",
-		append([]interface{}{ctx, url, body}, headers...)...)}
+		append([]any{ctx, url, body}, headers...)...)}
 }
 
 func (_c *MockAsyncHTTPClient_AsyncPutWithContext_Call) Run(run func(ctx context.Context, url string, body any, headers ...http.Header)) *MockAsyncHTTPClient_AsyncPutWithContext_Call {

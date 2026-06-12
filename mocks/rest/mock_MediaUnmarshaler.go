@@ -108,7 +108,7 @@ type MockMediaUnmarshaler_Unmarshal_Call struct {
 // Unmarshal is a helper method to define mock.On call
 //   - data []byte
 //   - v any
-func (_e *MockMediaUnmarshaler_Expecter) Unmarshal(data interface{}, v interface{}) *MockMediaUnmarshaler_Unmarshal_Call {
+func (_e *MockMediaUnmarshaler_Expecter) Unmarshal(data any, v any) *MockMediaUnmarshaler_Unmarshal_Call {
 	return &MockMediaUnmarshaler_Unmarshal_Call{Call: _e.mock.On("Unmarshal", data, v)}
 }
 
