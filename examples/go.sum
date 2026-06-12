@@ -1,5 +1,5 @@
-github.com/arielsrv/go-restclient v1.2.2 h1:Unoz6bwMJpBBcQdFJhK6vt9wVA239sQh01y+0Bb9vWA=
-github.com/arielsrv/go-restclient v1.2.2/go.mod h1:6f3TXDzs5Fkoi9mwooE05dHFOK2oqBnIQpQv/Yr3WHw=
+github.com/arielsrv/go-restclient v1.2.4 h1:teZSYLUpsSIT0VpzaRbTVcw8GUveux38NAIQwxgpEcA=
+github.com/arielsrv/go-restclient v1.2.4/go.mod h1:BnrdiMGAdu3qqYG8QjMZDa7xG1w4Z6gDhbWX1ZJBbg0=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
