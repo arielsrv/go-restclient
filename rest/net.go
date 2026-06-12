@@ -132,14 +132,9 @@ func (r *Client) newRequest(
 	// Inline checkMockup: on the hot path (mock disabled) this is a single atomic load —
 	// no function call, no string copy.
 	cacheURL := apiURL
-	if *mockUpEnv && mockServerURL != nil {
-		rURL, mErr := url.Parse(apiURL)
-		if mErr != nil {
-			return &Response{Err: mErr}
-		}
-		rURL.Scheme = mockServerURL.Scheme
-		rURL.Host = mockServerURL.Host
-		apiURL = rURL.String()
+	apiURL, err = applyMockServerURL(apiURL)
+	if err != nil {
+		return &Response{Err: err}
 	}
 
 	// Enable trace if enabled.
@@ -184,6 +179,22 @@ func (r *Client) newRequest(
 	}
 
 	return response
+}
+
+// applyMockServerURL rewrites apiURL to point to the active mockup server when
+// mock mode is enabled. When mock mode is disabled or the mock server URL has
+// not been initialized, apiURL is returned unchanged.
+func applyMockServerURL(apiURL string) (string, error) {
+	if !*mockUpEnv || mockServerURL == nil {
+		return apiURL, nil
+	}
+	rURL, err := url.Parse(apiURL)
+	if err != nil {
+		return "", err
+	}
+	rURL.Scheme = mockServerURL.Scheme
+	rURL.Host = mockServerURL.Host
+	return rURL.String(), nil
 }
 
 // isReadVerb reports whether verb is a cache-eligible HTTP read method.
