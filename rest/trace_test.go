@@ -40,22 +40,42 @@ func newTracerHarness(t *testing.T) (*tracetest.SpanRecorder, func()) {
 	}
 }
 
+// newTracedServer spins up an httptest server invoking handler and returns
+// a rest.Client wired to it with EnableTrace=enableTrace.
+func newTracedServer(t *testing.T, enableTrace bool, handler http.HandlerFunc) (*rest.Client, func()) {
+	t.Helper()
+	srv := httptest.NewServer(handler)
+	client := &rest.Client{
+		BaseURL:     srv.URL,
+		ContentType: rest.JSON,
+		EnableTrace: enableTrace,
+	}
+	return client, srv.Close
+}
+
+// findSpanByName returns the first span whose Name equals name, or nil.
+func findSpanByName(spans []sdktrace.ReadOnlySpan, name string) sdktrace.ReadOnlySpan {
+	for _, s := range spans {
+		if s.Name() == name {
+			return s
+		}
+	}
+	return nil
+}
+
+// statusOKHandler is a tiny [http.HandlerFunc] that always responds 200.
+func statusOKHandler(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
 // TestEnableTrace_EmitsHTTPSpan verifies that with EnableTrace=true otelhttp wraps
 // the transport and emits a span for every outbound request.
 func TestEnableTrace_EmitsHTTPSpan(t *testing.T) {
 	rec, cleanup := newTracerHarness(t)
 	defer cleanup()
 
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer srv.Close()
-
-	client := &rest.Client{
-		BaseURL:     srv.URL,
-		ContentType: rest.JSON,
-		EnableTrace: true,
-	}
+	client, closeSrv := newTracedServer(t, true, statusOKHandler)
+	defer closeSrv()
 
 	resp := client.GetWithContext(context.Background(), "/ping")
 	require.NoError(t, resp.Err)
@@ -66,13 +86,7 @@ func TestEnableTrace_EmitsHTTPSpan(t *testing.T) {
 
 	// The otelhttp transport span should exist and carry the configured
 	// span-name formatter output ("METHOD /path").
-	var httpSpan sdktrace.ReadOnlySpan
-	for _, s := range spans {
-		if strings.HasPrefix(s.Name(), http.MethodGet+" ") {
-			httpSpan = s
-			break
-		}
-	}
+	httpSpan := findSpanByName(spans, "GET /ping")
 	require.NotNil(t, httpSpan, "expected an HTTP span named with METHOD + path, got: %v", spanNames(spans))
 	assert.Equal(t, "GET /ping", httpSpan.Name())
 }
@@ -83,16 +97,8 @@ func TestEnableTrace_HttptraceSubSpansAreChildren(t *testing.T) {
 	rec, cleanup := newTracerHarness(t)
 	defer cleanup()
 
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer srv.Close()
-
-	client := &rest.Client{
-		BaseURL:     srv.URL,
-		ContentType: rest.JSON,
-		EnableTrace: true,
-	}
+	client, closeSrv := newTracedServer(t, true, statusOKHandler)
+	defer closeSrv()
 
 	resp := client.GetWithContext(context.Background(), "/x")
 	require.NoError(t, resp.Err)
@@ -100,14 +106,7 @@ func TestEnableTrace_HttptraceSubSpansAreChildren(t *testing.T) {
 	spans := rec.Ended()
 	require.NotEmpty(t, spans)
 
-	// Find the HTTP span.
-	var httpSpan sdktrace.ReadOnlySpan
-	for _, s := range spans {
-		if s.Name() == "GET /x" {
-			httpSpan = s
-			break
-		}
-	}
+	httpSpan := findSpanByName(spans, "GET /x")
 	require.NotNil(t, httpSpan, "missing HTTP span; got %v", spanNames(spans))
 
 	httpSpanID := httpSpan.SpanContext().SpanID()
@@ -144,17 +143,11 @@ func TestEnableTrace_PropagatesParentContext(t *testing.T) {
 	defer cleanup()
 
 	var gotTraceparent string
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	client, closeSrv := newTracedServer(t, true, func(w http.ResponseWriter, r *http.Request) {
 		gotTraceparent = r.Header.Get("Traceparent")
 		w.WriteHeader(http.StatusOK)
-	}))
-	defer srv.Close()
-
-	client := &rest.Client{
-		BaseURL:     srv.URL,
-		ContentType: rest.JSON,
-		EnableTrace: true,
-	}
+	})
+	defer closeSrv()
 
 	tracer := otel.Tracer("test")
 	ctx, parentSpan := tracer.Start(context.Background(), "caller")
@@ -168,13 +161,7 @@ func TestEnableTrace_PropagatesParentContext(t *testing.T) {
 	require.NotEmpty(t, gotTraceparent, "traceparent header must be propagated")
 
 	spans := rec.Ended()
-	var httpSpan sdktrace.ReadOnlySpan
-	for _, s := range spans {
-		if s.Name() == "GET /p" {
-			httpSpan = s
-			break
-		}
-	}
+	httpSpan := findSpanByName(spans, "GET /p")
 	require.NotNil(t, httpSpan, "missing HTTP span; got %v", spanNames(spans))
 
 	assert.Equal(t, parentSpan.SpanContext().TraceID(), httpSpan.SpanContext().TraceID(),
@@ -189,18 +176,12 @@ func TestDisableTrace_NoSpansEmitted(t *testing.T) {
 	rec, cleanup := newTracerHarness(t)
 	defer cleanup()
 
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	client, closeSrv := newTracedServer(t, false, func(w http.ResponseWriter, r *http.Request) {
 		assert.Empty(t, r.Header.Get("Traceparent"),
 			"traceparent must not be injected when EnableTrace=false")
 		w.WriteHeader(http.StatusOK)
-	}))
-	defer srv.Close()
-
-	client := &rest.Client{
-		BaseURL:     srv.URL,
-		ContentType: rest.JSON,
-		EnableTrace: false,
-	}
+	})
+	defer closeSrv()
 
 	resp := client.Get("/nope")
 	require.NoError(t, resp.Err)
@@ -214,28 +195,16 @@ func TestEnableTrace_SpanRecordsHTTPError(t *testing.T) {
 	rec, cleanup := newTracerHarness(t)
 	defer cleanup()
 
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	client, closeSrv := newTracedServer(t, true, func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
-	}))
-	defer srv.Close()
-
-	client := &rest.Client{
-		BaseURL:     srv.URL,
-		ContentType: rest.JSON,
-		EnableTrace: true,
-	}
+	})
+	defer closeSrv()
 
 	resp := client.GetWithContext(context.Background(), "/boom")
 	require.NoError(t, resp.Err)
 	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 
-	var httpSpan sdktrace.ReadOnlySpan
-	for _, s := range rec.Ended() {
-		if s.Name() == "GET /boom" {
-			httpSpan = s
-			break
-		}
-	}
+	httpSpan := findSpanByName(rec.Ended(), "GET /boom")
 	require.NotNil(t, httpSpan)
 
 	// otelhttp records http.response.status_code (semconv) as an int attribute.
