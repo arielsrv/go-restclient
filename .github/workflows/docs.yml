@@ -22,10 +22,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          # Pinned to match the Python version used to compile docs/requirements.txt
+          # (regenerate with: pip-compile --generate-hashes --strip-extras
+          #                                docs/requirements.in)
+          python-version: '3.13'
 
       - name: Install MkDocs and theme
-        run: pip install mkdocs mkdocs-material
+        # --require-hashes forces use of the locked digests in docs/requirements.txt
+        # --only-binary :all: prevents arbitrary setup.py execution from sdist tarballs
+        # docs/requirements.txt is generated via: pip-compile --generate-hashes docs/requirements.in
+        run: pip install --require-hashes --only-binary :all: -r docs/requirements.txt
 
       - name: Deploy to GitHub Pages
         run: mkdocs gh-deploy --force
