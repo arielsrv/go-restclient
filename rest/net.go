@@ -157,7 +157,7 @@ func (r *Client) newRequest(
 
 	r.setParams(request, cacheResponse, cacheURL, headers...)
 
-	httpResponse, err := httpClient.Do(request)
+	httpResponse, err := httpClient.Do(request) //nolint:bodyclose // closed via deferred Body.Close() below
 	if err != nil {
 		return &Response{Err: err}
 	}
