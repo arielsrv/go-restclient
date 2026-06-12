@@ -7,7 +7,7 @@
 [![Build Status](https://github.com/arielsrv/go-restclient/actions/workflows/go.yml/badge.svg)](https://github.com/arielsrv/go-restclient/actions/workflows/go.yml)
 [![Lint Status](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml/badge.svg)](https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Coverage](https://img.shields.io/badge/Coverage-98.8%25-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-98.1%25-brightgreen)
 
 ---
 
