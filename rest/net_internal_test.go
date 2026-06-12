@@ -294,3 +294,86 @@ func Test_setRespReader_gzipCloseError(t *testing.T) {
 	// Read all bytes; this exercises the Close() defer path.
 	_, _ = io.ReadAll(reader)
 }
+
+// nilRespRoundTripper returns (nil, nil) to exercise the nil-response guard
+// in newRequest.
+type nilRespRoundTripper struct{}
+
+func (nilRespRoundTripper) RoundTrip(*http.Request) (*http.Response, error) {
+	return nil, nil //nolint:nilnil // intentional for test
+}
+
+func Test_newRequest_NilHTTPResponse(t *testing.T) {
+	c := &Client{
+		BaseURL: "http://example.com",
+		CustomPool: &CustomPool{
+			Transport: nilRespRoundTripper{},
+		},
+	}
+	resp := c.newRequest(t.Context(), http.MethodGet, "/", nil)
+	require.NotNil(t, resp)
+	// http.Client converts (nil, nil) from a RoundTripper into an error before
+	// our nil-check is reached, but the request must still return a non-nil
+	// Response carrying the error rather than panicking.
+	require.Error(t, resp.Err)
+}
+
+func Test_lookupCache_NilResourceCache(t *testing.T) {
+	saved := resourceCache
+	resourceCache = nil
+	defer func() { resourceCache = saved }()
+
+	c := &Client{EnableCache: true}
+	value, hit := c.lookupCache("http://example.com", true)
+	require.Nil(t, value)
+	require.False(t, hit)
+}
+
+func Test_storeInCache_NilResourceCache(t *testing.T) {
+	saved := resourceCache
+	resourceCache = nil
+	defer func() { resourceCache = saved }()
+
+	c := &Client{}
+	resp := &Response{Response: &http.Response{Header: http.Header{}}}
+	resp.Header.Set(CacheControlHeader, "max-age=60")
+	// Must not panic with nil resourceCache.
+	c.storeInCache("http://example.com", resp, nil)
+}
+
+func Test_newRequest_304WithoutCachedResponse(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotModified)
+	}))
+	defer srv.Close()
+
+	c := &Client{BaseURL: srv.URL}
+	// No cached response and no revalidation headers: a 304 should be
+	// converted into a real response (not a nil dereference).
+	resp := c.newRequest(t.Context(), http.MethodGet, "/", nil)
+	require.NotNil(t, resp)
+	require.NoError(t, resp.Err)
+	require.Equal(t, http.StatusNotModified, resp.StatusCode)
+}
+
+func Test_newRequest_MockEnvWithNilServerURL(t *testing.T) {
+	savedFlag := *mockUpEnv
+	savedURL := mockServerURL
+	*mockUpEnv = true
+	mockServerURL = nil
+	defer func() {
+		*mockUpEnv = savedFlag
+		mockServerURL = savedURL
+	}()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	c := &Client{BaseURL: srv.URL}
+	// Even with mock enabled, a nil mockServerURL must not panic; the request
+	// falls through to the real URL.
+	resp := c.newRequest(t.Context(), http.MethodGet, "/", nil)
+	require.NotNil(t, resp)
+}

@@ -158,11 +158,11 @@ func (r *Client) newRequest(
 	r.setParams(request, cacheResponse, cacheURL, headers...)
 
 	httpResponse, err := httpClient.Do(request) //nolint:bodyclose // closed via deferred Body.Close() below
-	if err != nil {
+	if err != nil || httpResponse == nil {
+		if err == nil {
+			err = errors.New("nil http response")
+		}
 		return &Response{Err: err}
-	}
-	if httpResponse == nil {
-		return &Response{Err: errors.New("nil http response")}
 	}
 	defer func(Body io.ReadCloser) { _ = Body.Close() }(httpResponse.Body)
 
