@@ -513,38 +513,36 @@ func (r *Client) getDialContext() func(ctx context.Context, network string, addr
 	return (&net.Dialer{Timeout: r.getConnectionTimeout()}).DialContext
 }
 
+// buildTimeout.
+func (r *Client) buildTimeout(disabledTimeout bool, timeout time.Duration, defaultTimeout time.Duration) time.Duration {
+	switch {
+	case disabledTimeout:
+		return 0
+	case timeout > 0:
+		return timeout
+	default:
+		return defaultTimeout
+	}
+}
+
 // getRequestTimeout returns the configured request timeout duration.
 // It considers the DisableTimeout flag and the Timeout setting, falling back to DefaultTimeout if needed.
 // Returns:
 //   - 0 if timeouts are disabled
-//   - r.Timeout if it's greater than 0
+//   - Timeout if it's greater than 0
 //   - DefaultTimeout otherwise
 func (r *Client) getRequestTimeout() time.Duration {
-	switch {
-	case r.DisableTimeout:
-		return 0
-	case r.Timeout > 0:
-		return r.Timeout
-	default:
-		return DefaultTimeout
-	}
+	return r.buildTimeout(r.DisableTimeout, r.Timeout, DefaultTimeout)
 }
 
 // getConnectionTimeout returns the configured connection timeout duration.
 // It considers the DisableTimeout flag and the ConnectTimeout setting, falling back to DefaultConnectTimeout if needed.
 // Returns:
 //   - 0 if timeouts are disabled
-//   - r.ConnectTimeout if it's greater than 0
+//   - ConnectTimeout if it's greater than 0
 //   - DefaultConnectTimeout otherwise
 func (r *Client) getConnectionTimeout() time.Duration {
-	switch {
-	case r.DisableTimeout:
-		return 0
-	case r.ConnectTimeout > 0:
-		return r.ConnectTimeout
-	default:
-		return DefaultConnectTimeout
-	}
+	return r.buildTimeout(r.DisableTimeout, r.ConnectTimeout, DefaultConnectTimeout)
 }
 
 // asyncNewRequest performs an asynchronous HTTP request and returns a channel that will receive the response.

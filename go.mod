@@ -3,7 +3,7 @@ module github.com/arielsrv/go-restclient
 go 1.26.4
 
 require (
-	github.com/dgraph-io/ristretto/v2 v2.4.0
+	github.com/dgraph-io/ristretto/v2 v2.4.1
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.69.0
