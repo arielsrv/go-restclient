@@ -1,9 +1,9 @@
 module github.com/arielsrv/go-restclient
 
-go 1.26.4
+go 1.26.5
 
 require (
-	github.com/dgraph-io/ristretto/v2 v2.4.1
+	github.com/dgraph-io/ristretto/v2 v2.4.2
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.69.0
@@ -254,7 +254,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/nilaway v0.0.0-20260702211033-e66cfc93566b // indirect
+	go.uber.org/nilaway v0.0.0-20260707193443-5c662b71f232 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
