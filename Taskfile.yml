@@ -80,6 +80,25 @@ tasks:
     cmds:
       - go build ./...
 
+  examples:build:
+    dir: examples
+    cmds:
+      - go build ./...
+
+  examples:run:
+    desc: Run every example under ./examples (set EXAMPLE=name to run only one)
+    dir: examples
+    cmds:
+      - |
+        set -e
+        for dir in */; do
+          name="${dir%/}"
+          [ -f "$name/main.go" ] || continue
+          if [ -n "$EXAMPLE" ] && [ "$EXAMPLE" != "$name" ]; then continue; fi
+          echo "=== running example: $name ==="
+          go run "./$name" || echo "!!! example '$name' failed (exit $?)"
+        done
+
   release:
     cmds:
       - task: download
