@@ -80,7 +80,7 @@ require (
 	github.com/dave/dst v0.27.3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/denis-tingaikin/go-header v0.5.0 // indirect
-	github.com/dkorunic/betteralign v0.14.2 // indirect
+	github.com/dkorunic/betteralign v0.14.3 // indirect
 	github.com/dlclark/regexp2 v1.12.0 // indirect
 	github.com/dnephin/pflag v1.0.7 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -253,7 +253,7 @@ require (
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/nilaway v0.0.0-20260717202641-aacdd5a364bf // indirect
+	go.uber.org/nilaway v0.0.0-20260720194628-9fd1b8d7bac8 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20260212183809-81e46e3db34a // indirect
