@@ -1,0 +1,2331 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>go-restclient</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#go-restclient" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="go-restclient" class="md-header__button md-logo" aria-label="go-restclient" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            go-restclient
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="go-restclient" class="md-nav__button md-logo" aria-label="go-restclient" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    go-restclient
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-package-level-default-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the package-level default client
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-a-custom-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using a custom Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#client-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Client Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#http-methods-response-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP Methods &amp; Response Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HTTP Methods &amp; Response Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#synchronous" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronous
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with *Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching-how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching — How It Works
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching — How It Works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caching-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching modes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching modes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mode-1-ttl-cache-control-max-age-or-expires" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 1 — TTL (Cache-Control: max-age or Expires)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mode-2-etag-no-ttl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 2 — ETag (no TTL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mode-3-last-modified-no-ttl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 3 — Last-Modified (no TTL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mode-4-etag-or-last-modified-ttl-combined" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 4 — ETag or Last-Modified + TTL (combined)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-revalidate-flag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The revalidate flag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-decision-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache decision flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Auth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oauth2-client-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OAuth2 Client Credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async Requests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gzip-compression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gzip Compression
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connection-pooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection Pooling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opentelemetry-tracing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenTelemetry Tracing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OpenTelemetry Tracing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#minimal-stdout-setup-for-local-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal stdout setup (for local development)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-otlp-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common OTLP environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rfc-7807-problem-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RFC 7807 Problem Details
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#built-in-mock-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in Mock Server
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Built-in Mock Server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mock-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mock fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simulating-caching-headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulating caching headers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simulating-etag-revalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulating ETag revalidation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-mock-cli-flag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the -mock CLI flag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-mocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing mocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmarks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benchmarks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        License
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-package-level-default-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the package-level default client
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-a-custom-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using a custom Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#client-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Client Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#http-methods-response-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP Methods &amp; Response Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HTTP Methods &amp; Response Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#synchronous" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronous
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with *Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching-how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching — How It Works
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching — How It Works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caching-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching modes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching modes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mode-1-ttl-cache-control-max-age-or-expires" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 1 — TTL (Cache-Control: max-age or Expires)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mode-2-etag-no-ttl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 2 — ETag (no TTL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mode-3-last-modified-no-ttl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 3 — Last-Modified (no TTL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mode-4-etag-or-last-modified-ttl-combined" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mode 4 — ETag or Last-Modified + TTL (combined)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-revalidate-flag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The revalidate flag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-decision-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache decision flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Auth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oauth2-client-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OAuth2 Client Credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async Requests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gzip-compression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gzip Compression
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connection-pooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection Pooling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opentelemetry-tracing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenTelemetry Tracing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OpenTelemetry Tracing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#minimal-stdout-setup-for-local-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal stdout setup (for local development)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-otlp-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common OTLP environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rfc-7807-problem-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RFC 7807 Problem Details
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#built-in-mock-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in Mock Server
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Built-in Mock Server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mock-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mock fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simulating-caching-headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulating caching headers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simulating-etag-revalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulating ETag revalidation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-mock-cli-flag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the -mock CLI flag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-mocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing mocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmarks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benchmarks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        License
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="go-restclient">go-restclient</h1>
+<blockquote>
+<p>A high-performance, feature-rich HTTP client for Go — with smart caching, OAuth2, async requests, OpenTelemetry tracing, and a built-in mock server.</p>
+</blockquote>
+<p><a href="https://pkg.go.dev/github.com/arielsrv/go-restclient"><img alt="Go Reference" src="https://pkg.go.dev/badge/github.com/arielsrv/go-restclient.svg" /></a>
+<a href="https://go.dev/"><img alt="Go Version" src="https://img.shields.io/github/go-mod/go-version/arielsrv/go-restclient" /></a>
+<a href="https://github.com/arielsrv/go-restclient/actions/workflows/go.yml"><img alt="Build Status" src="https://github.com/arielsrv/go-restclient/actions/workflows/go.yml/badge.svg" /></a>
+<a href="https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml"><img alt="Lint Status" src="https://github.com/arielsrv/go-restclient/actions/workflows/lint.yml/badge.svg" /></a>
+<a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
+<img alt="Coverage" src="https://img.shields.io/badge/Coverage-98.8%25-brightgreen" /></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#features">Features</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#client-configuration">Client Configuration</a></li>
+<li><a href="#http-methods-response-handling">HTTP Methods &amp; Response Handling</a></li>
+<li><a href="#caching-how-it-works">Caching — How It Works</a></li>
+<li><a href="#authentication">Authentication</a></li>
+<li><a href="#async-requests">Async Requests</a></li>
+<li><a href="#gzip-compression">Gzip Compression</a></li>
+<li><a href="#connection-pooling">Connection Pooling</a></li>
+<li><a href="#opentelemetry-tracing">OpenTelemetry Tracing</a></li>
+<li><a href="#rfc-7807-problem-details">RFC 7807 Problem Details</a></li>
+<li><a href="#built-in-mock-server">Built-in Mock Server</a></li>
+<li><a href="#benchmarks">Benchmarks</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#contributing">Contributing</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<hr />
+<h2 id="features">Features</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>What you get</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HTTP Methods</strong></td>
+<td><code>GET</code> <code>POST</code> <code>PUT</code> <code>PATCH</code> <code>DELETE</code> <code>HEAD</code> <code>OPTIONS</code> — sync and async variants, all with <code>WithContext</code> support</td>
+</tr>
+<tr>
+<td><strong>Smart Caching</strong></td>
+<td>TTL via <code>Cache-Control</code> / <code>Expires</code>, ETag + Last-Modified revalidation, Ristretto LFU backend, weak-pointer GC safety</td>
+</tr>
+<tr>
+<td><strong>Content Types</strong></td>
+<td>JSON, XML, <code>application/x-www-form-urlencoded</code> — auto-detect on response via <code>Content-Type</code> header</td>
+</tr>
+<tr>
+<td><strong>Authentication</strong></td>
+<td>Basic Auth and OAuth2 Client Credentials (header, params, or auto-detect style)</td>
+</tr>
+<tr>
+<td><strong>Async Requests</strong></td>
+<td>Channel-based async API — non-blocking, buffered, closed automatically</td>
+</tr>
+<tr>
+<td><strong>Gzip</strong></td>
+<td><code>EnableGzip</code> flag — adds <code>Accept-Encoding: gzip</code> and decompresses transparently</td>
+</tr>
+<tr>
+<td><strong>Connection Pooling</strong></td>
+<td>Shared default transport or per-client <code>CustomPool</code> with proxy support</td>
+</tr>
+<tr>
+<td><strong>OpenTelemetry</strong></td>
+<td><code>EnableTrace</code> — integrates <code>otelhttp</code> + <code>otelhttptrace</code> for full span propagation</td>
+</tr>
+<tr>
+<td><strong>RFC 7807</strong></td>
+<td>Automatic <code>application/problem+json</code> / <code>application/problem+xml</code> deserialization</td>
+</tr>
+<tr>
+<td><strong>Mock Server</strong></td>
+<td>Built-in <code>StartMockupServer()</code> / <code>AddMockups()</code> for unit testing without real HTTP</td>
+</tr>
+<tr>
+<td><strong>Concurrency</strong></td>
+<td>Thread-safe — mutex-protected client initialization, sync-atomic cache flags</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Requires Go 1.23+</strong> (uses the <code>weak</code> package for GC-safe cache pointers)</p>
+</blockquote>
+<hr />
+<h2 id="installation">Installation</h2>
+<pre><code class="language-bash">go get github.com/arielsrv/go-restclient
+</code></pre>
+<hr />
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="using-the-package-level-default-client">Using the package-level default client</h3>
+<pre><code class="language-go">package main
+
+import (
+    &quot;fmt&quot;
+    &quot;github.com/arielsrv/go-restclient/rest&quot;
+)
+
+type User struct {
+    ID   int    `json:&quot;id&quot;`
+    Name string `json:&quot;name&quot;`
+}
+
+func main() {
+    response := rest.Get(&quot;https://gorest.co.in/public/v2/users/1&quot;)
+    if response.Err != nil {
+        panic(response.Err)
+    }
+
+    var user User
+    if err := response.FillUp(&amp;user); err != nil {
+        panic(err)
+    }
+    fmt.Printf(&quot;User: %+v\n&quot;, user)
+}
+</code></pre>
+<h3 id="using-a-custom-client">Using a custom <code>Client</code></h3>
+<pre><code class="language-go">client := &amp;rest.Client{
+    Name:        &quot;my-service&quot;,
+    BaseURL:     &quot;https://api.example.com&quot;,
+    ContentType: rest.JSON,
+    Timeout:     2 * time.Second,
+    EnableCache: true,
+}
+
+// Typed deserialization using generics
+response := client.GetWithContext(ctx, &quot;/users/1&quot;)
+user, err := rest.Deserialize[User](response)
+</code></pre>
+<hr />
+<h2 id="client-configuration">Client Configuration</h2>
+<pre><code class="language-go">client := &amp;rest.Client{
+    // Identity
+    Name:    &quot;my-service&quot;,        // label used in metrics; defaults to hostname
+    BaseURL: &quot;https://api.example.com&quot;,
+
+    // Timeouts
+    Timeout:        2 * time.Second,  // response-header timeout (default: 500ms)
+    ConnectTimeout: 5 * time.Second,  // TCP dial timeout (default: 1500ms)
+    DisableTimeout: false,            // set true to disable all timeouts
+
+    // Encoding
+    ContentType: rest.JSON,   // rest.JSON | rest.XML | rest.FORM
+
+    // Features
+    EnableCache:    true,   // enable HTTP response caching
+    EnableGzip:     true,   // send Accept-Encoding: gzip, decompress response
+    EnableTrace:    true,   // enable OpenTelemetry tracing
+    FollowRedirect: true,   // follow 3xx redirects (default: false)
+    UserAgent:      &quot;MyApp/1.0&quot;,
+
+    // Authentication (mutually exclusive — OAuth takes precedence)
+    BasicAuth: &amp;rest.BasicAuth{
+        Username: &quot;user&quot;,
+        Password: &quot;pass&quot;,
+    },
+    OAuth: &amp;rest.OAuth{
+        ClientID:     &quot;client_id&quot;,
+        ClientSecret: &quot;client_secret&quot;,
+        TokenURL:     &quot;https://auth.example.com/token&quot;,
+        Scopes:       []string{&quot;read&quot;, &quot;write&quot;},
+        AuthStyle:    rest.AuthStyleInHeader, // AuthStyleAutoDetect | AuthStyleInHeader | AuthStyleInParams
+    },
+
+    // Default headers applied to every request
+    DefaultHeaders: http.Header{
+        &quot;X-Tenant-ID&quot;: {&quot;acme-corp&quot;},
+    },
+
+    // Custom connection pool (optional)
+    CustomPool: &amp;rest.CustomPool{
+        MaxIdleConnsPerHost: 100,
+        Proxy:               &quot;http://proxy.internal:8080&quot;,
+    },
+}
+</code></pre>
+<h3 id="configuration-reference">Configuration reference</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Name</code></td>
+<td><code>string</code></td>
+<td>hostname</td>
+<td>Identifier used in Prometheus metrics</td>
+</tr>
+<tr>
+<td><code>BaseURL</code></td>
+<td><code>string</code></td>
+<td><code>""</code></td>
+<td>Prefix prepended to every request URL</td>
+</tr>
+<tr>
+<td><code>Timeout</code></td>
+<td><code>Duration</code></td>
+<td>500ms</td>
+<td>Response-header read timeout</td>
+</tr>
+<tr>
+<td><code>ConnectTimeout</code></td>
+<td><code>Duration</code></td>
+<td>1500ms</td>
+<td>TCP dial timeout</td>
+</tr>
+<tr>
+<td><code>DisableTimeout</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Disables all timeouts</td>
+</tr>
+<tr>
+<td><code>ContentType</code></td>
+<td><code>ContentType</code></td>
+<td><code>JSON</code></td>
+<td>Default body encoding for requests</td>
+</tr>
+<tr>
+<td><code>EnableCache</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Enables HTTP response caching</td>
+</tr>
+<tr>
+<td><code>EnableGzip</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Enables gzip compression</td>
+</tr>
+<tr>
+<td><code>EnableTrace</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Enables OpenTelemetry tracing</td>
+</tr>
+<tr>
+<td><code>FollowRedirect</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Follows 3xx redirects automatically</td>
+</tr>
+<tr>
+<td><code>UserAgent</code></td>
+<td><code>string</code></td>
+<td><code>go-restclient/…</code></td>
+<td>Custom <code>User-Agent</code> header</td>
+</tr>
+<tr>
+<td><code>BasicAuth</code></td>
+<td><code>*BasicAuth</code></td>
+<td><code>nil</code></td>
+<td>Basic Auth credentials</td>
+</tr>
+<tr>
+<td><code>OAuth</code></td>
+<td><code>*OAuth</code></td>
+<td><code>nil</code></td>
+<td>OAuth2 Client Credentials config</td>
+</tr>
+<tr>
+<td><code>DefaultHeaders</code></td>
+<td><code>http.Header</code></td>
+<td><code>nil</code></td>
+<td>Headers applied to every request</td>
+</tr>
+<tr>
+<td><code>CustomPool</code></td>
+<td><code>*CustomPool</code></td>
+<td><code>nil</code></td>
+<td>Per-client transport / connection pool</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="http-methods-response-handling">HTTP Methods &amp; Response Handling</h2>
+<h3 id="synchronous">Synchronous</h3>
+<pre><code class="language-go">// Read
+resp := client.Get(&quot;/users&quot;)
+resp := client.GetWithContext(ctx, &quot;/users&quot;, optionalHeaders...)
+resp := client.Head(&quot;/users&quot;)
+resp := client.Options(&quot;/users&quot;)
+
+// Write
+resp := client.Post(&quot;/users&quot;, body)
+resp := client.Put(&quot;/users/1&quot;, body)
+resp := client.Patch(&quot;/users/1&quot;, partial)
+resp := client.Delete(&quot;/users/1&quot;)
+</code></pre>
+<h3 id="working-with-response">Working with <code>*Response</code></h3>
+<pre><code class="language-go">// Check for transport error
+if resp.Err != nil { ... }
+
+// Check HTTP status (2xx–3xx)
+if !resp.IsOk() { ... }
+
+// Unified error check (transport + status)
+if err := resp.VerifyIsOkOrError(); err != nil { ... }
+
+// Deserialize body (auto-detects Content-Type)
+var user User
+resp.FillUp(&amp;user)
+
+// Generic helper
+user, err := rest.Deserialize[User](resp)
+
+// Raw body
+fmt.Println(resp.String())
+
+// Was this served from cache?
+fmt.Println(resp.Cached())
+
+// RFC 7807 problem (populated automatically)
+fmt.Println(resp.Problem)
+
+// Full request+response dump for debugging
+fmt.Println(resp.Debug())
+</code></pre>
+<hr />
+<h2 id="caching-how-it-works">Caching — How It Works</h2>
+<p>Set <code>EnableCache: true</code> on the client. Only read operations (<code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code>) are cached.</p>
+<p>The cache backend is <a href="https://github.com/dgraph-io/ristretto">Ristretto</a> — an LFU cache with TTL
+support and weak-pointer entries so that the GC can reclaim memory when the system is under
+pressure. The default maximum size is <strong>256 MB</strong> (configurable via <code>rest.MaxCacheSize</code>).</p>
+<pre><code class="language-go">client := &amp;rest.Client{
+    EnableCache: true,
+}
+</code></pre>
+<h3 id="caching-modes">Caching modes</h3>
+<p>The behavior depends entirely on which HTTP cache headers the <strong>server</strong> returns.</p>
+<hr />
+<h4 id="mode-1-ttl-cache-control-max-age-or-expires">Mode 1 — TTL (<code>Cache-Control: max-age</code> or <code>Expires</code>)</h4>
+<pre><code class="language-text">Server response headers:
+  Cache-Control: max-age=60
+  (or)
+  Expires: Mon, 21 Apr 2026 12:00:00 GMT
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Request</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1st</td>
+<td>Hits the server → response stored with TTL</td>
+</tr>
+<tr>
+<td>2nd … Nth (within TTL)</td>
+<td>Served <strong>directly from cache</strong> — no network call</td>
+</tr>
+<tr>
+<td>After TTL expires</td>
+<td>Cache entry evicted → fresh request to the server</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Best for</strong>: static or slowly-changing resources. Zero network overhead within the TTL window.</p>
+</blockquote>
+<hr />
+<h4 id="mode-2-etag-no-ttl">Mode 2 — ETag (no TTL)</h4>
+<pre><code class="language-text">Server response headers:
+  ETag: &quot;abc123&quot;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Request</th>
+<th>What the client sends</th>
+<th>Server responds</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1st</td>
+<td>—</td>
+<td><code>200</code> + <code>ETag: "v1"</code></td>
+<td>Cached with <code>revalidate=true</code></td>
+</tr>
+<tr>
+<td>2nd</td>
+<td><code>If-None-Match: "v1"</code></td>
+<td><code>304 Not Modified</code></td>
+<td>Cached response returned — no body transfer</td>
+</tr>
+<tr>
+<td>2nd (content changed)</td>
+<td><code>If-None-Match: "v1"</code></td>
+<td><code>200</code> + <code>ETag: "v2"</code></td>
+<td>Cache <strong>force-updated</strong> with new response</td>
+</tr>
+<tr>
+<td>3rd (after update)</td>
+<td><code>If-None-Match: "v2"</code></td>
+<td><code>304 Not Modified</code></td>
+<td>Updated cached response returned</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Key property</strong>: every request hits the network for a cheap conditional check
+(<code>304</code> means no body is transferred). If the content has changed, the new response
+always replaces the stale one.</p>
+</blockquote>
+<hr />
+<h4 id="mode-3-last-modified-no-ttl">Mode 3 — Last-Modified (no TTL)</h4>
+<p>Same as Mode 2 but uses <code>If-Modified-Since</code> / <code>Last-Modified</code> headers instead of <code>If-None-Match</code> / <code>ETag</code>.</p>
+<hr />
+<h4 id="mode-4-etag-or-last-modified-ttl-combined">Mode 4 — ETag or Last-Modified + TTL (combined)</h4>
+<p>Within the TTL window, requests are served from cache with <strong>no network call</strong> (same as Mode 1).
+After the TTL expires, the cache entry is evicted and a fresh conditional request is made using
+<code>If-None-Match</code> or <code>If-Modified-Since</code>.</p>
+<hr />
+<h3 id="the-revalidate-flag">The <code>revalidate</code> flag</h3>
+<p>Internally, responses are marked with <code>revalidate = true</code> when they carry an ETag or Last-Modified
+but <strong>no</strong> TTL. This flag tells the client to always go to the network for a conditional check
+rather than returning the cached entry directly.</p>
+<h3 id="cache-decision-flow">Cache decision flow</h3>
+<pre><code class="language-text">GET /resource
+     │
+     ▼
+ Cache hit?
+     │
+   ──┴──
+  No    Yes
+  │      │
+  │    revalidate=false? ──► return cached response
+  │      │
+  │    revalidate=true
+  │      │
+  │      ▼
+  │   Send conditional request (If-None-Match / If-Modified-Since)
+  │      │
+  │   ───┴───────────────────
+  │   304              200
+  │   │                │
+  │   return        force-update cache
+  │   cached        return new response
+  │   response
+  │
+  ▼
+Send fresh request → cache response → return
+</code></pre>
+<hr />
+<h2 id="authentication">Authentication</h2>
+<h3 id="basic-auth">Basic Auth</h3>
+<pre><code class="language-go">client := &amp;rest.Client{
+    BasicAuth: &amp;rest.BasicAuth{
+        Username: &quot;alice&quot;,
+        Password: &quot;s3cr3t&quot;,
+    },
+}
+</code></pre>
+<h3 id="oauth2-client-credentials">OAuth2 Client Credentials</h3>
+<pre><code class="language-go">client := &amp;rest.Client{
+    OAuth: &amp;rest.OAuth{
+        ClientID:     &quot;my-client&quot;,
+        ClientSecret: &quot;my-secret&quot;,
+        TokenURL:     &quot;https://auth.example.com/oauth/token&quot;,
+        Scopes:       []string{&quot;api:read&quot;},
+        AuthStyle:    rest.AuthStyleInHeader,
+        // EndpointParams: url.Values{&quot;audience&quot;: {&quot;https://api.example.com&quot;}},
+    },
+}
+</code></pre>
+<blockquote>
+<p>OAuth2 takes precedence over Basic Auth. The library handles token acquisition and refresh automatically using <code>golang.org/x/oauth2</code>.</p>
+</blockquote>
+<hr />
+<h2 id="async-requests">Async Requests</h2>
+<p>Every HTTP method has an async variant that returns a <code>&lt;-chan *Response</code>. The channel is buffered (size 1) and closed automatically after the response is sent.</p>
+<pre><code class="language-go">ch := client.AsyncGet(&quot;/users&quot;)
+
+// Do other work here...
+
+resp := &lt;-ch
+if resp.Err != nil {
+    // handle error
+}
+
+var users []User
+resp.FillUp(&amp;users)
+</code></pre>
+<pre><code class="language-go">// Multiple concurrent requests
+ch1 := client.AsyncGetWithContext(ctx, &quot;/users&quot;)
+ch2 := client.AsyncGetWithContext(ctx, &quot;/products&quot;)
+
+users, _ := rest.Deserialize[[]User](&lt;-ch1)
+products, _ := rest.Deserialize[[]Product](&lt;-ch2)
+</code></pre>
+<hr />
+<h2 id="gzip-compression">Gzip Compression</h2>
+<pre><code class="language-go">client := &amp;rest.Client{
+    EnableGzip: true,
+}
+
+// The client automatically:
+// 1. Adds &quot;Accept-Encoding: gzip&quot; to every request
+// 2. Decompresses gzip responses transparently
+resp := client.Get(&quot;/large-dataset&quot;)
+</code></pre>
+<p>You can also send the header manually per-request if you prefer not to enable it globally:</p>
+<pre><code class="language-go">headers := http.Header{&quot;Accept-Encoding&quot;: {&quot;gzip&quot;}}
+resp := client.GetWithContext(ctx, &quot;/data&quot;, headers)
+</code></pre>
+<hr />
+<h2 id="connection-pooling">Connection Pooling</h2>
+<p>By default, all <code>Client</code> instances share a single <code>*http.Transport</code> (the global default pool). If you need per-client isolation, a custom pool, or a proxy:</p>
+<pre><code class="language-go">client := &amp;rest.Client{
+    CustomPool: &amp;rest.CustomPool{
+        MaxIdleConnsPerHost: 100,
+        Proxy:               &quot;http://proxy.internal:3128&quot;,
+    },
+}
+</code></pre>
+<p>Or bring your own transport:</p>
+<pre><code class="language-go">client := &amp;rest.Client{
+    CustomPool: &amp;rest.CustomPool{
+        Transport: &amp;http.Transport{
+            MaxIdleConns:        200,
+            MaxConnsPerHost:     200,
+            MaxIdleConnsPerHost: 200,
+            IdleConnTimeout:     90 * time.Second,
+        },
+    },
+}
+</code></pre>
+<hr />
+<h2 id="opentelemetry-tracing">OpenTelemetry Tracing</h2>
+<p>Set <code>EnableTrace: true</code> and the client will:</p>
+<ul>
+<li>Hook into <code>net/http/httptrace</code> to create OTel spans for DNS, connect, TLS, and request/response lifecycle events</li>
+<li>Use the incoming <code>ctx</code> to propagate the active span, so HTTP client spans become children of your service spans automatically</li>
+</ul>
+<pre><code class="language-go">client := &amp;rest.Client{
+    Name:        &quot;my-service&quot;,
+    EnableTrace: true,
+}
+
+// Initialize your TracerProvider before making requests
+// (see examples/trace/main.go for a full OTLP setup)
+resp := client.GetWithContext(ctx, &quot;https://api.example.com/data&quot;)
+</code></pre>
+<h3 id="minimal-stdout-setup-for-local-development">Minimal stdout setup (for local development)</h3>
+<pre><code class="language-go">import (
+    &quot;go.opentelemetry.io/otel&quot;
+    &quot;go.opentelemetry.io/otel/exporters/stdout/stdouttrace&quot;
+    sdktrace &quot;go.opentelemetry.io/otel/sdk/trace&quot;
+)
+
+func initTracing() func(context.Context) error {
+    exp, _ := stdouttrace.New(stdouttrace.WithPrettyPrint())
+    tp := sdktrace.NewTracerProvider(sdktrace.WithBatcher(exp))
+    otel.SetTracerProvider(tp)
+    return tp.Shutdown
+}
+</code></pre>
+<h3 id="common-otlp-environment-variables">Common OTLP environment variables</h3>
+<pre><code class="language-bash">export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+export OTEL_SERVICE_NAME=my-service
+export OTEL_RESOURCE_ATTRIBUTES=deployment.environment=local
+</code></pre>
+<hr />
+<h2 id="rfc-7807-problem-details">RFC 7807 Problem Details</h2>
+<p>If a response has a <code>Content-Type</code> of <code>application/problem+json</code> or <code>application/problem+xml</code>, the library automatically deserializes the body into <code>response.Problem</code>:</p>
+<pre><code class="language-go">resp := client.Get(&quot;/resource&quot;)
+
+if resp.Problem != nil {
+    fmt.Printf(&quot;type:   %s\n&quot;, resp.Problem.Type)
+    fmt.Printf(&quot;title:  %s\n&quot;, resp.Problem.Title)
+    fmt.Printf(&quot;detail: %s\n&quot;, resp.Problem.Detail)
+    fmt.Printf(&quot;status: %d\n&quot;, resp.Problem.Status)
+}
+</code></pre>
+<p>The <code>Problem</code> struct follows <a href="https://datatracker.ietf.org/doc/html/rfc7807">RFC 7807</a> and supports both JSON and XML formats.</p>
+<hr />
+<h2 id="built-in-mock-server">Built-in Mock Server</h2>
+<p>The library ships with a complete HTTP mock server, designed for unit testing — no real network calls required.</p>
+<h3 id="basic-usage">Basic usage</h3>
+<pre><code class="language-go">func TestMyClient(t *testing.T) {
+    rest.StartMockupServer()
+    defer rest.StopMockupServer()
+
+    err := rest.AddMockups(&amp;rest.Mock{
+        URL:          &quot;https://api.example.com/users/1&quot;,
+        HTTPMethod:   http.MethodGet,
+        RespHTTPCode: http.StatusOK,
+        RespBody:     `{&quot;id&quot;:1,&quot;name&quot;:&quot;Alice&quot;}`,
+        RespHeaders:  http.Header{&quot;Content-Type&quot;: {&quot;application/json&quot;}},
+    })
+    require.NoError(t, err)
+
+    client := &amp;rest.Client{Name: &quot;test&quot;}
+    resp := client.Get(&quot;https://api.example.com/users/1&quot;)
+
+    require.NoError(t, resp.Err)
+    require.Equal(t, http.StatusOK, resp.StatusCode)
+    require.Equal(t, `{&quot;id&quot;:1,&quot;name&quot;:&quot;Alice&quot;}`, resp.String())
+}
+</code></pre>
+<h3 id="mock-fields">Mock fields</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>URL</code></td>
+<td><code>string</code></td>
+<td>Full URL to match (query params are order-normalized)</td>
+</tr>
+<tr>
+<td><code>HTTPMethod</code></td>
+<td><code>string</code></td>
+<td>HTTP method to match (<code>http.MethodGet</code>, etc.)</td>
+</tr>
+<tr>
+<td><code>RespHTTPCode</code></td>
+<td><code>int</code></td>
+<td>Status code to return</td>
+</tr>
+<tr>
+<td><code>RespBody</code></td>
+<td><code>string</code></td>
+<td>Response body</td>
+</tr>
+<tr>
+<td><code>RespHeaders</code></td>
+<td><code>http.Header</code></td>
+<td>Response headers</td>
+</tr>
+<tr>
+<td><code>ReqHeaders</code></td>
+<td><code>http.Header</code></td>
+<td>Expected request headers (informational)</td>
+</tr>
+<tr>
+<td><code>ReqBody</code></td>
+<td><code>string</code></td>
+<td>Expected request body (informational)</td>
+</tr>
+<tr>
+<td><code>Timeout</code></td>
+<td><code>time.Duration</code></td>
+<td>Simulate a slow/timeout response</td>
+</tr>
+</tbody>
+</table>
+<h3 id="simulating-caching-headers">Simulating caching headers</h3>
+<pre><code class="language-go">rest.AddMockups(&amp;rest.Mock{
+    URL:          &quot;https://api.example.com/data&quot;,
+    HTTPMethod:   http.MethodGet,
+    RespHTTPCode: http.StatusOK,
+    RespBody:     `{&quot;version&quot;:1}`,
+    RespHeaders: http.Header{
+        &quot;Content-Type&quot;:  {&quot;application/json&quot;},
+        &quot;Cache-Control&quot;: {&quot;max-age=60&quot;},
+    },
+})
+</code></pre>
+<h3 id="simulating-etag-revalidation">Simulating ETag revalidation</h3>
+<pre><code class="language-go">// First call: return 200 + ETag
+rest.AddMockups(&amp;rest.Mock{
+    URL:          &quot;https://api.example.com/resource&quot;,
+    HTTPMethod:   http.MethodGet,
+    RespHTTPCode: http.StatusOK,
+    RespBody:     `{&quot;version&quot;:1}`,
+    RespHeaders:  http.Header{&quot;ETag&quot;: {&quot;v1&quot;}, &quot;Content-Type&quot;: {&quot;application/json&quot;}},
+})
+
+client := &amp;rest.Client{EnableCache: true}
+r1 := client.Get(&quot;https://api.example.com/resource&quot;) // 200, cached
+
+// Replace mock to simulate 304
+rest.FlushMockups()
+rest.AddMockups(&amp;rest.Mock{
+    URL:          &quot;https://api.example.com/resource&quot;,
+    HTTPMethod:   http.MethodGet,
+    RespHTTPCode: http.StatusNotModified,
+})
+
+r2 := client.Get(&quot;https://api.example.com/resource&quot;) // served from cache
+fmt.Println(r2.Cached()) // true
+</code></pre>
+<h3 id="using-the-mock-cli-flag">Using the <code>-mock</code> CLI flag</h3>
+<pre><code class="language-bash">go test -mock ./...
+</code></pre>
+<h3 id="managing-mocks">Managing mocks</h3>
+<pre><code class="language-go">rest.FlushMockups()       // clear all registered mocks
+rest.StopMockupServer()   // stop the server and reset state
+</code></pre>
+<hr />
+<h2 id="benchmarks">Benchmarks</h2>
+<p>All benchmarks run against an <strong>in-process <code>httptest.Server</code></strong> (zero external network latency)
+on an Apple M1 Pro. Source: <a href="https://github.com/arielsrv/go-restclient/blob/main/rest/benchmark_compare_test.go"><code>rest/benchmark_compare_test.go</code></a>.</p>
+<pre><code class="language-bash">go test ./rest/... -bench=. -benchmem -benchtime=5s -count=1 -run=^$
+</code></pre>
+<h3 id="results">Results</h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Library</th>
+<th style="text-align: right;">ns/op</th>
+<th style="text-align: right;">B/op</th>
+<th style="text-align: right;">allocs/op</th>
+<th>vs resty</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plain GET</td>
+<td><strong>go-restclient</strong></td>
+<td style="text-align: right;"><strong>47,888</strong></td>
+<td style="text-align: right;"><strong>8,452</strong></td>
+<td style="text-align: right;"><strong>85</strong></td>
+<td><strong>+1.7% faster, −7% memory, −7 allocs</strong></td>
+</tr>
+<tr>
+<td>Plain GET</td>
+<td>resty/v2</td>
+<td style="text-align: right;">48,700</td>
+<td style="text-align: right;">9,821</td>
+<td style="text-align: right;">91</td>
+<td>baseline</td>
+</tr>
+<tr>
+<td>Cached GET (TTL)</td>
+<td><strong>go-restclient</strong></td>
+<td style="text-align: right;"><strong>125</strong></td>
+<td style="text-align: right;"><strong>55</strong></td>
+<td style="text-align: right;"><strong>1</strong></td>
+<td><strong>390× faster, −99.4% memory</strong></td>
+</tr>
+<tr>
+<td>Cached GET (TTL)</td>
+<td>resty/v2 <em>(no cache)</em></td>
+<td style="text-align: right;">49,509</td>
+<td style="text-align: right;">9,913</td>
+<td style="text-align: right;">92</td>
+<td>baseline</td>
+</tr>
+<tr>
+<td>Slow GET (100 ms)</td>
+<td><strong>go-restclient</strong></td>
+<td style="text-align: right;">101,574,787</td>
+<td style="text-align: right;"><strong>10,173</strong></td>
+<td style="text-align: right;"><strong>87</strong></td>
+<td><strong>−16% memory, −6 allocs</strong></td>
+</tr>
+<tr>
+<td>Slow GET (100 ms)</td>
+<td>resty/v2</td>
+<td style="text-align: right;">101,422,116</td>
+<td style="text-align: right;">12,153</td>
+<td style="text-align: right;">93</td>
+<td>baseline</td>
+</tr>
+</tbody>
+</table>
+<h3 id="takeaways">Takeaways</h3>
+<ul>
+<li><strong>Plain GET</strong>: go-restclient is faster <strong>and</strong> uses less memory. Savings come from
+  eliminating a redundant <code>url.Parse</code> + <code>fmt.Sprintf</code>, caching per-request header
+  <code>[]string</code> allocations, and inlining the hot path.</li>
+<li><strong>Cached GET (TTL)</strong>: once a response is cached, subsequent reads cost only <strong>125 ns</strong>
+  and <strong>55 B</strong> — a <strong>390× speedup</strong> over resty's uncached call. resty has no built-in
+  HTTP cache.</li>
+<li><strong>Slow GET</strong>: when the bottleneck is handler latency (100 ms), both libraries perform
+  identically in time. go-restclient still wins on memory (−16%) and allocations (−6).</li>
+</ul>
+<hr />
+<h2 id="examples">Examples</h2>
+<p>The <code>examples/</code> directory contains runnable programs for every major feature:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/basic/main.go"><code>basic/</code></a></td>
+<td>Simple JSON GET + POST</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/generics/main.go"><code>generics/</code></a></td>
+<td>Typed deserialization with <code>rest.Deserialize[T]</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/etag/main.go"><code>etag/</code></a></td>
+<td>ETag revalidation — unchanged (304) and content-changed (200 → force-update)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/html/main.go"><code>html/</code></a></td>
+<td>Caching with <code>Last-Modified</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/gzip/main.go"><code>gzip/</code></a></td>
+<td>Gzip transparent decompression</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/gzip_headers/main.go"><code>gzip_headers/</code></a></td>
+<td>Per-request <code>Accept-Encoding</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/oauth/main.go"><code>oauth/</code></a></td>
+<td>OAuth2 Client Credentials (mock token server + mock API)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/dfltheaders/main.go"><code>dfltheaders/</code></a></td>
+<td>Default + per-request headers</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/headers/main.go"><code>headers/</code></a></td>
+<td>Custom headers</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/xml/main.go"><code>xml/</code></a></td>
+<td>XML content type</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/form/main.go"><code>form/</code></a></td>
+<td><code>application/x-www-form-urlencoded</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/bytes/main.go"><code>bytes/</code></a></td>
+<td>Binary upload / large downloads</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/binary_download/main.go"><code>binary_download/</code></a></td>
+<td>Download a file to disk</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/str/main.go"><code>str/</code></a></td>
+<td>Raw string response handling</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/patch_options/main.go"><code>patch_options/</code></a></td>
+<td>PATCH and OPTIONS verbs</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/redirect/main.go"><code>redirect/</code></a></td>
+<td>Redirect handling</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/timeout/main.go"><code>timeout/</code></a></td>
+<td>Timeout configuration</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/ioc/main.go"><code>ioc/</code></a></td>
+<td>Dependency injection pattern</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/mock/main.go"><code>mock/</code></a></td>
+<td>Mock server usage</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/iterator/main.go"><code>iterator/</code></a></td>
+<td>Async/iterator pattern</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/problem/main.go"><code>problem/</code></a></td>
+<td>RFC 7807 problem details (auto-deserialized from <code>application/problem+json</code>)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/metrics/main.go"><code>metrics/</code></a></td>
+<td>Prometheus metrics — starts an HTTP server on <code>:8081</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/arielsrv/go-restclient/blob/main/examples/trace/main.go"><code>trace/</code></a></td>
+<td>OpenTelemetry tracing — starts an HTTP server on <code>:8081</code></td>
+</tr>
+</tbody>
+</table>
+<p>Run any example:</p>
+<pre><code class="language-bash">go run examples/basic/main.go
+go run examples/etag/main.go
+ENV=local APP_NAME=example go run examples/metrics/main.go
+</code></pre>
+<hr />
+<h2 id="contributing">Contributing</h2>
+<p>Issues and pull requests are welcome. Please make sure all tests pass before submitting:</p>
+<pre><code class="language-bash">go test ./rest/... -count=1
+</code></pre>
+<hr />
+<h2 id="license">License</h2>
+<p>MIT — see <a href="https://github.com/arielsrv/go-restclient/blob/main/LICENSE">LICENSE</a> for details.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
