@@ -3,7 +3,7 @@ module github.com/arielsrv/go-restclient/examples
 go 1.27.0
 
 require (
-	github.com/arielsrv/go-restclient v1.4.2
+	github.com/arielsrv/go-restclient v1.4.4
 	github.com/prometheus/client_golang v1.24.1
 )
 
