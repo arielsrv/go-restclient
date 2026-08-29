@@ -317,10 +317,12 @@ func TestRequestSendingClientMetrics(t *testing.T) {
 }
 
 func TestResponseExceedsConnectTimeout(t *testing.T) {
-	restClient := rest.Client{CustomPool: &rest.CustomPool{}}
-	restClient.ConnectTimeout = 1 * time.Nanosecond
-	restClient.Timeout = 35 * time.Millisecond
-	restClient.ContentType = rest.JSON
+	restClient := rest.Client{
+		CustomPool:     &rest.CustomPool{},
+		ConnectTimeout: 1 * time.Nanosecond,
+		Timeout:        35 * time.Millisecond,
+		ContentType:    rest.JSON,
+	}
 
 	scuResponse := restClient.Get(server.URL + "/cache/slow/user")
 
@@ -338,10 +340,12 @@ func TestResponseExceedsConnectTimeout(t *testing.T) {
 }
 
 func TestResponseExceedsRequestTimeout(t *testing.T) {
-	restClient := rest.Client{CustomPool: &rest.CustomPool{Transport: &http.Transport{}}}
-	restClient.ConnectTimeout = 10 * time.Millisecond
-	restClient.Timeout = 1 * time.Millisecond
-	restClient.ContentType = rest.JSON
+	restClient := rest.Client{
+		CustomPool:     &rest.CustomPool{Transport: &http.Transport{}},
+		ConnectTimeout: 10 * time.Millisecond,
+		Timeout:        1 * time.Millisecond,
+		ContentType:    rest.JSON,
+	}
 
 	response := restClient.Get(server.URL + "/slow/user")
 
@@ -361,10 +365,12 @@ func TestResponseExceedsRequestTimeout(t *testing.T) {
 }
 
 func TestResponse_InvalidContentType(t *testing.T) {
-	restClient := rest.Client{CustomPool: &rest.CustomPool{Transport: &http.Transport{}}}
-	restClient.ConnectTimeout = 35 * time.Millisecond
-	restClient.Timeout = 9 * time.Millisecond
-	restClient.ContentType = 4
+	restClient := rest.Client{
+		CustomPool:     &rest.CustomPool{Transport: &http.Transport{}},
+		ConnectTimeout: 35 * time.Millisecond,
+		Timeout:        9 * time.Millisecond,
+		ContentType:    4,
+	}
 
 	resp := restClient.Post(server.URL+"/users", map[string]any{})
 	require.Error(t, resp.VerifyIsOkOrError())
@@ -379,10 +385,11 @@ func TestResponseExceedsRequestOAuth(t *testing.T) {
 			TokenURL:     server.URL + "/auth/token",
 			AuthStyle:    rest.AuthStyleInHeader,
 		},
+
+		ConnectTimeout: 1000 * time.Millisecond,
+		Timeout:        2000 * time.Millisecond,
+		ContentType:    rest.JSON,
 	}
-	restClient.ConnectTimeout = 1000 * time.Millisecond
-	restClient.Timeout = 2000 * time.Millisecond
-	restClient.ContentType = rest.JSON
 
 	suResponse := restClient.Get(server.URL + "/auth")
 
